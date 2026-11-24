@@ -1,0 +1,56 @@
+name: AH 113 scan
+# Checks Horde AH 113 (WoW Forever, US, PvP) a few times an hour; when Blizzard has a new snapshot it builds the
+# report, updates the web page and edits the Discord post. Price history is kept in the "data" release (state.zip).
+on:
+  schedule:
+    - cron: "32 * * * *"
+    - cron: "47 * * * *"
+    - cron: "5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ah113-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests pillow openpyxl
+      - name: Use Hammy's time zone (UTC-7)
+        run: tzutil /s "US Mountain Standard Time"
+      - name: Load saved price history
+        id: load
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download data --pattern state.zip --dir . --clobber
+          python cloud_state.py load
+      - name: Write settings
+        env:
+          BLIZZ_CLIENT_ID: ${{ secrets.BLIZZ_CLIENT_ID }}
+          BLIZZ_CLIENT_SECRET: ${{ secrets.BLIZZ_CLIENT_SECRET }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          PAGES_TOKEN: ${{ secrets.PAGES_TOKEN }}
+        run: |
+          python -c "import json,os; json.dump({'BLIZZ_CLIENT_ID':os.environ['BLIZZ_CLIENT_ID'],'BLIZZ_CLIENT_SECRET':os.environ['BLIZZ_CLIENT_SECRET'],'REGION':'us','NAMESPACE':'dynamic-forever-us','AUCTION_HOUSE':'113','RULESET':'1','DISCORD_WEBHOOK_URL':os.environ['DISCORD_WEBHOOK_URL'],'GITHUB_REPO':'${{ github.repository }}','GITHUB_TOKEN':os.environ['PAGES_TOKEN']}, open('config.json','w'))"
+      - name: Scan AH 113, report, web page, Discord
+        env:
+          CLOUD: "1"
+          PYTHONIOENCODING: utf-8
+        run: python -u cloud_run.py
+      - name: Save price history
+        if: always() && steps.load.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python cloud_state.py save
+          gh release upload data state.zip --clobber
