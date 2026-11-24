@@ -51,9 +51,45 @@ document.querySelectorAll('[data-iid]').forEach(td=>{
 pop.addEventListener('mouseleave',e=>{if(!pinned&&!(e.relatedTarget&&e.relatedTarget.dataset&&e.relatedTarget.dataset.iid))pop.style.display='none'});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){pinned=null;pop.style.display='none'}});
 document.addEventListener('click',e=>{if(pinned&&!pop.contains(e.target)&&!e.target.closest('[data-iid]')){pinned=null;pop.style.display='none'}});
+// each section becomes a beveled picture tile; tap it to open that section's tables
+const ART={'Flip list':['🔄','#2f81f7','#0b2a5e'],'Top daily movers':['📈','#2ea043','#0b3318'],
+  'Potential manipulation':['🕵️','#a371f7','#2a1556'],'Cooldowns':['⏳','#e3b341','#4a3205'],
+  'Raid consumables':['🐉','#f85149','#4a0d0c'],'Cooking':['🍖','#f0883e','#4a2208'],'Top crafts':['⚒️','#8b949e','#1c2128']};
+let openSet=[]; try{openSet=JSON.parse(localStorage.getItem('open')||'[]')}catch(e){}
+document.querySelectorAll('.wrap section').forEach(sec=>{
+  const sh=sec.querySelector('.sh'); if(!sh)return;
+  const name=sh.querySelector('h2').textContent.trim(), tag=(sh.querySelector('.tag')||{}).textContent||'';
+  const [icon,c1,c2]=ART[name]||['📊','#58a6ff','#0d2d5e'];
+  const body=document.createElement('div'); body.className='sb';
+  while(sh.nextSibling)body.appendChild(sh.nextSibling);
+  const t=document.createElement('button'); t.className='tile'; t.type='button';
+  t.style.setProperty('--c1',c1); t.style.setProperty('--c2',c2);
+  t.innerHTML=`<span class="bg">${icon}</span><span class="ic">${icon}</span><span class="tt">${name}</span><span class="tg">${tag}</span><span class="chev">&#9662;</span>`;
+  sh.replaceWith(t); sec.appendChild(body); sec.classList.add('card');
+  if(openSet.includes(name))sec.classList.add('open');
+  t.addEventListener('click',()=>{sec.classList.toggle('open');
+    try{const o=[...document.querySelectorAll('section.card.open .tt')].map(x=>x.textContent);localStorage.setItem('open',JSON.stringify(o))}catch(e){}});
+});
 """
 
 CSS = """
+section.card{margin:0 0 8px}
+.tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:62px;
+ padding:6px 34px;border:0;border-radius:10px;cursor:pointer;overflow:hidden;color:#fff;font:inherit;text-align:center;
+ background:linear-gradient(150deg,var(--c1),var(--c2) 75%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 0 rgba(0,0,0,.35),inset 1px 0 0 rgba(255,255,255,.12),0 3px 8px rgba(0,0,0,.5);
+ transition:transform .08s,box-shadow .08s,filter .15s}
+.tile:hover{filter:brightness(1.12)}
+.tile:active{transform:translateY(1px);box-shadow:inset 0 2px 5px rgba(0,0,0,.45),0 1px 2px rgba(0,0,0,.4)}
+.tile .bg{position:absolute;right:-6px;bottom:-14px;font-size:64px;opacity:.18;transform:rotate(-12deg);pointer-events:none}
+.tile .ic{font-size:20px;line-height:1.1}
+.tile .tt{font-size:15px;font-weight:800;letter-spacing:.02em;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.tile .tg{font-size:9px;opacity:.85;margin-top:1px}
+.tile .chev{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.8;transition:transform .2s}
+section.card.open .tile .chev{transform:translateY(-50%) rotate(180deg)}
+section.card .sb{display:none;padding:6px 2px 2px}
+section.card.open .sb{display:block}
+
 body{padding:18px}
 .wrap{max-width:1500px;margin:0 auto}
 [data-iid]{cursor:pointer;text-decoration:underline dotted #7d8692;text-underline-offset:2px}
@@ -98,7 +134,7 @@ def make(m, title, body, path):
     import onepage
     page = (f'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{title}</title><style>{onepage.CSS.replace("__ZOOM__", "1.55")}{CSS}</style></head><body><div class="wrap">'
-            f'<p class="hint">Hover over (or tap) any item name for its hour-by-hour price over the last 7 days. Click to pin it open.</p>'
+            f'<p class="hint">Tap a section to open it. Hover over (or tap) any item name for its hour-by-hour 7-day price; click to pin it open.</p>'
             f'{body}</div><div id="pop"></div>'
             f'<script type="application/json" id="series">{json.dumps(data, separators=(",", ":"))}</script>'
             f'<script>{JS}</script></body></html>')
