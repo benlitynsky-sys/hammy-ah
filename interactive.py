@@ -13,7 +13,7 @@ const pop = document.getElementById('pop');
 let pinned = null;
 function money(c){c=Math.round(c);const g=Math.floor(c/10000),s=Math.floor(c%10000/100),k=c%100;
   return g?`${g}g ${String(s).padStart(2,'0')}s`:s?`${s}s ${String(k).padStart(2,'0')}c`:`${k}c`}
-function fmt(t){return new Date(t*1000).toLocaleString([], {weekday:'short',hour:'numeric',minute:'2-digit'})}
+function fmt(t){return new Date(t*1000).toLocaleString('en-US', {timeZone:'America/Los_Angeles',weekday:'short',hour:'numeric',minute:'2-digit',hour12:true,timeZoneName:'short'})}
 function draw(iid, name, el=pop){
   const d = D[iid]; if(!d || !d.p.length){el.innerHTML=`<b>${name}</b><div class="mut">no hourly data yet</div>`;return}
   const W=560,H=210,L=52,Rt=12,T=12,B=30, t0=d.t0, t1=d.t[d.t.length-1];
@@ -23,7 +23,7 @@ function draw(iid, name, el=pop){
   for(let k=0;k<=3;k++){const v=y0+(y1-y0)*k/3; grid+=`<line x1="${L}" x2="${W-Rt}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-5}" y="${Y(v)+3}" class="ax" text-anchor="end">${money(v)}</text>`}
   const dd=new Date(t0*1000); dd.setHours(24,0,0,0);
   const nd=Math.ceil((t1-t0)/86400), st=Math.max(1,Math.ceil(nd/7)); let di=0;
-  for(let t=dd/1000;t<t1;t+=86400,di++){if(di%st)continue; days+=`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" class="dl"/><text x="${X(t)+3}" y="${H-B+13}" class="ax">${new Date(t*1000).toLocaleDateString([], nd>10?{month:'numeric',day:'numeric'}:{weekday:'short',month:'numeric',day:'numeric'})}</text>`}
+  for(let t=dd/1000;t<t1;t+=86400,di++){if(di%st)continue; days+=`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" class="dl"/><text x="${X(t)+3}" y="${H-B+13}" class="ax">${new Date(t*1000).toLocaleDateString('en-US', nd>10?{timeZone:'America/Los_Angeles',month:'numeric',day:'numeric'}:{timeZone:'America/Los_Angeles',weekday:'short',month:'numeric',day:'numeric'})}</text>`}
   const med=d.med, path=d.t.map((t,i)=>`${i&&d.t[i-1]<t-43200?'M':i?'L':'M'}${X(t).toFixed(1)},${Y(d.p[i]).toFixed(1)}`).join('');
   el.innerHTML=`<div class="ph"><b>${name}</b><span>now <b>${money(d.now||d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>
   <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${grid}${days}
