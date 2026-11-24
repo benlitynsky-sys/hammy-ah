@@ -428,8 +428,7 @@ def sec_manip(m):
             res.append(dict(iid=iid, now=now, usual=usual, q=q, uq=uq, man=m.manipulated(iid)))
     res.sort(key=lambda x: (-x["man"], -x["now"] / x["usual"]))
     rows = "".join(
-        f'<tr><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}'
-        + ('' if x["man"] else ' <span class="badge watch">Watch</span>') + '</td>'
+        f'<tr><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}'</td>'
         f'<td class="r now">{sm(x["now"])}</td><td class="r">{sm(x["usual"])}</td>'
         f'<td class="r"><b class="up">+{round((x["now"] / x["usual"] - 1) * 100)}%</b></td>'
         f'<td class="r">{x["q"]:,} <span class="mut">of {x["uq"]:,}</span></td>'
@@ -443,8 +442,7 @@ def sec_manip(m):
             '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>'
             '<div class="fn"><span class="badge manip">Manipulated</span> over 2x usual with under 40% of the usual listings - '
-            'sell into it, don&rsquo;t buy, it usually falls back once people relist. '
-            '<span class="badge watch">Watch</span> 30%+ over usual with stock down 40%+ - may be the start of a buyout.</div></section>')
+            'sell into it, don&rsquo;t buy, it usually falls back once people relist.</div></section>')
 
 
 def DURABLE_IDS(m):
