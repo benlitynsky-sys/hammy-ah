@@ -179,10 +179,15 @@ def archived_rows(iids, before):
     return out
 
 
+def _noname(m, i):
+    n = m.name(i)
+    return n.isdigit() or n.startswith("item ")
+
+
 def write_lookup(m, path):
     """lookup.json for the search tile: every named item's hourly price (archive + working file).
     {"h0": first hour, "n": {id: name}, "g": [gear ids], "s": {id: {"h": hour offsets, "p": prices, "q": listed}}}"""
-    named = {i for i in set(m.rows_long) if not m.name(i).isdigit()}
+    named = {i for i in set(m.rows_long) if not _noname(m, i)}
     old = archived_rows(sorted(named), min((v[0][0] for v in m.rows_long.values() if v), default=m.last))
     series = {}
     for i in named:
@@ -195,7 +200,7 @@ def write_lookup(m, path):
     gear = {}
     try:   # gear / one-off items: lowest buyout each hour
         for ts, i, mn, n in m.con.execute("SELECT ts, item_id, min_buyout, auctions FROM gearsnap WHERE ts >= ?", (m.t0_long,)):
-            if i in series or not mn or m.name(i).isdigit():
+            if i in series or not mn or _noname(m, i):
                 continue
             gear.setdefault(i, {})[ts // 3600] = (mn, n)
     except Exception:
