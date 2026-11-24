@@ -87,9 +87,11 @@ def make(m, title, body, path):
         ps = [sorted(v[0] for v in hours[h])[len(hours[h]) // 2] for h in t]
         med = sorted(ps)[len(ps) // 2]
         # drop one-hour listing gaps, but always keep the latest scan so "now" matches the report (a fresh spike is real)
-        keep = [i for i, p in enumerate(ps) if 0.4 * med <= p <= 2.5 * med or (i == len(ps) - 1 and hours[t[i]][-1][1] >= 20)]
-        data[iid] = {"t0": t[0] * 3600, "t": [hours[t[i]][-1][2] for i in keep], "p": [ps[i] for i in keep],
-                     "q": [hours[t[i]][-1][1] for i in keep], "med": med, "now": m.ah(iid)[0] or ps[-1]}
+        keep = [i for i, p in enumerate(ps[:-1]) if 0.4 * med <= p <= 2.5 * med] + [len(ps) - 1]
+        now = m.ah(iid)[0] or ps[-1]    # same price the report shows (a lone silly ask is replaced by the usual price)
+        data[iid] = {"t0": t[0] * 3600, "t": [hours[t[i]][-1][2] for i in keep],
+                     "p": [ps[i] for i in keep[:-1]] + [now],
+                     "q": [hours[t[i]][-1][1] for i in keep], "med": med, "now": now}
     import onepage
     page = (f'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{title}</title><style>{onepage.CSS.replace("__ZOOM__", "1.55")}{CSS}</style></head><body><div class="wrap">'
