@@ -1,0 +1,73 @@
+profession,from,to,crafts,recipe
+Alchemy,1,60,62,Elixir of Minor Defense
+Alchemy,1,60,62,Minor Arcane Elixir
+Alchemy,1,60,62,Elixir of Minor Force
+Alchemy,60,90,32,Elixir of Minor Agility
+Alchemy,60,90,32,Swiftness Potion
+Alchemy,90,120,32,Elixir of Wisdom
+Alchemy,120,140,22,Lesser Mana Potion
+Alchemy,140,150,11,Elixir of Lesser Agility
+Alchemy,140,150,11,Lesser Troll's Blood Elixir
+Enchanting,1,2,1,Runed Copper Rod
+Enchanting,2,50,52,Enchant Bracer - Minor Deflect
+Enchanting,2,50,52,Enchant Chest - Minor Absorption
+Enchanting,2,50,52,Lesser Magic Wand
+Enchanting,50,100,55,Enchant Bracer - Minor Stamina
+Enchanting,50,100,55,Enchant Cloak - Minor Protection
+Enchanting,100,101,1,Runed Silver Rod
+Enchanting,101,110,10,Greater Magic Wand
+Enchanting,110,135,27,Enchant Cloak - Minor Agility
+Enchanting,135,150,16,Enchant Bracer - Lesser Stamina
+Enchanting,135,150,16,Enchant Boots - Lesser Agility
+Cooking,1,50,58,Charred Wolf Meat
+Cooking,1,50,58,Herb Baked Egg
+Cooking,1,50,58,Roasted Boar Meat
+Cooking,1,50,58,Spiced Wolf Meat
+Cooking,50,90,48,Boiled Clams
+Cooking,50,90,48,Crab Cake
+Cooking,90,130,48,Crocolisk Steak
+Cooking,90,130,48,Seasoned Wolf Kabob
+Cooking,90,130,48,Redridge Goulash
+Cooking,130,150,24,Curiously Tasty Omelet
+Cooking,130,150,24,Hot Lion Chops
+Blacksmithing,1,25,25,Rough Sharpening Stone
+Blacksmithing,25,45,20,Rough Grinding Stone
+Blacksmithing,45,75,32,Copper Chain Belt
+Blacksmithing,75,80,5,Coarse Grinding Stone
+Blacksmithing,80,100,22,Runed Copper Belt
+Blacksmithing,100,105,5,Silver Rod
+Blacksmithing,105,125,22,Rough Bronze Leggings
+Blacksmithing,125,150,28,Heavy Grinding Stone
+Blacksmithing,125,150,28,Patterned Bronze Bracers
+Tailoring,1,45,45,Bolt of Linen Cloth
+Tailoring,45,70,28,Linen Bag
+Tailoring,70,75,5,Reinforced Linen Cape
+Tailoring,75,105,32,Bolt of Woolen Cloth
+Tailoring,105,110,5,Gray Woolen Shirt
+Tailoring,110,125,16,Double-stitched Woolen Shoulders
+Tailoring,125,145,22,Bolt of Silk Cloth
+Tailoring,145,150,5,Azure Silk Hood
+Leatherworking,1,30,32,Light Armor Kit
+Leatherworking,30,45,16,Cured Light Hide
+Leatherworking,45,55,11,Embossed Leather Vest
+Leatherworking,55,85,32,Embossed Leather Gloves
+Leatherworking,85,100,16,Fine Leather Belt
+Leatherworking,100,120,22,Medium Armor Kit
+Leatherworking,100,120,22,Cured Medium Hide
+Leatherworking,120,150,32,Dark Leather Belt
+Leatherworking,120,150,32,Hillman's Shoulders
+Engineering,1,30,32,Rough Blasting Powder
+Engineering,30,50,22,Handful of Copper Bolts
+Engineering,50,51,1,Arclight Spanner
+Engineering,51,65,15,Copper Tube
+Engineering,65,75,10,Rough Boomstick
+Engineering,75,95,22,Coarse Blasting Powder
+Engineering,95,105,10,Silver Contact
+Engineering,105,120,16,Bronze Tube
+Engineering,120,125,5,Small Bronze Bomb
+Engineering,125,150,28,Heavy Blasting Powder
+Engineering,125,150,28,Whirring Bronze Gizmo
+First Aid,1,40,45,Linen Bandage
+First Aid,40,80,45,Heavy Linen Bandage
+First Aid,80,115,40,Wool Bandage
+First Aid,115,150,40,Heavy Wool Bandage
