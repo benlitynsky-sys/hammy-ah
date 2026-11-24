@@ -516,7 +516,7 @@ def sec_cooking(m):
     rows = "".join(f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}</td><td class="r">{sm(x["now"])}</td>'
                    f'<td class="r">{x["qty"]}</td>{vc(m, x["oid"])}<td class="r">{pc(x["farm"])}</td><td class="r">{pc(x["buy"])}</td>'
                    f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in res[:TOP_COOK])
-    return ('<section><div class="sh"><span class="no">7</span><h2>Cooking</h2>'
+    return ('<section><div class="sh"><span class="no">6</span><h2>Cooking</h2>'
             f'<span class="tag">top {TOP_COOK} recipes by profit each, after the 5% cut</span></div>'
             '<table class="g"><thead><tr><th>Makes</th><th class="r">Sells</th><th class="r">Listed</th><th class="r">Sold/day</th>'
             '<th class="r">Farm mats</th><th class="r">Buy mats</th><th>Mats (* = farm or buy, rest from a vendor)</th></tr></thead>'
@@ -565,7 +565,7 @@ def sec_crafts(m, shown=()):
                    f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in res)
     if not rows:
         rows = '<tr><td colspan="8" class="mut">nothing profitable right now</td></tr>'
-    return ('<section><div class="sh"><span class="no">8</span><h2>Top crafts</h2>'
+    return ('<section><div class="sh"><span class="no">7</span><h2>Top crafts</h2>'
             f'<span class="tag">top {TOP_CRAFTS} profession crafts by profit, buying all mats - nothing already listed above</span></div>'
             '<table class="g"><thead><tr><th>Makes</th><th>Profession</th><th class="r">Sells</th><th class="r">Listed</th>'
             '<th class="r">Sold/day</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>'
@@ -818,7 +818,7 @@ def snapshot(pdf):
     return png
 
 
-PIC_GROUPS = [(0, 1, 2), (3,), (4,), (5, 6, 7)]   # sections per Discord picture: flips+movers+manipulation, cooldowns, raid, campfire+cooking
+PIC_GROUPS = [(0, 1, 2), (3,), (4,), (5, 6)]   # sections per Discord picture: flips+movers+manipulation, cooldowns, raid, campfire+cooking
 
 
 def snapshot_parts(pdf, body):
@@ -890,7 +890,7 @@ def build():
                                 f'<span class="dn">&#9660; red = dipped: its lowest price</span> &middot; grey = near usual')
             + LEGEND
             + sec_flips(m, skip, cols) + sec_movers(m) + sec_manip(m) + sec_cooldowns(m, cds, cols)
-            + sec_raid(m, cols, skip) + sec_campfire(m)
+            + sec_raid(m, cols, skip)
             + sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
     body += sec_crafts(m, {int(i) for i in re.findall(r'data-iid="(\d+)"', body)})
     body = re.sub(r'(<td class="nm[^"]*" data-iid="(\d+)">.*?)(</td>)',   # "Manipulated" badge on bought-out items
@@ -907,7 +907,9 @@ def build():
         print(f"interactive page failed: {e}")
     # profession routes: its own page
     title2 = f"Hammy's {when} Profession Routes 1-150"
-    routes = render(title2, header(title2, last, "cheapest route at current prices") + sec_leveling(m))
+    routes = render(title2, re.sub(r'<div class="fn">(?:(?!</?div).)*</div>', '',
+                                   header(title2, last, "cheapest route at current prices") + sec_leveling(m)
+                                   + sec_campfire(m).replace('<span class="no">6</span>', ''), flags=re.S))   # campfire drops at the bottom of the routes page
     for p in (market, routes):
         try:
             snapshot(p)
