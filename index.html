@@ -64,8 +64,12 @@ section.card{margin:0 0 8px}
 .tile .tg{font-size:9px;opacity:.85;margin-top:1px}
 .tile .chev{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.8;transition:transform .2s}
 section.card.open .tile .chev{transform:translateY(-50%) rotate(180deg)}
-section.card .sb{display:none;padding:6px 2px 2px}
-section.card.open .sb{display:block}
+section.card .sb{height:0;overflow:hidden;opacity:0;transition:height .35s ease,opacity .3s ease}
+section.card.open .sb{opacity:1}
+section.card .sb>*:first-child{margin-top:6px}
+.tile::after{content:"";position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.tile.flash::after{animation:flash .45s ease-out}
+@keyframes flash{0%{opacity:.55}100%{opacity:0}}
 
 body{padding:18px}
 .wrap{max-width:1500px;margin:0 auto}
@@ -141,8 +145,15 @@ document.querySelectorAll('.wrap section').forEach(sec=>{
   t.style.setProperty('--c1',c1); t.style.setProperty('--c2',c2);
   t.innerHTML=`<span class="bg">${icon}</span><span class="ic">${icon}</span><span class="tt">${name}</span><span class="tg">${tag}</span><span class="chev">&#9662;</span>`;
   sh.replaceWith(t); sec.appendChild(body); sec.classList.add('card');
-  if(openSet.includes(name))sec.classList.add('open');
-  t.addEventListener('click',()=>{sec.classList.toggle('open');
-    try{const o=[...document.querySelectorAll('section.card.open .tt')].map(x=>x.textContent);localStorage.setItem('open',JSON.stringify(o))}catch(e){}});
+  if(openSet.includes(name)){sec.classList.add('open');body.style.height='auto'}
+  t.addEventListener('click',()=>{
+    t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash');   // quick flash on press
+    const opening=!sec.classList.contains('open');
+    body.style.height=(opening?0:body.scrollHeight)+'px';
+    if(opening)sec.classList.add('open');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{body.style.height=(opening?body.scrollHeight:0)+'px'}));
+    body.addEventListener('transitionend',function done(e){if(e.target!==body||e.propertyName!=='height')return;body.removeEventListener('transitionend',done);
+      if(opening)body.style.height='auto';else sec.classList.remove('open')});
+    setTimeout(()=>{try{const o=[...document.querySelectorAll('section.card.open .tt')].map(x=>x.textContent);localStorage.setItem('open',JSON.stringify(o))}catch(e){}},450)});
 });
 </script></body></html>
