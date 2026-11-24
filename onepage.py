@@ -784,7 +784,7 @@ def build():
                   lambda x: x.group(1) + (' <span class="badge manip">Manipulated</span>' if m.manipulated(int(x.group(2))) else '')
                   + price_badge(m, int(x.group(2))) + x.group(3), body)   # price badges on every item in every section
     body = re.sub(r'<td class="(nm[^"]*)"([^>]*>(?:(?!</td>).)*?class="badge )',   # name cells with a badge may wrap so the badge isn't cut off
-                  r'<td class=" hb"', body)
+                  r'<td class="\1 hb"\2', body)
     market = render(title, body)
     try:   # web-page version: hover an item for its hour-by-hour 7-day chart
         import interactive
