@@ -94,8 +94,9 @@ section.card{margin:0 0 8px}
 .tile .tg{font-size:9px;opacity:.85;margin-top:1px}
 .tile .chev{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.8;transition:transform .2s}
 section.card.open .tile .chev{transform:translateY(-50%) rotate(180deg)}
-section.card .sb{height:0;overflow:hidden;opacity:0;transition:height .35s ease,opacity .3s ease}
+section.card .sb{height:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;opacity:0;transition:height .35s ease,opacity .3s ease}
 section.card.open .sb{opacity:1}
+section.card .sb .g td.nm{position:sticky;left:0;z-index:1;background:var(--bg);box-shadow:4px 0 6px -4px rgba(0,0,0,.8)}
 section.card .sb>*:first-child{margin-top:6px}
 .tile::after{content:"";position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 .tile.flash::after{animation:flash .45s ease-out}
