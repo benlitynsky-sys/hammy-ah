@@ -287,6 +287,33 @@ def vc(m, iid):
     return '<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>'
 
 
+TOP_MOVERS = 10
+
+
+def sec_movers(m):
+    """Top daily movers: the 10 goods with the most gold changing hands in the last 24 hours (units sold x price)."""
+    res = []
+    for iid in m.rows:
+        if m.name(iid).isdigit():
+            continue
+        sold = sold_day(m, iid, 24)
+        now, q = m.ah(iid)
+        if sold and now:
+            res.append(dict(iid=iid, sold=sold, gold=sold * now, now=now, q=q))
+    res.sort(key=lambda x: -x["gold"])
+    rows = "".join(
+        f'<tr><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}</td><td class="r now">{sm(x["now"])}</td>'
+        f'<td class="r"><b>{R.chg(m.change_24h(x["iid"]))}</b></td><td class="r">{x["sold"]:,.0f}</td>'
+        + (f'<td class="r"><b>{x["gold"] / 10000:,.0f}g</b></td>' if x["gold"] >= 1e7 else f'<td class="r"><b>{sm(x["gold"])}</b></td>')
+        + f'<td class="r">{x["q"]:,}</td>{vc(m, x["iid"])}</tr>'
+        for x in res[:TOP_MOVERS])
+    return ('<section><div class="sh"><span class="no">1</span><h2>Top daily movers</h2>'
+            '<span class="tag">most gold traded in the last 24 hours (estimated)</span></div>'
+            '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">24h</th><th class="r">Sold (24h)</th>'
+            '<th class="r">Gold traded (24h)</th><th class="r">Listed</th><th class="r">Sold/day (3d)</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></section>')
+
+
 def sec_raid(m, cols, skip):
     cons, mats, unlisted = [], defaultdict(set), []
     for r in csv.DictReader(open(os.path.join(HERE, "raid_consumes.csv"), encoding="utf-8")):
@@ -372,7 +399,7 @@ def sec_flips(m, skip, cols):
                     f'{hilo_cells(m, x["iid"], cols)}</tr>')
     if not rows:
         rows.append(f'<tr><td colspan="{5 + 2 * len(cols)}" class="mut">Nothing passes yet.</td></tr>')
-    return ('<section><div class="sh"><span class="no">1</span><h2>Flip list</h2>'
+    return ('<section><div class="sh"><span class="no">7</span><h2>Flip list</h2>'
             '<span class="tag">40s+ each, 1g+ per stack, up &amp; down every day</span></div>'
             f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day", "r")], cols, cols[-1])}<tbody>'
             + "".join(rows) + '</tbody></table></section>')
@@ -749,9 +776,10 @@ def build():
                                 f'<span class="up">&#9650; green = spiked: its highest price</span> &middot; '
                                 f'<span class="dn">&#9660; red = dipped: its lowest price</span> &middot; grey = near usual')
             + LEGEND
-            + sec_flips(m, skip, cols) + sec_manip(m) + sec_cooldowns(m, cds, cols)
+            + sec_movers(m) + sec_manip(m) + sec_cooldowns(m, cds, cols)
             + sec_raid(m, cols, skip) + sec_campfire(m)
-            + sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
+            + sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>")
+            + sec_flips(m, skip, cols))
     body = re.sub(r'(<td class="nm[^"]*" data-iid="(\d+)">.*?)(</td>)',   # "Manipulated" badge on bought-out items
                   lambda x: x.group(1) + (' <span class="badge manip">Manipulated</span>' if m.manipulated(int(x.group(2))) else '')
                   + price_badge(m, int(x.group(2))) + x.group(3), body)   # price badges on every item in every section
