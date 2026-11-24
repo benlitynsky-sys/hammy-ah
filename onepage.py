@@ -282,6 +282,20 @@ def sold_day(m, iid, hours=72):
     return sum(sold) / len(sold) * 24
 
 
+def listed_day(m, iid, hours=72):
+    """Estimated units newly put up per day over the last 3 days: stock change scan to scan plus what left (sold) in between."""
+    rows = [x for x in m.rows.get(iid, []) if x[0] >= m.last - hours * 3600]
+    if len(rows) < 6:
+        return None
+    new = [max(0, q - pq + (s or 0)) for (_, _, pq, _), (_, _, q, s) in zip(rows, rows[1:])]
+    return sum(new) / len(new) * 24
+
+
+def lc(m, iid):
+    v = listed_day(m, iid)
+    return '<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>'
+
+
 def vc(m, iid):
     v = sold_day(m, iid)
     return '<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>'
@@ -305,12 +319,12 @@ def sec_movers(m):
         f'<tr><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}</td><td class="r now">{sm(x["now"])}</td>'
         f'<td class="r"><b>{R.chg(m.change_24h(x["iid"]))}</b></td><td class="r">{x["sold"]:,.0f}</td>'
         + (f'<td class="r"><b>{x["gold"] / 10000:,.0f}g</b></td>' if x["gold"] >= 1e7 else f'<td class="r"><b>{sm(x["gold"])}</b></td>')
-        + f'<td class="r">{x["q"]:,}</td>{vc(m, x["iid"])}</tr>'
+        + f'<td class="r">{x["q"]:,}</td>{vc(m, x["iid"])}{lc(m, x["iid"])}</tr>'
         for x in res[:TOP_MOVERS])
     return ('<section><div class="sh"><span class="no">1</span><h2>Top daily movers</h2>'
             '<span class="tag">most gold traded in the last 24 hours (estimated)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">24h</th><th class="r">Sold (24h)</th>'
-            '<th class="r">Gold traded (24h)</th><th class="r">Listed</th><th class="r">Sold/day (3d)</th></tr></thead>'
+            '<th class="r">Gold traded (24h)</th><th class="r">Listed</th><th class="r">Sold/day (3d)</th><th class="r">Listed/day (3d)</th></tr></thead>'
             f'<tbody>{rows}</tbody></table></section>')
 
 
