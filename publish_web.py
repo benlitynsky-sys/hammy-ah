@@ -46,6 +46,6 @@ def publish(html_path):
 
 
 if __name__ == "__main__":
-    newest = max(glob.glob(os.path.join(HERE, "output", "*Market Report Interactive.html")), key=os.path.getmtime)
+    newest = max(glob.glob(os.path.join(HERE, "output", "*Interactive.html")), key=os.path.getmtime)
     url, msg = publish(newest)
     print(msg, url or "")
