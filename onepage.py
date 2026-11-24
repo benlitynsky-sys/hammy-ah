@@ -375,14 +375,7 @@ def sec_flips(m, skip, cols):
     return ('<section><div class="sh"><span class="no">1</span><h2>Flip list</h2>'
             '<span class="tag">40s+ each, 1g+ per stack, up &amp; down every day</span></div>'
             f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day", "r")], cols, cols[-1])}<tbody>'
-            + "".join(rows) + '</tbody></table>'
-            f'<div class="fn">Each listed item went up, down and up again (7%+ moves) on every day scanned. '
-            f'Certified flip = 3+ green/red/green (or red/green/red) streaks across the half-days in the last 7 days; '
-            f'Price badges (Buy / Moving down / Moving up / Sell) are explained at the top. Tools are left out - a character only ever buys one, so their price only jumps on buyouts. '
-            f'Only items where a full stack flips for 1g+ profit (buy near the daily low, sell near the daily high, after the 5% cut) make the list, best first. '
-            f'24h = price change since this time yesterday. Sold/day = estimated units bought per day over the last 3 days (listings that disappeared before expiring; mass pull-outs ignored). '
-            f'Now is <span class="up">green</span> when it&rsquo;s near the daily low (buy) and <span class="dn">red</span> near the daily high (sell). Cooldown items are in section 2.</div>'
-            '</section>')
+            + "".join(rows) + '</tbody></table></section>')
 
 
 MANIP_MIN = 500   # 5s usual price - ignore trash
