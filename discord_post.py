@@ -51,7 +51,7 @@ def summary(market_html):
     if manip:
         lines.append("Manipulated (bought out - sell into it, don't buy): " + ", ".join(manip))
     where = " (runs in the cloud)" if os.environ.get("CLOUD") else ""
-    lines.append(f"_updates every hour{where} - last edit {datetime.now():%a %I:%M %p}_")
+    lines.append(f"_updates every hour{where} - last edit {__import__('report').pacific(fmt='%a {h}:%M %p')}_")
     return "\n".join(lines)
 
 
