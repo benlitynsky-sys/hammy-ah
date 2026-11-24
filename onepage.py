@@ -20,6 +20,7 @@ import report as R
 
 HERE = R.HERE
 DAYS = 7
+PRICE_BADGES = [(1.20, "sell", "Sell"), (1.10, "mup", "Moving up"), (0.80, "buy", "Buy"), (0.90, "mdn", "Moving down")]
 POT_DIP = 0.85         # Potential flip only when the price is at least 15% under its weekly usual
 FLIP_MIN = 4000          # 40s
 FLIP_SWING = 0.07        # a leg must be 7%+ to count (what a flip needs to beat the 5% cut)
@@ -355,18 +356,18 @@ def sec_flips(m, skip, cols):
                         stack=stack, per_stack=profit * stack))
     for x in res:
         x["rank"], x["status"], x["streaks"] = flip_status(m, x["iid"], cols)
-        x["badge"] = ("nope", "pot", "cert")[x["rank"]]
-        if x["rank"] and x["now"] and x["now"] > x["usual"] * 1.03:   # flips, but it's pricey right now - wait for the dip
-            x["rank"], x["status"], x["badge"] = 0.5, "Above usual price", "wait"
-        elif x["rank"] == 1 and not (x["now"] and x["now"] <= x["usual"] * POT_DIP):   # potential only when it's 15%+ under its weekly usual
-            x["rank"], x["status"], x["badge"] = 0.4, "Waiting for dip", "dip"
+        x["badge"] = ("", "pot", "cert")[x["rank"]]
+        if x["rank"] == 1 and not (x["now"] and x["now"] <= x["usual"] * POT_DIP):   # potential only when it's 15%+ under its weekly usual
+            x["rank"], x["badge"] = 0.4, ""
+        if not x["badge"]:
+            x["status"] = ""
     res.sort(key=lambda x: (-x["rank"], -x["per_stack"]))
     rows = []
     for x in res[:TOP_FLIPS]:
         pos = (x["now"] - x["lo"]) / max(1, x["hi"] - x["lo"]) if x["now"] else 0.5
         zone = "up" if pos <= 0.3 else "dn" if pos >= 0.7 else ""
         badge = x["badge"]
-        rows.append(f'<tr class="row-{badge}"><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))} <span class="badge {badge}">{x["status"]}</span></td><td class="r now {zone}">{sm(x["now"])}</td>'
+        rows.append(f'<tr class="row-{badge}"><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}{f' <span class="badge {badge}">{x["status"]}</span>' if badge else ''}</td><td class="r now {zone}">{sm(x["now"])}</td>'
                     f'<td class="r"><b>{R.chg(m.change_24h(x["iid"]))}</b></td><td class="r">{x["qty"]}</td>{vc(m, x["iid"])}'
                     f'{hilo_cells(m, x["iid"], cols)}</tr>')
     if not rows:
@@ -377,7 +378,7 @@ def sec_flips(m, skip, cols):
             + "".join(rows) + '</tbody></table>'
             f'<div class="fn">Each listed item went up, down and up again (7%+ moves) on every day scanned. '
             f'Certified flip = 3+ green/red/green (or red/green/red) streaks across the half-days in the last 7 days; '
-            f'Potential flip = at least 1 streak in the last 3 days and priced 15%+ under its weekly usual right now (a buy); Waiting for dip = it has a streak but isn&rsquo;t 15% under its usual yet; Above usual price = it flips, but right now it&rsquo;s priced above its usual: sell any you have, and buy on tomorrow&rsquo;s dip; Not flippable yet = no streak. Tools are left out - a character only ever buys one, so their price only jumps on buyouts. '
+            f'Potential flip = at least 1 streak in the last 3 days and priced 15%+ under its weekly usual right now. Price badges (Buy / Moving down / Moving up / Sell) are explained at the top. Tools are left out - a character only ever buys one, so their price only jumps on buyouts. '
             f'Only items where a full stack flips for 1g+ profit (buy near the daily low, sell near the daily high, after the 5% cut) make the list, best first. '
             f'24h = price change since this time yesterday. Sold/day = estimated units bought per day over the last 3 days (listings that disappeared before expiring; mass pull-outs ignored). '
             f'Now is <span class="up">green</span> when it&rsquo;s near the daily low (buy) and <span class="dn">red</span> near the daily high (sell). Cooldown items are in section 2.</div>'
@@ -510,7 +511,7 @@ def sec_camp_cooking(m):
     def nm(iid, extra=""):
         n = m.name(iid)
         return (f'<td class="nm" data-iid="{iid}">{R.esc(n)}{extra}'
-                + (' <span class="badge cert">BUY</span>' if n in buys else '') + '</td>')
+                + (' <span class="badge tgt">Buy target</span>' if n in buys else '') + '</td>')
     rows = []
     for r in sorted((r for r in m.recipes if r["prof"] == "Cooking" and (r.get("category") or "") == "Camping" and r.get("item_id")),
                     key=lambda r: -(usual(r["item_id"]) or 0)):
@@ -543,7 +544,20 @@ def sec_camp_cooking(m):
             f'<tbody>{"".join(rows)}{"".join(wood)}</tbody></table>'
             '<div class="fn">Profit each = AH price after the 5% cut minus buying the mats at today&rsquo;s cheapest. '
             'Thick Logs cost about 20g at cooking supply vendors - more than a kit sells for - so only AH logs under ~15g pay. '
-            '<span class="badge cert">BUY</span> = at or under the buy target (Thick Logs 13g, Expert Campfire Kit 15g).</div>')
+            '<span class="badge tgt">Buy target</span> = at or under the buy target (Thick Logs 13g, Expert Campfire Kit 15g).</div>')
+
+
+def price_badge(m, iid):
+    """Where the price is now vs its weekly usual (median of the last 7 days, listing gaps removed)."""
+    s = [p for _, p in clean(m, iid)]
+    now = m.ah(iid)[0]
+    if len(s) < 15 or not now:
+        return ""
+    r = now / statistics.median(s)
+    for lo, cls, label in PRICE_BADGES:
+        if (lo >= 1 and r >= lo) or (lo < 1 and r <= lo):
+            return f' <span class="badge {cls}">{label}</span>'
+    return ""
 
 
 def flip_badge(m, iid, cols):
@@ -553,10 +567,8 @@ def flip_badge(m, iid, cols):
     if not rank or len(s) < 15 or statistics.median(s) < FLIP_MIN:
         return ""
     now = m.ah(iid)[0]
-    if now and now > statistics.median(s) * 1.03:
-        return ' <span class="badge wait">Above usual price</span>'
     if rank == 1 and not (now and now <= statistics.median(s) * POT_DIP):
-        return ' <span class="badge dip">Waiting for dip</span>'
+        return ""
     return f' <span class="badge {("", "pot", "cert")[rank]}">{status}</span>'
 
 
@@ -650,7 +662,7 @@ table.g{width:100%;border-collapse:collapse}
 .g .first{border-left:1px solid var(--rule)}
 .g .ar{font-size:.8em;margin-left:1px}
 .badge{border-radius:3px;padding:0 3px;font-weight:700;white-space:nowrap}
-.badge.cert{background:#238636;color:#fff}.badge.pot{background:#d29922;color:#1b1300}.badge.wait{background:#1f6feb;color:#fff}.row-wait td{background:#0f1d33}.badge.dip{background:#3a3220;color:#e3b341}.badge.nope{background:#2a3038;color:#9aa3ad}.badge.manip{background:#8957e5;color:#fff}.sub{font-size:1em;margin:8px 0 3px;color:var(--ink)}.badge.watch{background:#3d2a5c;color:#d2b8ff}
+.badge.cert{background:#1f6feb;color:#fff}.badge.pot{background:#0d2d5e;color:#79c0ff;box-shadow:inset 0 0 0 1px #388bfd}.badge.buy{background:#238636;color:#fff}.badge.sell{background:#da3633;color:#fff}.badge.mup{background:#db6d28;color:#fff}.badge.mdn{background:#d29922;color:#1b1300}.badge.tgt{background:#2ea043;color:#fff}.legend{margin:0 0 8px;padding:5px 8px;border:1px solid #2a3038;border-radius:6px;line-height:1.9}.badge.wait{background:#1f6feb;color:#fff}.row-wait td{background:#0f1d33}.badge.dip{background:#3a3220;color:#e3b341}.badge.nope{background:#2a3038;color:#9aa3ad}.badge.manip{background:#8957e5;color:#fff}.sub{font-size:1em;margin:8px 0 3px;color:var(--ink)}.badge.watch{background:#3d2a5c;color:#d2b8ff}
 .row-cert td{background:#12261a}.row-pot td{background:#2a2410}
 .g th.dh{text-align:center;border-left:1px solid var(--rule);border-bottom:none;color:var(--ink);text-transform:none;letter-spacing:0}
 .g .in{padding-left:9px;color:var(--ink2)}
@@ -713,6 +725,17 @@ def snapshot(pdf):
     return png
 
 
+LEGEND = ('<div class="legend"><b>Badges</b> (price now vs its weekly usual): '
+          '<span class="badge buy">Buy</span> 20%+ under usual &middot; '
+          '<span class="badge mdn">Moving down</span> 10-20% under &middot; '
+          '<span class="badge mup">Moving up</span> 10-20% over &middot; '
+          '<span class="badge sell">Sell</span> 20%+ over &middot; no badge = near usual<br>'
+          '<span class="badge manip">Manipulated</span> not a normal swing: someone bought out the cheap stock - the price is real now but '
+          'artificial; sell into it, don&rsquo;t buy &middot; '
+          '<span class="badge cert">Certified flip</span> up &amp; down 3+ times this week &middot; '
+          '<span class="badge pot">Potential flip</span> swung in the last 3 days and 15%+ under usual now</div>')
+
+
 def header(title, last, extra):
     return (f'<header><div><h1>{title}</h1>'
             f'<div class="scope">WoW Forever - US - PvP ruleset - Horde auction house</div></div>'
@@ -733,14 +756,14 @@ def build():
     title = f"Hammy's {when} Market Report"
     body = (header(title, last, f'each day: <b>Morning</b> (12am-noon) and <b>Evening</b> (noon-12am), last {DAYS} days<br>'
                                 f'<span class="up">&#9650; green = spiked: its highest price</span> &middot; '
-                                f'<span class="dn">&#9660; red = dipped: its lowest price</span> &middot; grey = near usual<br>'
-                                f'<span class="badge manip">Manipulated</span> = someone bought out the cheap stock: price is real now but artificial - sell into it, don&rsquo;t buy')
+                                f'<span class="dn">&#9660; red = dipped: its lowest price</span> &middot; grey = near usual')
+            + LEGEND
             + sec_flips(m, skip, cols) + sec_manip(m) + sec_cooldowns(m, cds, cols)
             + sec_raid(m, cols, skip) + sec_campfire(m)
             + sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
     body = re.sub(r'(<td class="nm[^"]*" data-iid="(\d+)">.*?)(</td>)',   # "Manipulated" badge on bought-out items
                   lambda x: x.group(1) + (' <span class="badge manip">Manipulated</span>' if m.manipulated(int(x.group(2))) else '')
-                  + x.group(3), body)
+                  + price_badge(m, int(x.group(2))) + x.group(3), body)   # price badges on every item in every section
     market = render(title, body)
     try:   # web-page version: hover an item for its hour-by-hour 7-day chart
         import interactive
