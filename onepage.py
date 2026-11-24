@@ -445,7 +445,7 @@ def sec_manip(m):
         now, q = r[-1][1], r[-1][2]
         if usual < MANIP_MIN or uq < 50 or q < 20 or iid in DURABLE_IDS(m):
             continue
-        if now >= 1.99 * usual and q < 0.6 * uq:   # 99%+ over usual with stock down 40%+
+        if now >= 1.80 * usual and q < 0.6 * uq:   # 80%+ over usual with stock down 40%+
             res.append(dict(iid=iid, now=now, usual=usual, q=q, uq=uq, man=m.manipulated(iid)))
     res.sort(key=lambda x: (-x["man"], -x["now"] / x["usual"]))
     rows = "".join(
