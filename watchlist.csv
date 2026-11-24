@@ -1,0 +1,111 @@
+item_id,name,category,tier,floor_units,min_sold
+4306,Silk Cloth,cloth,mid,,
+4305,Bolt of Silk Cloth,cloth,mid,,
+4338,Mageweave Cloth,cloth,mid,,
+4339,Bolt of Mageweave,cloth,mid,,
+3182,Spider's Silk,cloth,mid,,
+4337,Thick Spider's Silk,cloth,mid,,
+2772,Iron Ore,mining,mid,,
+3575,Iron Bar,mining,mid,,
+2776,Gold Ore,mining,mid,,
+3577,Gold Bar,mining,mid,,
+3859,Steel Bar,mining,mid,,
+3858,Mithril Ore,mining,mid,,
+3860,Mithril Bar,mining,mid,,
+7911,Truesilver Ore,mining,mid,,
+6037,Truesilver Bar,mining,mid,,
+2838,Heavy Stone,mining,mid,,
+7912,Solid Stone,mining,mid,,
+2319,Medium Leather,leather,mid,,
+4234,Heavy Leather,leather,mid,,
+4235,Heavy Hide,leather,mid,,
+4304,Thick Leather,leather,mid,,
+8169,Thick Hide,leather,mid,,
+2453,Bruiseweed,herb,mid,,
+3355,Wild Steelbloom,herb,mid,,
+3369,Grave Moss,herb,mid,,
+3356,Kingsblood,herb,mid,,
+3357,Liferoot,herb,mid,,
+3818,Fadeleaf,herb,mid,,
+3821,Goldthorn,herb,mid,,
+3358,Khadgar's Whisker,herb,mid,,
+3819,Wintersbite,herb,mid,,
+3820,Stranglekelp,herb,mid,,
+4625,Firebloom,herb,mid,,
+8831,Purple Lotus,herb,mid,,
+8836,Arthas' Tears,herb,mid,,
+8838,Sungrass,herb,mid,,
+8839,Blindweed,herb,mid,,
+8845,Ghost Mushroom,herb,mid,,
+8846,Gromsblood,herb,mid,,
+8153,Wildvine,herb,mid,,
+10940,Strange Dust,enchanting,mid,,
+11083,Soul Dust,enchanting,mid,,
+11137,Vision Dust,enchanting,mid,,
+11176,Dream Dust,enchanting,mid,,
+10998,Lesser Astral Essence,enchanting,mid,,
+11082,Greater Astral Essence,enchanting,mid,,
+11134,Lesser Mystic Essence,enchanting,mid,,
+11135,Greater Mystic Essence,enchanting,mid,,
+11174,Lesser Nether Essence,enchanting,mid,,
+11175,Greater Nether Essence,enchanting,mid,5,
+11084,Large Glimmering Shard,enchanting,mid,,
+11138,Small Glowing Shard,enchanting,mid,,
+11139,Large Glowing Shard,enchanting,mid,5,
+11177,Small Radiant Shard,enchanting,mid,5,
+7067,Elemental Earth,elemental,mid,5,
+7068,Elemental Fire,elemental,mid,5,
+7069,Elemental Air,elemental,mid,5,
+7070,Elemental Water,elemental,mid,5,
+5500,Iridescent Pearl,gem,mid,,
+7971,Black Pearl,gem,mid,5,
+1529,Jade,gem,mid,,
+3864,Citrine,gem,mid,,
+7909,Aquamarine,gem,mid,,
+7910,Star Ruby,gem,mid,5,
+12363,Arcane Crystal,cooldown,endgame,3,5
+12359,Thorium Bar,cooldown,endgame,,
+10620,Thorium Ore,cooldown,endgame,,
+12360,Arcanite Bar,cooldown,endgame,2,3
+14256,Felcloth,cooldown,endgame,10,
+14342,Mooncloth,cooldown,endgame,2,3
+8150,Deeprock Salt,cooldown,endgame,,
+15409,Refined Deeprock Salt,cooldown,endgame,2,3
+8171,Rugged Hide,cooldown,endgame,5,
+15407,Cured Rugged Hide,cooldown,endgame,2,3
+15846,Salt Shaker,cooldown,endgame,1,1
+7078,Essence of Fire,cooldown,endgame,3,5
+7076,Essence of Earth,cooldown,endgame,3,5
+7080,Essence of Water,cooldown,endgame,3,5
+7082,Essence of Air,cooldown,endgame,3,5
+12803,Living Essence,cooldown,endgame,5,10
+12808,Essence of Undeath,cooldown,endgame,5,10
+251290,Legionite Bar,forever-new,endgame,2,3
+248819,Fel Crystal,forever-new,endgame,3,5
+251291,Heavy Thorium Bar,forever-new,endgame,,
+248815,Heavy Thorium Ore,forever-new,endgame,,
+249726,Azerothium Bar,forever-new,endgame,,
+20296,Green Dragonscale Gauntlets,gear,endgame,1,1
+13463,Dreamfoil,herb,endgame,,
+13465,Mountain Silversage,herb,endgame,,
+13466,Plaguebloom,herb,endgame,,
+13467,Icecap,herb,endgame,,
+13464,Golden Sansam,herb,endgame,,
+13468,Black Lotus,herb,endgame,2,3
+14047,Runecloth,cloth,endgame,,
+14048,Bolt of Runecloth,cloth,endgame,,
+8170,Rugged Leather,leather,endgame,,
+12810,Enchanted Leather,leather,endgame,5,10
+15416,Black Dragonscale,leather,endgame,5,10
+17012,Core Leather,leather,endgame,2,3
+16204,Illusion Dust,enchanting,endgame,,
+16202,Lesser Eternal Essence,enchanting,endgame,5,10
+16203,Greater Eternal Essence,enchanting,endgame,5,10
+14343,Small Brilliant Shard,enchanting,endgame,5,10
+14344,Large Brilliant Shard,enchanting,endgame,5,10
+12365,Dense Stone,mining,endgame,,
+11370,Dark Iron Ore,mining,endgame,5,10
+11371,Dark Iron Bar,mining,endgame,3,3
+12655,Enchanted Thorium Bar,mining,endgame,5,10
+12811,Righteous Orb,other,endgame,3,3
+14227,Ironweb Spider Silk,cloth,endgame,5,10
