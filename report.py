@@ -70,6 +70,9 @@ def money(c, short=False):
 
 # --------------------------------------------------------------------------- data
 
+VIEW_DAYS = 14   # day-by-day columns and charts show up to 14 days
+
+
 class Market:
     def __init__(self):
         cfg = f.load_config()
@@ -80,7 +83,11 @@ class Market:
         self.all_first = self.con.execute("SELECT min(ts) FROM allsnap").fetchone()[0]
         self.t0 = max(self.first, self.last - 7 * 86400)
         self.n_scans = self.con.execute("SELECT count(DISTINCT ts) FROM snap WHERE ts>=?", (self.t0,)).fetchone()[0]
-        self.rows = plays.load_rows(self.con, self.t0)            # {iid: [(ts, floor, qty, sold)]}
+        # 14 days are loaded for the day-by-day columns and charts; every calculation uses the last 7 (self.rows)
+        self.t0_long = max(self.first, self.last - VIEW_DAYS * 86400)
+        self.rows_long = plays.load_rows(self.con, self.t0_long)   # {iid: [(ts, floor, qty, sold)]}
+        self.rows = {i: [x for x in v if x[0] >= self.t0] for i, v in self.rows_long.items()}
+        self.rows = {i: v for i, v in self.rows.items() if v}
         self.inflated = {}   # iid -> the silly asking price ah() replaced with the typical price
         self.gear = defaultdict(list)
         try:
@@ -200,8 +207,8 @@ class Market:
                 out[iid] = out.get(iid, 0) + n * q
         return out
 
-    def series(self, iid, gear=False):
-        rows = [(ts, p) for ts, p, *_ in (self.gear if gear else self.rows).get(iid, [])]
+    def series(self, iid, gear=False, long=False):
+        rows = [(ts, p) for ts, p, *_ in (self.gear if gear else self.rows_long if long else self.rows).get(iid, [])]
         b = defaultdict(list)
         for ts, p in rows:
             b[ts // 3600].append(p)
