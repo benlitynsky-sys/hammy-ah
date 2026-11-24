@@ -818,7 +818,8 @@ def snapshot(pdf):
     return png
 
 
-PIC_GROUPS = [(0, 1, 2), (3,), (4,), (5, 6)]   # sections per Discord picture: flips+movers+manipulation, cooldowns, raid, campfire+cooking
+SECTION_ORDER = ["cooldowns", "raid", "manip", "movers", "crafts", "flips", "cooking"]
+PIC_GROUPS = [(0,), (1,), (2, 3), (4, 5), (6,)]   # sections per Discord picture, in page order   # sections per Discord picture: flips+movers+manipulation, cooldowns, raid, campfire+cooking
 
 
 def snapshot_parts(pdf, body):
@@ -888,10 +889,13 @@ def build():
     body = (header(title, last, f'each day: <b>Morning</b> (12am-noon) and <b>Evening</b> (noon-12am), last {DAYS} days<br>'
                                 f'<span class="up">&#9650; green = spiked: its highest price</span> &middot; '
                                 f'<span class="dn">&#9660; red = dipped: its lowest price</span> &middot; grey = near usual')
-            + sec_flips(m, skip, cols) + sec_movers(m) + sec_manip(m) + sec_cooldowns(m, cds, cols)
-            + sec_raid(m, cols, skip)
-            + sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
-    body += sec_crafts(m, {int(i) for i in re.findall(r'data-iid="(\d+)"', body)})
+            )
+    parts = dict(cooldowns=sec_cooldowns(m, cds, cols), raid=sec_raid(m, cols, skip), manip=sec_manip(m), movers=sec_movers(m),
+                 flips=sec_flips(m, skip, cols), cooking=sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
+    parts["crafts"] = sec_crafts(m, {int(i) for i in re.findall(r'data-iid="(\d+)"', "".join(parts.values()))})   # nothing listed elsewhere
+    body += "".join(parts[k] for k in SECTION_ORDER)
+    n = iter(range(1, 99))
+    body = re.sub(r'<span class="no">\d+</span>', lambda _: f'<span class="no">{next(n)}</span>', body)   # number in page order
     body = re.sub(r'(<td class="nm[^"]*" data-iid="(\d+)">.*?)(</td>)',   # "Manipulated" badge on bought-out items
                   lambda x: x.group(1) + (' <span class="badge manip">Manipulated</span>' if m.manipulated(int(x.group(2))) else '')
                   + price_badge(m, int(x.group(2))) + x.group(3), body)   # price badges on every item in every section
