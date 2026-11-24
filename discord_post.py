@@ -94,6 +94,9 @@ def build_and_post(new=False):
     parts = sorted(glob.glob(glob.escape(market[:-4]) + " part*.png"))
     if parts:   # readable split pictures of the market report, then the routes page
         pics = parts + pics[1:]
+    banner = os.path.join(HERE, "banner.png")
+    if os.path.exists(banner):   # the post just shows the banner - the numbers live on the web page
+        pics = [banner]
     content = summary(market.replace(".pdf", ".html"))
     web = market[:-4] + " Interactive.html"
     if os.path.exists(web):   # interactive page on GitHub Pages, linked under the summary
