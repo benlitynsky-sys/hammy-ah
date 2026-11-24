@@ -1,0 +1,17 @@
+recipe,cooldown_hours,output,output_qty,inputs,profession
+Transmute: Arcanite,47,Arcanite Bar,1,Arcane Crystal:1|Thorium Bar:1,Alchemy
+Transmute: Legionite,47,Legionite Bar,1,Heavy Thorium Bar:1|Fel Crystal:1,Alchemy
+Mooncloth,95,Mooncloth,1,Felcloth:2,Tailoring
+Salt Shaker,71,Refined Deeprock Salt,1,Deeprock Salt:1,Leatherworking
+Cured Rugged Hide,72,Cured Rugged Hide,1,Rugged Hide:1|Refined Deeprock Salt:1,Leatherworking
+Transmute: Elemental Fire,23,Elemental Fire,3,Heart of Fire:1,Alchemy
+Transmute: Water to Air,23,Essence of Air,1,Essence of Water:1,Alchemy
+Transmute: Air to Fire,23,Essence of Fire,1,Essence of Air:1,Alchemy
+Transmute: Fire to Earth,23,Essence of Earth,1,Essence of Fire:1,Alchemy
+Transmute: Earth to Water,23,Essence of Water,1,Essence of Earth:1,Alchemy
+Transmute: Life to Earth,23,Essence of Earth,1,Living Essence:1,Alchemy
+Transmute: Earth to Life,23,Living Essence,1,Essence of Earth:1,Alchemy
+Transmute: Undeath to Water,23,Essence of Water,1,Essence of Undeath:1,Alchemy
+Transmute: Water to Undeath,23,Essence of Undeath,1,Essence of Water:1,Alchemy
+Transmute: Iron to Gold,1,Gold Bar,1,Iron Bar:1,Alchemy
+Transmute: Mithril to Truesilver,1,Truesilver Bar,1,Mithril Bar:1,Alchemy
