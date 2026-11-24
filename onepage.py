@@ -810,6 +810,7 @@ def build():
     body = re.sub(r'(<td class="nm[^"]*" data-iid="(\d+)">.*?)(</td>)',   # "Manipulated" badge on bought-out items
                   lambda x: x.group(1) + (' <span class="badge manip">Manipulated</span>' if m.manipulated(int(x.group(2))) else '')
                   + price_badge(m, int(x.group(2))) + x.group(3), body)   # price badges on every item in every section
+    body = re.sub(r'<div class="fn">(?:(?!</?div).)*</div>', '', body, flags=re.S)   # no explanation notes under sections
     body = re.sub(r'<td class="(nm[^"]*)"([^>]*>(?:(?!</td>).)*?class="badge )',   # name cells with a badge may wrap so the badge isn't cut off
                   r'<td class="\1 hb"\2', body)
     market = render(title, body)
