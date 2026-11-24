@@ -12,21 +12,24 @@ sys.path.insert(0, HERE)
 
 import forever_ah as F
 
-KEEP_DAYS = 14   # the report needs 7 days; keep two weeks so the saved data stays small
+KEEP_DAYS = 13   # the working file keeps 13 days; anything older is moved to the permanent monthly archive first
 
 
 def prune(cfg):
+    """Once a day (3am), move rows older than KEEP_DAYS into the permanent archive (release "archive"), and only
+    then delete them here. If the archive upload fails nothing is deleted - it just tries again the next day."""
     con = F.db_connect(cfg, "113")
-    cut = int(time.time()) - KEEP_DAYS * 86400
-    for t in ("snap", "allsnap", "gearsnap"):
-        try:
-            con.execute(f"DELETE FROM {t} WHERE ts < ?", (cut,))
-        except Exception:
-            pass
-    con.commit()
-    if time.localtime().tm_hour == 3:   # once a day, shrink the file
-        con.execute("VACUUM")
+    oldest = con.execute("SELECT MIN(ts) FROM allsnap").fetchone()[0]
+    db = con.execute("PRAGMA database_list").fetchone()[2]
     con.close()
+    late = oldest and oldest < time.time() - (KEEP_DAYS + 2) * 86400   # missed a day or two - catch up now
+    if time.localtime().tm_hour != 3 and not late:
+        return
+    try:
+        import archive
+        print(archive.archive(cfg, db, keep_days=KEEP_DAYS))
+    except Exception as e:
+        print(f"archive failed, nothing deleted: {e}")
 
 
 def main():
