@@ -24,7 +24,7 @@ function draw(iid, name){
   const dd=new Date(t0*1000); dd.setHours(24,0,0,0);
   for(let t=dd/1000;t<t1;t+=86400){days+=`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" class="dl"/><text x="${X(t)+3}" y="${H-B+13}" class="ax">${new Date(t*1000).toLocaleDateString([], {weekday:'short',month:'numeric',day:'numeric'})}</text>`}
   const med=d.med, path=d.t.map((t,i)=>`${i&&d.t[i-1]<t-5400?'M':i?'L':'M'}${X(t).toFixed(1)},${Y(d.p[i]).toFixed(1)}`).join('');
-  pop.innerHTML=`<div class="ph"><b>${name}</b><span>now <b>${money(d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; 7-day low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>
+  pop.innerHTML=`<div class="ph"><b>${name}</b><span>now <b>${money(d.now||d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; 7-day low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>
   <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${grid}${days}
    <line x1="${L}" x2="${W-Rt}" y1="${Y(med)}" y2="${Y(med)}" class="md"/><text x="${W-Rt}" y="${Y(med)-3}" class="ax" text-anchor="end">usual</text>
    <path d="${path}" class="ln"/><g id="hv" style="display:none"><line id="hx" y1="${T}" y2="${H-B}" class="hx"/><circle id="hc" r="4" class="hc"/></g>
@@ -86,9 +86,10 @@ def make(m, title, body, path):
         t = sorted(hours)
         ps = [sorted(v[0] for v in hours[h])[len(hours[h]) // 2] for h in t]
         med = sorted(ps)[len(ps) // 2]
-        keep = [i for i, p in enumerate(ps) if 0.4 * med <= p <= 2.5 * med]   # drop one-hour listing gaps
+        # drop one-hour listing gaps, but always keep the latest scan so "now" matches the report (a fresh spike is real)
+        keep = [i for i, p in enumerate(ps) if 0.4 * med <= p <= 2.5 * med or (i == len(ps) - 1 and hours[t[i]][-1][1] >= 20)]
         data[iid] = {"t0": t[0] * 3600, "t": [hours[t[i]][-1][2] for i in keep], "p": [ps[i] for i in keep],
-                     "q": [hours[t[i]][-1][1] for i in keep], "med": med}
+                     "q": [hours[t[i]][-1][1] for i in keep], "med": med, "now": m.ah(iid)[0] or ps[-1]}
     import onepage
     page = (f'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{title}</title><style>{onepage.CSS.replace("__ZOOM__", "1.55")}{CSS}</style></head><body><div class="wrap">'
