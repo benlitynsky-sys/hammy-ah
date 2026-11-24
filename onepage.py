@@ -321,7 +321,7 @@ def sec_movers(m):
         + (f'<td class="r"><b>{x["gold"] / 10000:,.0f}g</b></td>' if x["gold"] >= 1e7 else f'<td class="r"><b>{sm(x["gold"])}</b></td>')
         + f'<td class="r">{x["q"]:,}</td>{vc(m, x["iid"])}{lc(m, x["iid"])}</tr>'
         for x in res[:TOP_MOVERS])
-    return ('<section><div class="sh"><span class="no">1</span><h2>Top daily movers</h2>'
+    return ('<section><div class="sh"><span class="no">2</span><h2>Top daily movers</h2>'
             '<span class="tag">most gold traded in the last 24 hours (estimated)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">24h</th><th class="r">Sold (24h)</th>'
             '<th class="r">Gold traded (24h)</th><th class="r">Listed</th><th class="r">Sold/day (3d)</th><th class="r">Listed/day (3d)</th></tr></thead>'
@@ -364,7 +364,7 @@ def sec_raid(m, cols, skip):
     days = (R.RAID_DAY - date.today()).days
     note = (f'<div class="fn">Top {TOP_RAID} of each: consumables ranked by craft profit, materials by price x how many raid consumes use them. '
             f'No listings yet: {R.esc(", ".join(unlisted))}.</div>')
-    return (f'<section><div class="sh"><span class="no">4</span><h2>Raid consumables</h2>'
+    return (f'<section><div class="sh"><span class="no">5</span><h2>Raid consumables</h2>'
             f'<span class="tag">{R.esc(R.RAIDS)} - Dec 9, {days} days</span></div>'
             f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("Sold/day", "r")], cols, last)}<tbody>'
             f'{rows("Consumables - most profitable to craft", cons)}{rows("Materials - most used in raid consumes", mat_ids)}'
@@ -420,7 +420,7 @@ def sec_flips(m, skip, cols):
                     f'{hilo_cells(m, x["iid"], cols)}</tr>')
     if not rows:
         rows.append(f'<tr><td colspan="{5 + 2 * len(cols)}" class="mut">Nothing passes yet.</td></tr>')
-    return ('<section><div class="sh"><span class="no">7</span><h2>Flip list</h2>'
+    return ('<section><div class="sh"><span class="no">1</span><h2>Flip list</h2>'
             '<span class="tag">40s+ each, 1g+ per stack, a real up &amp; down every day at a steady price</span></div>'
             f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day", "r")], cols, cols[-1])}<tbody>'
             + "".join(rows) + '</tbody></table></section>')
@@ -457,7 +457,7 @@ def sec_manip(m):
         for x in res[:TOP_MANIP])
     if not rows:
         rows = '<tr><td colspan="7" class="mut">nothing looks bought out right now</td></tr>'
-    return ('<section><div class="sh"><span class="no">2</span><h2>Potential manipulation</h2>'
+    return ('<section><div class="sh"><span class="no">3</span><h2>Potential manipulation</h2>'
             '<span class="tag">cheap stock vanishing while the price climbs (all AH 113 goods worth 5s+)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">Usual</th><th class="r">vs usual</th>'
             '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day</th></tr></thead>'
@@ -484,7 +484,7 @@ def sec_campfire(m):
         return (f'<td><b>{name}</b> <span class="mut">{R.esc(where)}</span></td><td class="r">{price}</td>'
                 + (vc(m, iid) if iid else '<td class="r mut">-</td>'))
     rows = "".join(f'<tr><td class="nm">{p}</td>{cell(mid)}{cell(end)}</tr>' for p, mid, end in CAMP)
-    return ('<section><div class="sh"><span class="no">5</span><h2>Campfire drops</h2>'
+    return ('<section><div class="sh"><span class="no">6</span><h2>Campfire drops</h2>'
             '<span class="tag">camp features from dungeons - price now (listed)</span></div>'
             '<table class="g"><thead><tr><th>Profession</th><th>Mid-level drop (skill 140)</th><th class="r">Now</th><th class="r">Sold/day</th>'
             '<th>End-game drop (skill 300)</th><th class="r">Now</th><th class="r">Sold/day</th></tr></thead><tbody>' + rows + '</tbody></table>'
@@ -516,7 +516,7 @@ def sec_cooking(m):
     rows = "".join(f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}</td><td class="r">{sm(x["now"])}</td>'
                    f'<td class="r">{x["qty"]}</td>{vc(m, x["oid"])}<td class="r">{pc(x["farm"])}</td><td class="r">{pc(x["buy"])}</td>'
                    f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in res[:TOP_COOK])
-    return ('<section><div class="sh"><span class="no">6</span><h2>Cooking</h2>'
+    return ('<section><div class="sh"><span class="no">7</span><h2>Cooking</h2>'
             f'<span class="tag">top {TOP_COOK} recipes by profit each, after the 5% cut</span></div>'
             '<table class="g"><thead><tr><th>Makes</th><th class="r">Sells</th><th class="r">Listed</th><th class="r">Sold/day</th>'
             '<th class="r">Farm mats</th><th class="r">Buy mats</th><th>Mats (* = farm or buy, rest from a vendor)</th></tr></thead>'
@@ -629,7 +629,7 @@ def sec_cooldowns(m, cds, cols):
                 continue
             rows.append(f'<tr><td class="nm {lab}" data-iid="{iid}">{R.esc(m.name(iid))}<span class="mut">{note}</span>{flip_badge(m, iid, cols)}</td><td class="r now">{sm(m.ah(iid)[0])}</td>{vc(m, iid)}'
                         f'{hilo_cells(m, iid, cols)}</tr>')
-    return ('<section><div class="sh"><span class="no">3</span><h2>Cooldowns</h2>'
+    return ('<section><div class="sh"><span class="no">4</span><h2>Cooldowns</h2>'
             '<span class="tag">1g+ profit, best per day first - flip badges use the same rules as the flip list</span></div>'
             f'<table class="g">{thead([("Makes / uses", "nm"), ("Now", "r"), ("Sold/day", "r")], cols, last)}'
             '<tbody>' + "".join(rows) + '</tbody></table></section>')
@@ -803,10 +803,9 @@ def build():
                                 f'<span class="up">&#9650; green = spiked: its highest price</span> &middot; '
                                 f'<span class="dn">&#9660; red = dipped: its lowest price</span> &middot; grey = near usual')
             + LEGEND
-            + sec_movers(m) + sec_manip(m) + sec_cooldowns(m, cds, cols)
+            + sec_flips(m, skip, cols) + sec_movers(m) + sec_manip(m) + sec_cooldowns(m, cds, cols)
             + sec_raid(m, cols, skip) + sec_campfire(m)
-            + sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>")
-            + sec_flips(m, skip, cols))
+            + sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
     body = re.sub(r'(<td class="nm[^"]*" data-iid="(\d+)">.*?)(</td>)',   # "Manipulated" badge on bought-out items
                   lambda x: x.group(1) + (' <span class="badge manip">Manipulated</span>' if m.manipulated(int(x.group(2))) else '')
                   + price_badge(m, int(x.group(2))) + x.group(3), body)   # price badges on every item in every section
