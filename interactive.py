@@ -14,8 +14,8 @@ let pinned = null;
 function money(c){c=Math.round(c);const g=Math.floor(c/10000),s=Math.floor(c%10000/100),k=c%100;
   return g?`${g}g ${String(s).padStart(2,'0')}s`:s?`${s}s ${String(k).padStart(2,'0')}c`:`${k}c`}
 function fmt(t){return new Date(t*1000).toLocaleString([], {weekday:'short',hour:'numeric',minute:'2-digit'})}
-function draw(iid, name){
-  const d = D[iid]; if(!d || !d.p.length){pop.innerHTML=`<b>${name}</b><div class="mut">no hourly data yet</div>`;return}
+function draw(iid, name, el=pop){
+  const d = D[iid]; if(!d || !d.p.length){el.innerHTML=`<b>${name}</b><div class="mut">no hourly data yet</div>`;return}
   const W=560,H=210,L=52,Rt=12,T=12,B=30, t0=d.t0, t1=d.t[d.t.length-1];
   const lo=Math.min(...d.p), hi=Math.max(...d.p), pad=(hi-lo)*.08||hi*.05;
   const y0=lo-pad, y1=hi+pad, X=t=>L+(t-t0)/(Math.max(1,t1-t0))*(W-L-Rt), Y=p=>T+(1-(p-y0)/(y1-y0))*(H-T-B);
@@ -25,17 +25,17 @@ function draw(iid, name){
   const nd=Math.ceil((t1-t0)/86400), st=Math.max(1,Math.ceil(nd/7)); let di=0;
   for(let t=dd/1000;t<t1;t+=86400,di++){if(di%st)continue; days+=`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" class="dl"/><text x="${X(t)+3}" y="${H-B+13}" class="ax">${new Date(t*1000).toLocaleDateString([], nd>10?{month:'numeric',day:'numeric'}:{weekday:'short',month:'numeric',day:'numeric'})}</text>`}
   const med=d.med, path=d.t.map((t,i)=>`${i&&d.t[i-1]<t-43200?'M':i?'L':'M'}${X(t).toFixed(1)},${Y(d.p[i]).toFixed(1)}`).join('');
-  pop.innerHTML=`<div class="ph"><b>${name}</b><span>now <b>${money(d.now||d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; 7-day low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>
+  el.innerHTML=`<div class="ph"><b>${name}</b><span>now <b>${money(d.now||d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>
   <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${grid}${days}
    <line x1="${L}" x2="${W-Rt}" y1="${Y(med)}" y2="${Y(med)}" class="md"/><text x="${W-Rt}" y="${Y(med)-3}" class="ax" text-anchor="end">usual</text>
    <path d="${path}" class="ln"/><g id="hv" style="display:none"><line id="hx" y1="${T}" y2="${H-B}" class="hx"/><circle id="hc" r="4" class="hc"/></g>
    <rect x="${L}" y="${T}" width="${W-L-Rt}" height="${H-T-B}" fill="transparent" id="hit"/></svg>
-  <div class="tip" id="tip">move along the line to read each hour${pinned?' &middot; click the name again or press Esc to close':' &middot; click the name to pin'}</div>`;
-  const hit=pop.querySelector('#hit'), hv=pop.querySelector('#hv'), tip=pop.querySelector('#tip'), svg=pop.querySelector('svg');
+  <div class="tip" id="tip">move along the line to read each hour${el!==pop?'':pinned?' &middot; click the name again or press Esc to close':' &middot; click the name to pin'}</div>`;
+  const hit=el.querySelector('#hit'), hv=el.querySelector('#hv'), tip=el.querySelector('#tip'), svg=el.querySelector('svg');
   hit.addEventListener('mousemove',e=>{const r=svg.getBoundingClientRect(), x=(e.clientX-r.left)*W/r.width;
     let i=0,b=1e18; d.t.forEach((t,j)=>{const q=Math.abs(X(t)-x); if(q<b){b=q;i=j}});
-    hv.style.display=''; pop.querySelector('#hx').setAttribute('x1',X(d.t[i])); pop.querySelector('#hx').setAttribute('x2',X(d.t[i]));
-    const c=pop.querySelector('#hc'); c.setAttribute('cx',X(d.t[i])); c.setAttribute('cy',Y(d.p[i]));
+    hv.style.display=''; el.querySelector('#hx').setAttribute('x1',X(d.t[i])); el.querySelector('#hx').setAttribute('x2',X(d.t[i]));
+    const c=el.querySelector('#hc'); c.setAttribute('cx',X(d.t[i])); c.setAttribute('cy',Y(d.p[i]));
     const vs=d.p[i]/med-1;
     tip.innerHTML=`<b>${fmt(d.t[i])}</b> &middot; ${money(d.p[i])} <span class="${vs>=.03?'up':vs<=-.03?'dn':'mut'}">(${vs>=0?'+':''}${Math.round(vs*100)}% vs usual)</span> &middot; ${d.q[i].toLocaleString()} listed`});
   hit.addEventListener('mouseleave',()=>{hv.style.display='none'});
@@ -55,7 +55,7 @@ document.addEventListener('click',e=>{if(pinned&&!pop.contains(e.target)&&!e.tar
 // each section becomes a beveled picture tile; tap it to open that section's tables
 const ART={'Flip list':['🔄','#2f81f7','#0b2a5e'],'Top daily movers':['📈','#2ea043','#0b3318'],
   'Potential manipulation':['🕵️','#a371f7','#2a1556'],'Cooldowns':['⏳','#e3b341','#4a3205'],
-  'Raid consumables':['🐉','#f85149','#4a0d0c'],'Cooking':['🍖','#f0883e','#4a2208'],'Top crafts':['⚒️','#8b949e','#1c2128'],'1-150 Profession Kits':['🧰','#39c5cf','#0b3a3e']};
+  'Raid consumables':['🐉','#f85149','#4a0d0c'],'Cooking':['🍖','#f0883e','#4a2208'],'Top crafts':['⚒️','#8b949e','#1c2128'],'1-150 Profession Kits':['🧰','#39c5cf','#0b3a3e'],"Likely all you’ll use this for":['🔍','#58a6ff','#102a4c']};
 let openSet=[]; try{openSet=JSON.parse(localStorage.getItem('open')||'[]')}catch(e){}
 document.querySelectorAll('.wrap > section').forEach(sec=>{
   const sh=sec.querySelector(':scope > .sh'); if(!sh)return;
@@ -78,9 +78,40 @@ document.querySelectorAll('.wrap > section').forEach(sec=>{
       if(opening)body.style.height='auto';else sec.classList.remove('open')});
     setTimeout(()=>{try{const o=[...document.querySelectorAll('section.card.open .tt')].map(x=>x.textContent);localStorage.setItem('open',JSON.stringify(o))}catch(e){}},450)});
 });
+// Item Lookup: search every named AH 113 item and draw its full price history (data loads on first use)
+let LK=null, LKP=null;
+function loadLK(){ if(!LKP) LKP=fetch('lookup.json?v='+Date.now()).then(r=>r.json()).then(j=>{LK=j;
+    LK.list=Object.entries(j.n).map(([id,n])=>[id,n,n.toLowerCase()]); const st=document.getElementById('lkst'); if(st)st.textContent=LK.list.length.toLocaleString()+' items';});
+  return LKP }
+function lkShow(id,name){
+  const s=LK.s[id], h0=LK.h0, t=s.h.map(x=>(h0+x)*3600), last=t[t.length-1];
+  const wk=s.p.filter((p,i)=>t[i]>=last-7*86400).sort((a,b)=>a-b);
+  D['lk'+id]={t0:t[0],t,p:s.p,q:s.q,med:wk[Math.floor(wk.length/2)]||s.p[0],now:s.p[s.p.length-1]};
+  draw('lk'+id, name+(LK.g.includes(+id)?' <span class="mut">(gear - lowest buyout)</span>':''), document.getElementById('lkchart'));
+  document.getElementById('lkres').innerHTML=''; document.getElementById('lkq').value=name;
+}
+const lkq=document.getElementById('lkq');
+if(lkq){
+  lkq.addEventListener('focus',loadLK);
+  lkq.addEventListener('input',async()=>{await loadLK(); const q=lkq.value.trim().toLowerCase(), box=document.getElementById('lkres');
+    if(q.length<2){box.innerHTML='';return}
+    const hits=LK.list.filter(x=>x[2].includes(q)).sort((a,b)=>(b[2].startsWith(q)-a[2].startsWith(q))||a[1].length-b[1].length).slice(0,12);
+    box.innerHTML=hits.length?hits.map(([id,n])=>`<button type="button" data-lk="${id}">${n}</button>`).join(''):'<span class="mut">no item by that name</span>'});
+  document.getElementById('lkres').addEventListener('click',e=>{const b=e.target.closest('[data-lk]'); if(b)lkShow(b.dataset.lk,b.textContent)});
+  lkq.addEventListener('keydown',e=>{if(e.key==='Enter'){const b=document.querySelector('#lkres [data-lk]'); if(b)lkShow(b.dataset.lk,b.textContent)}});
+}
 """
 
 CSS = """
+.lk{padding:4px 2px}
+.lk input{width:100%;box-sizing:border-box;padding:7px 9px;border-radius:7px;border:1px solid #3a424d;background:#0b0e12;color:#e6e9ee;font:inherit;font-size:12px}
+.lk input:focus{outline:none;border-color:#58a6ff;box-shadow:0 0 0 2px rgba(88,166,255,.25)}
+#lkres{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
+#lkres button{background:#1a1f26;color:#e6e9ee;border:1px solid #2a3038;border-radius:12px;padding:2px 8px;font:inherit;font-size:10px;cursor:pointer}
+#lkres button:hover{border-color:#58a6ff;color:#58a6ff}
+#lkchart svg{display:block;max-width:100%;height:auto;margin-top:6px}
+#lkchart .ph{display:flex;flex-direction:column;gap:2px}
+
 section.card{margin:0 0 8px}
 .tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:62px;
  padding:6px 34px;border:0;border-radius:10px;cursor:pointer;overflow:hidden;color:#fff;font:inherit;text-align:center;
@@ -109,14 +140,14 @@ body{padding:18px}
 [data-iid]:hover{color:#58a6ff}
 #pop{position:fixed;display:none;z-index:9;background:#161b22;border:1px solid #3a424d;color:#e6e9ee;border-radius:8px;
  box-shadow:0 8px 28px rgba(0,0,0,.6);padding:10px 12px;font:12px/1.4 "Segoe UI",system-ui,sans-serif;max-width:calc(100vw - 16px)}
-#pop svg{display:block;max-width:100%;height:auto;margin-top:6px}
-#pop .ph{display:flex;flex-direction:column;gap:2px}#pop .ph b:first-child{font-size:14px}
-#pop .ph span{color:#aab2bd}
-#pop .gl{stroke:#232a33}#pop .dl{stroke:#2e3640;stroke-dasharray:2 3}#pop .md{stroke:#7d8692;stroke-dasharray:4 3}
-#pop .ax{font-size:10px;fill:#7d8692}
-#pop .ln{fill:none;stroke:#58a6ff;stroke-width:2;stroke-linejoin:round}
-#pop .hx{stroke:#e6e9ee;stroke-width:1}#pop .hc{fill:#58a6ff;stroke:#161b22;stroke-width:2}
-#pop .tip{margin-top:4px;color:#aab2bd;min-height:17px}
+#pop svg,#lkchart svg{display:block;max-width:100%;height:auto;margin-top:6px}
+#pop .ph,#lkchart .ph{display:flex;flex-direction:column;gap:2px}#pop .ph b:first-child,#lkchart .ph b:first-child{font-size:14px}
+#pop .ph span,#lkchart .ph span{color:#aab2bd}
+#pop .gl,#lkchart .gl{stroke:#232a33}#pop .dl,#lkchart .dl{stroke:#2e3640;stroke-dasharray:2 3}#pop .md,#lkchart .md{stroke:#7d8692;stroke-dasharray:4 3}
+#pop .ax,#lkchart .ax{font-size:10px;fill:#7d8692}
+#pop .ln,#lkchart .ln{fill:none;stroke:#58a6ff;stroke-width:2;stroke-linejoin:round}
+#pop .hx,#lkchart .hx{stroke:#e6e9ee;stroke-width:1}#pop .hc,#lkchart .hc{fill:#58a6ff;stroke:#161b22;stroke-width:2}
+#pop .tip,#lkchart .tip{margin-top:4px;color:#aab2bd;min-height:17px}
 .hint{color:#aab2bd;margin:0 0 6px;font:12px "Segoe UI",system-ui,sans-serif}
 """
 
@@ -148,6 +179,37 @@ def archived_rows(iids, before):
     return out
 
 
+def write_lookup(m, path):
+    """lookup.json for the search tile: every named item's hourly price (archive + working file).
+    {"h0": first hour, "n": {id: name}, "g": [gear ids], "s": {id: {"h": hour offsets, "p": prices, "q": listed}}}"""
+    named = {i for i in set(m.rows_long) if not m.name(i).isdigit()}
+    old = archived_rows(sorted(named), min((v[0][0] for v in m.rows_long.values() if v), default=m.last))
+    series = {}
+    for i in named:
+        hrs = {}
+        for ts, p, q, *_ in old.get(i, []) + m.rows_long.get(i, []):
+            if p:
+                hrs[ts // 3600] = (p, q)
+        if hrs:
+            series[i] = hrs
+    gear = {}
+    try:   # gear / one-off items: lowest buyout each hour
+        for ts, i, mn, n in m.con.execute("SELECT ts, item_id, min_buyout, auctions FROM gearsnap WHERE ts >= ?", (m.t0_long,)):
+            if i in series or not mn or m.name(i).isdigit():
+                continue
+            gear.setdefault(i, {})[ts // 3600] = (mn, n)
+    except Exception:
+        pass
+    series.update(gear)
+    h0 = min(min(v) for v in series.values())
+    out = {"h0": h0, "n": {i: m.name(i) for i in series}, "g": sorted(gear), "s": {}}
+    for i, hrs in series.items():
+        hs = sorted(hrs)
+        out["s"][i] = {"h": [h - h0 for h in hs], "p": [int(hrs[h][0]) for h in hs], "q": [int(hrs[h][1] or 0) for h in hs]}
+    json.dump(out, open(path, "w", encoding="utf-8"), separators=(",", ":"))
+    return path
+
+
 def make(m, title, body, path):
     """Write the interactive web page for this report body next to the PDF."""
     data = {}
@@ -173,6 +235,12 @@ def make(m, title, body, path):
         data[iid] = {"t0": t[0] * 3600, "t": [hours[t[i]][-1][2] for i in keep],
                      "p": [ps[i] for i in keep[:-1]] + [now],
                      "q": [hours[t[i]][-1][1] for i in keep], "med": med, "now": now}
+    lookup = ('<section><div class="sh"><h2>Likely all you&rsquo;ll use this for</h2><span class="tag">search any item on AH 113 for its full price history</span></div>'
+              '<div class="lk"><input id="lkq" type="search" placeholder="Type an item name, e.g. Black Lotus" autocomplete="off">'
+              '<div class="mut" style="font-size:9px;margin-top:2px">every named item on the Horde AH &middot; <span id="lkst">loads when you tap the box</span></div>'
+              '<div id="lkres"></div><div id="lkchart"></div></div></section>')
+    body = body.replace("</header>", "</header>" + lookup, 1)   # search tile at the top
+    write_lookup(m, os.path.join(os.path.dirname(path), "lookup.json"))
     import onepage
     page = (f'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{title}</title><style>{onepage.CSS.replace("__ZOOM__", "1.55")}{CSS}</style></head><body><div class="wrap">'
