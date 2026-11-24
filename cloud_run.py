@@ -22,7 +22,7 @@ def prune(cfg):
     oldest = con.execute("SELECT MIN(ts) FROM allsnap").fetchone()[0]
     db = con.execute("PRAGMA database_list").fetchone()[2]
     con.close()
-    late = oldest and oldest < time.time() - (KEEP_DAYS + 2) * 86400   # missed a day or two - catch up now
+    late = oldest and oldest < time.time() - (KEEP_DAYS + 4) * 86400   # missed a day or two - catch up now
     if time.localtime().tm_hour != 3 and not late:
         return
     try:
@@ -40,6 +40,11 @@ def main():
     api = F.Api(cfg)
     F.check_market(cfg, api)
     if F.poll_once(cfg, "113", api):
+        try:   # older history for the item charts (they show everything since tracking began)
+            import archive
+            archive.fetch_all(cfg)
+        except Exception as e:
+            print(f"archive download skipped: {e}")
         subprocess.run([sys.executable, "-u", os.path.join(HERE, "hourly.py")], timeout=1500)
         prune(cfg)
 
