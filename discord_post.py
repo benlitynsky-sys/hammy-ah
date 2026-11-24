@@ -40,8 +40,6 @@ def summary(market_html):
     lines = [f"**{html.unescape(title)}** - prices as of {when.group(1) if when else '?'}"]
     if cert:
         lines.append("Certified flips: " + ", ".join(cert))
-    if pot:
-        lines.append("Potential flips: " + ", ".join(pot))
     if buy:
         lines.append(":green_circle: Buy (20%+ under usual): " + ", ".join(buy))
     if sell:
