@@ -428,7 +428,7 @@ def sec_manip(m):
             res.append(dict(iid=iid, now=now, usual=usual, q=q, uq=uq, man=m.manipulated(iid)))
     res.sort(key=lambda x: (-x["man"], -x["now"] / x["usual"]))
     rows = "".join(
-        f'<tr><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}'</td>'
+        f'<tr><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}</td>'
         f'<td class="r now">{sm(x["now"])}</td><td class="r">{sm(x["usual"])}</td>'
         f'<td class="r"><b class="up">+{round((x["now"] / x["usual"] - 1) * 100)}%</b></td>'
         f'<td class="r">{x["q"]:,} <span class="mut">of {x["uq"]:,}</span></td>'
