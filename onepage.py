@@ -888,7 +888,6 @@ def build():
     body = (header(title, last, f'each day: <b>Morning</b> (12am-noon) and <b>Evening</b> (noon-12am), last {DAYS} days<br>'
                                 f'<span class="up">&#9650; green = spiked: its highest price</span> &middot; '
                                 f'<span class="dn">&#9660; red = dipped: its lowest price</span> &middot; grey = near usual')
-            + LEGEND
             + sec_flips(m, skip, cols) + sec_movers(m) + sec_manip(m) + sec_cooldowns(m, cds, cols)
             + sec_raid(m, cols, skip)
             + sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
