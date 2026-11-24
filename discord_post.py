@@ -101,6 +101,7 @@ def build_and_post(new=False):
     web = market[:-4] + " Interactive.html"
     if os.path.exists(web):   # interactive page on GitHub Pages, linked under the summary
         import publish_web
+        print(publish_web.publish_file(os.path.join(os.path.dirname(web), "lookup.json"), "lookup.json"))   # search data first
         url, msg = publish_web.publish(web)
         print(msg)
         if url:
