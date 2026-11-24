@@ -65,7 +65,7 @@ document.querySelectorAll('.wrap > section').forEach(sec=>{
   while(sh.nextSibling)body.appendChild(sh.nextSibling);
   const t=document.createElement('button'); t.className='tile'; t.type='button';
   t.style.setProperty('--c1',c1); t.style.setProperty('--c2',c2);
-  t.innerHTML=`<span class="bg">${icon}</span><span class="ic">${icon}</span><span class="tt">${name}</span><span class="tg">${tag}</span><span class="chev">&#9662;</span>`;
+  t.innerHTML=`<span class="bg">${icon}</span><span class="ic">${icon}</span><span class="tt">${name}</span>${name==='Raid consumables'&&tag?`<span class="tg">${tag}</span>`:''}<span class="chev">&#9662;</span>`;
   sh.replaceWith(t); sec.appendChild(body); sec.classList.add('card');
   if(openSet.includes(name)){sec.classList.add('open');body.style.height='auto'}
   t.addEventListener('click',()=>{
