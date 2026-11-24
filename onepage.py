@@ -760,7 +760,7 @@ table.g{width:100%;border-collapse:collapse}
 .g th.dh{text-align:center;border-left:1px solid var(--rule);border-bottom:none;color:var(--ink);text-transform:none;letter-spacing:0}
 .g .in{padding-left:9px;color:var(--ink2)}
 .grp td{background:var(--band);padding:1px 2px}
-.grp .pr{float:right;color:var(--up);font-weight:700}.grp .pr.dn{color:var(--dn)}
+.grp .pr{margin-left:12px;color:var(--up);font-weight:700}.grp .pr.dn{color:var(--dn)}
 .g .mats{white-space:normal;color:var(--ink2)}
 .lv .route{white-space:normal;color:var(--ink2);}
 .lv .st b{color:var(--ink)}
