@@ -10,6 +10,7 @@ from datetime import datetime
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOLD = os.path.join(HERE, "holdings.json")
 LOG = os.path.join(HERE, "alerts.log")
+PING = os.path.join(HERE, "ping.json")   # {"discord_user_id": "..."} - who sell alerts @mention
 
 
 def money(c):
@@ -38,7 +39,10 @@ def toast(msg):
             import requests
             url = json.load(open(os.path.join(HERE, "config.json"), encoding="utf-8")).get("DISCORD_WEBHOOK_URL")
             if url:
-                requests.post(url, json={"content": ":bell: " + msg}, timeout=30)
+                uid = str(json.load(open(PING, encoding="utf-8")).get("discord_user_id", "")) if os.path.exists(PING) else ""
+                body = {"content": (f"<@{uid}> " if uid.isdigit() else "") + ":bell: " + msg,
+                        "allowed_mentions": {"users": [uid] if uid.isdigit() else []}}   # pings Hammy only, never @everyone
+                requests.post(url, json=body, timeout=30)
         except Exception:
             print("Discord alert failed")   # never print the webhook URL
         return
