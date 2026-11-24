@@ -24,6 +24,24 @@ def page_url(repo):
     return f"https://{owner.lower()}.github.io/{name}/"
 
 
+def publish_file(local, remote):
+    """Upload any file (e.g. lookup.json) next to index.html. Returns a short message."""
+    repo, token = settings()
+    if not repo or not token or not os.path.exists(local):
+        return f"{remote} skipped"
+    api = f"https://api.github.com/repos/{repo}/contents/{remote}"
+    h = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"}
+    try:
+        r = requests.get(api, headers=h, timeout=30)
+        body = {"message": f"update {remote}", "content": base64.b64encode(open(local, "rb").read()).decode()}
+        if r.status_code == 200:
+            body["sha"] = r.json().get("sha")
+        requests.put(api, headers=h, json=body, timeout=300).raise_for_status()
+        return f"{remote} updated"
+    except requests.RequestException as e:
+        return f"{remote} upload failed {getattr(e.response, 'status_code', '')}".strip()
+
+
 def publish(html_path):
     """Upload html_path as index.html. Returns (url or None, message)."""
     repo, token = settings()
