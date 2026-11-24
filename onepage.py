@@ -20,6 +20,7 @@ import report as R
 
 HERE = R.HERE
 DAYS = 7
+POT_DIP = 0.85         # Potential flip only when the price is at least 15% under its weekly usual
 FLIP_MIN = 4000          # 40s
 FLIP_SWING = 0.07        # a leg must be 7%+ to count (what a flip needs to beat the 5% cut)
 RAID_MAT_MIN = 500       # leave out materials under 5s (vials, spices, cheap fish)
@@ -357,6 +358,8 @@ def sec_flips(m, skip, cols):
         x["badge"] = ("nope", "pot", "cert")[x["rank"]]
         if x["rank"] and x["now"] and x["now"] > x["usual"] * 1.03:   # flips, but it's pricey right now - wait for the dip
             x["rank"], x["status"], x["badge"] = 0.5, "Above usual price", "wait"
+        elif x["rank"] == 1 and not (x["now"] and x["now"] <= x["usual"] * POT_DIP):   # potential only when it's 15%+ under its weekly usual
+            x["rank"], x["status"], x["badge"] = 0.4, "Waiting for dip", "dip"
     res.sort(key=lambda x: (-x["rank"], -x["per_stack"]))
     rows = []
     for x in res[:TOP_FLIPS]:
@@ -374,7 +377,7 @@ def sec_flips(m, skip, cols):
             + "".join(rows) + '</tbody></table>'
             f'<div class="fn">Each listed item went up, down and up again (7%+ moves) on every day scanned. '
             f'Certified flip = 3+ green/red/green (or red/green/red) streaks across the half-days in the last 7 days; '
-            f'Potential flip = at least 1 streak in the last 3 days; Above usual price = it flips, but right now it&rsquo;s priced above its usual: sell any you have, and buy on tomorrow&rsquo;s dip; Not flippable yet = no streak. Tools are left out - a character only ever buys one, so their price only jumps on buyouts. '
+            f'Potential flip = at least 1 streak in the last 3 days and priced 15%+ under its weekly usual right now (a buy); Waiting for dip = it has a streak but isn&rsquo;t 15% under its usual yet; Above usual price = it flips, but right now it&rsquo;s priced above its usual: sell any you have, and buy on tomorrow&rsquo;s dip; Not flippable yet = no streak. Tools are left out - a character only ever buys one, so their price only jumps on buyouts. '
             f'Only items where a full stack flips for 1g+ profit (buy near the daily low, sell near the daily high, after the 5% cut) make the list, best first. '
             f'24h = price change since this time yesterday. Sold/day = estimated units bought per day over the last 3 days (listings that disappeared before expiring; mass pull-outs ignored). '
             f'Now is <span class="up">green</span> when it&rsquo;s near the daily low (buy) and <span class="dn">red</span> near the daily high (sell). Cooldown items are in section 2.</div>'
@@ -552,6 +555,8 @@ def flip_badge(m, iid, cols):
     now = m.ah(iid)[0]
     if now and now > statistics.median(s) * 1.03:
         return ' <span class="badge wait">Above usual price</span>'
+    if rank == 1 and not (now and now <= statistics.median(s) * POT_DIP):
+        return ' <span class="badge dip">Waiting for dip</span>'
     return f' <span class="badge {("", "pot", "cert")[rank]}">{status}</span>'
 
 
@@ -645,7 +650,7 @@ table.g{width:100%;border-collapse:collapse}
 .g .first{border-left:1px solid var(--rule)}
 .g .ar{font-size:.8em;margin-left:1px}
 .badge{border-radius:3px;padding:0 3px;font-weight:700;white-space:nowrap}
-.badge.cert{background:#238636;color:#fff}.badge.pot{background:#d29922;color:#1b1300}.badge.wait{background:#1f6feb;color:#fff}.row-wait td{background:#0f1d33}.badge.nope{background:#2a3038;color:#9aa3ad}.badge.manip{background:#8957e5;color:#fff}.sub{font-size:1em;margin:8px 0 3px;color:var(--ink)}.badge.watch{background:#3d2a5c;color:#d2b8ff}
+.badge.cert{background:#238636;color:#fff}.badge.pot{background:#d29922;color:#1b1300}.badge.wait{background:#1f6feb;color:#fff}.row-wait td{background:#0f1d33}.badge.dip{background:#3a3220;color:#e3b341}.badge.nope{background:#2a3038;color:#9aa3ad}.badge.manip{background:#8957e5;color:#fff}.sub{font-size:1em;margin:8px 0 3px;color:var(--ink)}.badge.watch{background:#3d2a5c;color:#d2b8ff}
 .row-cert td{background:#12261a}.row-pot td{background:#2a2410}
 .g th.dh{text-align:center;border-left:1px solid var(--rule);border-bottom:none;color:var(--ink);text-transform:none;letter-spacing:0}
 .g .in{padding-left:9px;color:var(--ink2)}
