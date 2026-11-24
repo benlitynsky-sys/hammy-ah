@@ -19,7 +19,7 @@ from datetime import date, datetime
 import report as R
 
 HERE = R.HERE
-DAYS = 7
+DAYS = 14   # day-by-day columns shown (data for these is kept in the working file; older days live in the archive)
 PRICE_BADGES = [(1.20, "sell", "Sell"), (1.10, "mup", "Moving up"), (0.80, "buy", "Buy"), (0.90, "mdn", "Moving down")]
 POT_DIP = 0.85         # Potential flip only when the price is at least 15% under its weekly usual
 FLIP_MIN = 4000          # 40s
@@ -149,9 +149,12 @@ def half_days(m, iid, cols):
     (date, is_evening, price, sign). Shows whichever is further from the item's usual price:
     its HIGHEST (sign +1) or its LOWEST (sign -1); within 3% of usual sign 0; no scans None."""
     s = clean(m, iid)
-    usual = statistics.median(p for _, p in s) if s else None
+    usual = statistics.median(p for _, p in s) if s else None   # the weekly usual (7 days)
     halves = defaultdict(list)
-    for t, p in s:
+    sl = m.series(iid, long=True)
+    if len(sl) >= 3 and usual:
+        sl = [(t, p) for t, p in sl if 0.4 * usual <= p <= 2.5 * usual]   # same one-hour-gap filter, over all 14 days
+    for t, p in sl:
         dt = datetime.fromtimestamp(t)
         halves[(dt.date(), dt.hour >= 12)].append(p)
     out = []
@@ -188,7 +191,7 @@ def hilo_cells(m, iid, cols):
 def flip_status(m, iid, cols):
     """Streak = 3 half-days in a row flipping green/red/green or red/green/red (grey or no scan breaks it).
     3+ streaks in the last 7 days = certified; 1+ in the last 3 days = potential; none = not yet."""
-    hd = half_days(m, iid, cols)
+    hd = half_days(m, iid, cols[-7:])   # streaks count over the last 7 days only
     recent = set(cols[-3:])
     total = in3 = 0
     for i in range(len(hd) - 2):
