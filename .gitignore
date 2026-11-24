@@ -1,0 +1,7 @@
+config.json
+*.sqlite
+state.zip
+__pycache__/
+*.bak*
+poller.log
+output/
