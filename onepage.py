@@ -356,7 +356,7 @@ def sec_flips(m, skip, cols):
         x["rank"], x["status"], x["streaks"] = flip_status(m, x["iid"], cols)
         x["badge"] = ("nope", "pot", "cert")[x["rank"]]
         if x["rank"] and x["now"] and x["now"] > x["usual"] * 1.03:   # flips, but it's pricey right now - wait for the dip
-            x["rank"], x["status"], x["badge"] = 0.5, "Sell now, buy tomorrow", "wait"
+            x["rank"], x["status"], x["badge"] = 0.5, "Above usual price", "wait"
     res.sort(key=lambda x: (-x["rank"], -x["per_stack"]))
     rows = []
     for x in res[:TOP_FLIPS]:
@@ -374,7 +374,7 @@ def sec_flips(m, skip, cols):
             + "".join(rows) + '</tbody></table>'
             f'<div class="fn">Each listed item went up, down and up again (7%+ moves) on every day scanned. '
             f'Certified flip = 3+ green/red/green (or red/green/red) streaks across the half-days in the last 7 days; '
-            f'Potential flip = at least 1 streak in the last 3 days; Sell now, buy tomorrow = it flips, but right now it&rsquo;s priced above its usual: sell any you have, and buy on tomorrow&rsquo;s dip; Not flippable yet = no streak. Tools are left out - a character only ever buys one, so their price only jumps on buyouts. '
+            f'Potential flip = at least 1 streak in the last 3 days; Above usual price = it flips, but right now it&rsquo;s priced above its usual: sell any you have, and buy on tomorrow&rsquo;s dip; Not flippable yet = no streak. Tools are left out - a character only ever buys one, so their price only jumps on buyouts. '
             f'Only items where a full stack flips for 1g+ profit (buy near the daily low, sell near the daily high, after the 5% cut) make the list, best first. '
             f'24h = price change since this time yesterday. Sold/day = estimated units bought per day over the last 3 days (listings that disappeared before expiring; mass pull-outs ignored). '
             f'Now is <span class="up">green</span> when it&rsquo;s near the daily low (buy) and <span class="dn">red</span> near the daily high (sell). Cooldown items are in section 2.</div>'
@@ -551,7 +551,7 @@ def flip_badge(m, iid, cols):
         return ""
     now = m.ah(iid)[0]
     if now and now > statistics.median(s) * 1.03:
-        return ' <span class="badge wait">Sell now, buy tomorrow</span>'
+        return ' <span class="badge wait">Above usual price</span>'
     return f' <span class="badge {("", "pot", "cert")[rank]}">{status}</span>'
 
 
