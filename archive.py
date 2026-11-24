@@ -63,7 +63,7 @@ def _upload(cfg, rel, name, path):
     r.raise_for_status()
 
 
-def archive(cfg, db_path, keep_days=13, tag=TAG, delete=True):
+def archive(cfg, db_path, keep_days=13, tag=TAG, delete=True, delete_days=15):
     """Move rows older than keep_days into the monthly archive files. Returns a short status line."""
     cut = int(time.time()) - keep_days * 86400
     con = sqlite3.connect(db_path)
@@ -113,16 +113,40 @@ def archive(cfg, db_path, keep_days=13, tag=TAG, delete=True):
             if not any(a["name"] == name and a["size"] > 0 for a in rel.get("assets", [])):
                 raise RuntimeError(f"archive upload of {name} not found")
             done.append((month, stamps))
-        if delete:
+        if delete:   # archived at 13 days; the working file keeps them until 15 days so the 14-day view has them
+            gone = int(time.time()) - delete_days * 86400
             for _, stamps in done:
                 for t in tables:
-                    con.executemany(f"DELETE FROM {t} WHERE ts = ?", [(s,) for s in stamps])
+                    con.executemany(f"DELETE FROM {t} WHERE ts = ?", [(s,) for s in stamps if s < gone])
             con.commit()
             con.execute("VACUUM")
         return "archive: saved " + ", ".join(f"{m} ({len(s)} scans)" for m, s in done)
     finally:
         con.close()
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def fetch_all(cfg, dest=None, tag=TAG):
+    """Download every monthly archive file (unzipped) into archive/, for the full-history charts. Returns the paths."""
+    dest = dest or os.path.join(HERE, "archive")
+    os.makedirs(dest, exist_ok=True)
+    repo, h = _gh(cfg)
+    r = requests.get(f"https://api.github.com/repos/{repo}/releases/tags/{tag}", headers=h, timeout=60)
+    if r.status_code == 404:
+        return []
+    r.raise_for_status()
+    out = []
+    for a in r.json().get("assets", []):
+        if not a["name"].endswith(".sqlite.gz"):
+            continue
+        gz = os.path.join(dest, a["name"])
+        db = gz[:-3]
+        if not (os.path.exists(gz) and os.path.getsize(gz) == a["size"] and os.path.exists(db)):
+            _download(cfg, a, gz)
+            with gzip.open(gz, "rb") as s, open(db, "wb") as d:
+                shutil.copyfileobj(s, d)
+        out.append(db)
+    return out
 
 
 if __name__ == "__main__":
