@@ -25,7 +25,7 @@ POT_DIP = 0.85         # Potential flip only when the price is at least 15% unde
 FLIP_MIN = 4000          # 40s
 FLIP_SWING = 0.07        # a leg must be 7%+ to count (what a flip needs to beat the 5% cut)
 RAID_MAT_MIN = 500       # leave out materials under 5s (vials, spices, cheap fish)
-TOP_FLIPS = 10
+TOP_FLIPS = 20
 # One-time-buy items (tools) never go on the lists - their price only rises on stock buyouts:
 DURABLE = {"salt shaker", "sewing machine", "spinning wheel", "molten foundry", "delicate arcanite converter"}   # tools: bought once, never used up
 
@@ -92,7 +92,7 @@ def one_time_buy(m, iid):
     """Tools: a character buys one and never needs another, so the price only jumps on buyouts."""
     it = m.items.get(iid) or {}
     return (it.get("name") or "").lower() in DURABLE or it.get("sub") == "Device"
-TOP_RAID = 16           # consumables and materials shown in section 1 (the top players only)
+TOP_RAID = 20           # consumables and materials shown in section 1 (the top players only)
 
 
 def part_of_day(h):
@@ -301,7 +301,7 @@ def vc(m, iid):
     return '<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>'
 
 
-TOP_MOVERS = 10
+TOP_MOVERS = 20
 
 
 def sec_movers(m):
@@ -427,7 +427,7 @@ def sec_flips(m, skip, cols):
 
 
 MANIP_MIN = 500   # 5s usual price - ignore trash
-TOP_MANIP = 12
+TOP_MANIP = 20
 
 
 def sec_manip(m):
@@ -492,7 +492,7 @@ def sec_campfire(m):
             'Mid / end-game split is by dungeon level.</div></section>')
 
 
-TOP_COOK = 6
+TOP_COOK = 20
 
 
 def sec_cooking(m):
@@ -525,7 +525,7 @@ def sec_cooking(m):
             'Buy mats = profit if you buy every mat at today&rsquo;s cheapest (AH or vendor); red = loses money. Best farm profit first.</div></section>')
 
 
-TOP_CRAFTS = 8
+TOP_CRAFTS = 20
 CRAFT_MIN_SOLD = 10   # output must sell 10+ a day so you can list it right after crafting
 
 
