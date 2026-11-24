@@ -90,6 +90,10 @@ def build_and_post(new=False):
     market, routes = onepage.build()
     # pictures show right inside Discord (click to zoom); fall back to the PDF if a picture failed
     pics = [p[:-4] + ".png" if os.path.exists(p[:-4] + ".png") else p for p in (market, routes)]
+    import glob
+    parts = sorted(glob.glob(glob.escape(market[:-4]) + " part*.png"))
+    if parts:   # readable split pictures of the market report, then the routes page
+        pics = parts + pics[1:]
     content = summary(market.replace(".pdf", ".html"))
     web = market[:-4] + " Interactive.html"
     if os.path.exists(web):   # interactive page on GitHub Pages, linked under the summary
