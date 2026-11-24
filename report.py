@@ -23,41 +23,12 @@ from datetime import datetime, date
 
 
 def pacific(ts=None, fmt="%a %b %d, {h}:%M %p"):
-    """Time shown to people: US Pacific (PST/PDT) with am/pm, whatever clock the PC or cloud runs on."""
+    """Time shown to people: Hammy's own clock (UTC-7 all year, like Arizona) with am/pm, whatever clock the PC or
+    cloud runs on."""
     import time as _t
     from datetime import timedelta
-    utc = datetime.utcfromtimestamp(_t.time() if ts is None else ts)
-    def sunday(month, n):
-        d = datetime(utc.year, month, 1)
-        return d + timedelta(days=(6 - d.weekday()) % 7 + 7 * (n - 1))
-    dst = sunday(3, 2).replace(hour=10) <= utc < sunday(11, 1).replace(hour=9)
-    t = utc - timedelta(hours=7 if dst else 8)
-    return t.strftime(fmt.replace("{h}", str(int(t.strftime("%I"))))) + (" PDT" if dst else " PST")
-
-import forever_ah as f
-import plays
-
-HERE = f.HERE
-OUT = os.path.join(HERE, "output")
-AH = "113"                       # Horde AH on the US PvP ruleset - the only market this report reads
-CUT = f.AH_CUT
-RAID_DAY = date(2026, 12, 9)
-RAIDS = "Barrow Deeps (10), Hyjal Summit (20) and Onyxia's Lair (40)"
-GEAR_MAX_LVL = 45
-MIN_PROFIT = 10000               # 1 gold, in copper
-EDGE = [r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
-        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe"]
-
-# reagents sold by trade-supply vendors (price = vendor buy price from the item API)
-VENDOR_SOLD = {"Spinefin Halibut"}   # finished goods vendors also sell: never worth more than the vendor price
-VENDOR = {"Star Wood", "Thick Logs", "Empty Vial", "Leaded Vial", "Crystal Vial", "Imbued Vial", "Coarse Thread", "Fine Thread",
-          "Silken Thread", "Heavy Silken Thread", "Rune Thread", "Weak Flux", "Strong Flux", "Salt",
-          "Mild Spices", "Hot Spices", "Soothing Spices", "Simple Flour", "Refreshing Spring Water",
-          "Ice Cold Milk", "Morning Glory Dew", "Copper Rod", "Wooden Stock", "Heavy Stock", "Simple Wood",
-          "Gray Dye", "Blue Dye", "Red Dye", "Green Dye", "Yellow Dye", "Purple Dye", "Black Dye", "Bleach",
-          "Pink Dye", "Orange Dye", "Flask of Oil", "Rhapsody Malt", "Shiny Red Apple", "Melon Juice",
-          "Skin of Dwarven Stout", "Flagon of Dwarven Honeymead", "Thunder Ale", "Bottle of Dalaran Noir",
-          "Holy Salts", "Exquisite Spices", "Blank Parchment", "Light Parchment"}
+    t = datetime.utcfromtimestamp(_t.time() if ts is None else ts) - timedelta(hours=7)
+    return t.strftime(fmt.replace("{h}", str(int(t.strftime("%I")))))
 
 
 def esc(s):
