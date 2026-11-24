@@ -672,6 +672,8 @@ table.g{width:100%;border-collapse:collapse}
 .g tr{break-inside:avoid}
 .g .r{text-align:right}
 .g .nm{max-width:118px;overflow:hidden;text-overflow:ellipsis}
+.g .nm:has(.badge){white-space:normal;overflow:visible;line-height:1.35}
+.g .nm .badge{display:inline-block;margin:1px 0}
 .g .now{font-weight:600}
 .g .d{text-align:center;padding:.6px 1px}
 .g th.d{text-align:center}
