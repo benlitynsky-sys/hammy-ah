@@ -357,8 +357,8 @@ def sec_flips(m, skip, cols):
     for x in res:
         x["rank"], x["status"], x["streaks"] = flip_status(m, x["iid"], cols)
         x["badge"] = ("", "pot", "cert")[x["rank"]]
-        if x["rank"] == 1 and not (x["now"] and x["now"] <= x["usual"] * POT_DIP):   # potential only when it's 15%+ under its weekly usual
-            x["rank"], x["badge"] = 0.4, ""
+        if x["rank"] == 1:   # only Certified flip gets a badge
+            x["badge"] = ""
         if not x["badge"]:
             x["status"] = ""
     res.sort(key=lambda x: (-x["rank"], -x["per_stack"]))
@@ -378,7 +378,7 @@ def sec_flips(m, skip, cols):
             + "".join(rows) + '</tbody></table>'
             f'<div class="fn">Each listed item went up, down and up again (7%+ moves) on every day scanned. '
             f'Certified flip = 3+ green/red/green (or red/green/red) streaks across the half-days in the last 7 days; '
-            f'Potential flip = at least 1 streak in the last 3 days and priced 15%+ under its weekly usual right now. Price badges (Buy / Moving down / Moving up / Sell) are explained at the top. Tools are left out - a character only ever buys one, so their price only jumps on buyouts. '
+            f'Price badges (Buy / Moving down / Moving up / Sell) are explained at the top. Tools are left out - a character only ever buys one, so their price only jumps on buyouts. '
             f'Only items where a full stack flips for 1g+ profit (buy near the daily low, sell near the daily high, after the 5% cut) make the list, best first. '
             f'24h = price change since this time yesterday. Sold/day = estimated units bought per day over the last 3 days (listings that disappeared before expiring; mass pull-outs ignored). '
             f'Now is <span class="up">green</span> when it&rsquo;s near the daily low (buy) and <span class="dn">red</span> near the daily high (sell). Cooldown items are in section 2.</div>'
@@ -566,10 +566,9 @@ def flip_badge(m, iid, cols):
     s = [p for _, p in clean(m, iid)]
     if not rank or len(s) < 15 or statistics.median(s) < FLIP_MIN:
         return ""
-    now = m.ah(iid)[0]
-    if rank == 1 and not (now and now <= statistics.median(s) * POT_DIP):
+    if rank < 2:   # only Certified flip gets a badge
         return ""
-    return f' <span class="badge {("", "pot", "cert")[rank]}">{status}</span>'
+    return f' <span class="badge cert">{status}</span>'
 
 
 def sec_cooldowns(m, cds, cols):
@@ -663,7 +662,7 @@ table.g{width:100%;border-collapse:collapse}
 .g .ar{font-size:.8em;margin-left:1px}
 .badge{border-radius:3px;padding:0 3px;font-weight:700;white-space:nowrap}
 .badge.cert{background:#1f6feb;color:#fff}.badge.pot{background:#0d2d5e;color:#79c0ff;box-shadow:inset 0 0 0 1px #388bfd}.badge.buy{background:#238636;color:#fff}.badge.sell{background:#da3633;color:#fff}.badge.mup{background:#db6d28;color:#fff}.badge.mdn{background:#d29922;color:#1b1300}.badge.tgt{background:#2ea043;color:#fff}.legend{margin:0 0 8px;padding:5px 8px;border:1px solid #2a3038;border-radius:6px;line-height:1.9}.badge.wait{background:#1f6feb;color:#fff}.row-wait td{background:#0f1d33}.badge.dip{background:#3a3220;color:#e3b341}.badge.nope{background:#2a3038;color:#9aa3ad}.badge.manip{background:#8957e5;color:#fff}.sub{font-size:1em;margin:8px 0 3px;color:var(--ink)}.badge.watch{background:#3d2a5c;color:#d2b8ff}
-.row-cert td{background:#12261a}.row-pot td{background:#2a2410}
+.row-cert td{background:#0f1d33}.row-pot td{background:#2a2410}
 .g th.dh{text-align:center;border-left:1px solid var(--rule);border-bottom:none;color:var(--ink);text-transform:none;letter-spacing:0}
 .g .in{padding-left:9px;color:var(--ink2)}
 .grp td{background:var(--band);padding:1px 2px}
@@ -732,8 +731,7 @@ LEGEND = ('<div class="legend"><b>Badges</b> (price now vs its weekly usual): '
           '<span class="badge sell">Sell</span> 20%+ over &middot; no badge = near usual<br>'
           '<span class="badge manip">Manipulated</span> not a normal swing: someone bought out the cheap stock - the price is real now but '
           'artificial; sell into it, don&rsquo;t buy &middot; '
-          '<span class="badge cert">Certified flip</span> up &amp; down 3+ times this week &middot; '
-          '<span class="badge pot">Potential flip</span> swung in the last 3 days and 15%+ under usual now</div>')
+          '<span class="badge cert">Certified flip</span> up &amp; down 3+ times this week</div>')
 
 
 def header(title, last, extra):
