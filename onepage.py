@@ -381,11 +381,18 @@ def sec_flips(m, skip, cols):
         v = [p for _, p in s]
         if len(v) < 15 or statistics.median(v) < FLIP_MIN:
             continue
-        days = [d for d in by_day(s).values() if len(d) >= 6]
-        if len(days) < 2 or not all(zig_legs(d, FLIP_SWING) >= 3 for d in days):
+        # smooth each day over 3-hour windows so a lone one-hour blip can't pass as a swing
+        # full days only (12+ scans); a real up-and-down every day
+        days = [[statistics.median(d[max(0, i - 1):i + 2]) for i in range(len(d))] for d in by_day(s).values() if len(d) >= 12]
+        if len(days) < 2 or not all(zig_legs(d, FLIP_SWING) >= 2 for d in days):
             continue
-        lo = statistics.mean(sorted(d)[1] for d in days)       # typical daily low (2nd lowest hour)
-        hi = statistics.mean(sorted(d)[-2] for d in days)      # typical daily high (2nd highest hour)
+        day_lo, day_hi = [min(d) for d in days], [max(d) for d in days]
+        if not all(h * (1 - R.CUT) >= l * 1.05 for l, h in zip(day_lo, day_hi)):   # every day pays 5%+ after the cut, not one spike day
+            continue
+        mids = [statistics.median(d) for d in days]
+        if max(mids) > 1.25 * min(mids):   # price drifting up or down day to day = a trend, not a flip
+            continue
+        lo, hi = statistics.median(day_lo), statistics.median(day_hi)   # a typical day, so one spike can't inflate it
         profit = hi * (1 - R.CUT) - lo
         if profit <= 0:
             continue
@@ -414,7 +421,7 @@ def sec_flips(m, skip, cols):
     if not rows:
         rows.append(f'<tr><td colspan="{5 + 2 * len(cols)}" class="mut">Nothing passes yet.</td></tr>')
     return ('<section><div class="sh"><span class="no">7</span><h2>Flip list</h2>'
-            '<span class="tag">40s+ each, 1g+ per stack, up &amp; down every day</span></div>'
+            '<span class="tag">40s+ each, 1g+ per stack, a real up &amp; down every day at a steady price</span></div>'
             f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day", "r")], cols, cols[-1])}<tbody>'
             + "".join(rows) + '</tbody></table></section>')
 
@@ -581,13 +588,19 @@ def sec_camp_cooking(m):
 
 def price_badge(m, iid):
     """Where the price is now vs its weekly usual (median of the last 7 days, listing gaps removed)."""
-    s = [p for _, p in clean(m, iid)]
+    cs = clean(m, iid)
+    s = [p for _, p in cs]
     now = m.ah(iid)[0]
     if len(s) < 15 or not now:
         return ""
-    r = now / statistics.median(s)
+    usual = statistics.median(s)
+    r = now / usual
     for lo, cls, label in PRICE_BADGES:
         if (lo >= 1 and r >= lo) or (lo < 1 and r <= lo):
+            if cls == "buy":   # Buy = a fresh dip under a steady price, not a price that's been sliding for a day+ or too new to know
+                day = [p for t, p in cs if t >= m.last - 24 * 3600]
+                if cs[0][0] > m.last - 3 * 86400 or (day and statistics.median(day) <= 0.85 * usual):
+                    cls, label = "mdn", "Moving down"
             return f' <span class="badge {cls}">{label}</span>'
     return ""
 
