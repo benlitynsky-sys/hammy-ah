@@ -27,7 +27,8 @@ def summary(market_html):
     import re
     t = open(market_html, encoding="utf-8").read()
     when = re.search(r"prices as of <b>(.*?)</b>", t)
-    flips = t[t.find("Flip list"):t.find("Cooldowns</h2>")]
+    flips = t[t.find("Flip list</h2>"):]
+    flips = flips[:flips.find("</section>")]
     cert, pot, buy, sell = [], [], [], []
     for name, cell in re.findall(r'<td class="nm"[^>]*>([^<]*)((?:(?!</td>).)*)</td>', flips):
         badges, name = set(re.findall(r'badge (\w+)"', cell)), html.unescape(name).strip()
