@@ -771,6 +771,45 @@ def snapshot(pdf):
     return png
 
 
+PIC_GROUPS = [(0, 1, 2), (3,), (4,), (5, 6)]   # sections per Discord picture: flips+movers+manipulation, cooldowns, raid, campfire+cooking
+
+
+def snapshot_parts(pdf, body):
+    """Readable Discord pictures: the market report split into a few images at normal text size (the one-page PDF
+    shrinks the text to fit, which is unreadable on a phone). Returns the PNG paths in order."""
+    from PIL import Image, ImageChops, ImageOps
+    import glob
+    for old in glob.glob(glob.escape(pdf[:-4]) + " part*.png"):
+        os.remove(old)
+    head, *secs = body.split("<section>")
+    secs = ["<section>" + x for x in secs]
+    edge = next(e for e in R.EDGE if os.path.exists(e))
+    out = []
+    for n, grp in enumerate(PIC_GROUPS, 1):
+        part = (head if n == 1 else "") + "".join(secs[i] for i in grp if i < len(secs))
+        if not part:
+            continue
+        hp, png = f"{pdf[:-4]} part{n}.html", f"{pdf[:-4]} part{n}.png"
+        open(hp, "w", encoding="utf-8").write(
+            f'<!doctype html><html><head><meta charset="utf-8"><style>{CSS.replace("__ZOOM__", "1")}</style></head>'
+            f'<body><div class="wrap">{part}</div></body></html>')
+        subprocess.run([edge, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
+                        "--window-size=900,4000", f"--screenshot={png}", "file:///" + hp.replace("\\", "/")],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
+        for _ in range(30):
+            if os.path.exists(png) and os.path.getsize(png) > 0:
+                break
+            time.sleep(1)
+        im = Image.open(png).convert("RGB")
+        box = ImageChops.difference(im, Image.new("RGB", im.size, (15, 18, 22))).getbbox()
+        if box:
+            im = im.crop(box)
+        ImageOps.expand(im, border=28, fill=(15, 18, 22)).save(png, optimize=True)
+        os.remove(hp)
+        out.append(png)
+    return out
+
+
 LEGEND = ('<div class="legend"><b>Badges</b> (price now vs its weekly usual): '
           '<span class="badge buy">Buy</span> 20%+ under usual &middot; '
           '<span class="badge mdn">Moving down</span> 10-20% under &middot; '
@@ -826,6 +865,10 @@ def build():
             snapshot(p)
         except Exception as e:
             print(f"snapshot failed for {os.path.basename(p)}: {e}")
+    try:
+        snapshot_parts(market, body)
+    except Exception as e:
+        print(f"picture split failed: {e}")
     return market, routes
 
 
