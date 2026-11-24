@@ -492,7 +492,7 @@ def sec_campfire(m):
             'Mid / end-game split is by dungeon level.</div></section>')
 
 
-TOP_COOK = 20
+TOP_COOK = 6
 
 
 def sec_cooking(m):
@@ -523,6 +523,53 @@ def sec_cooking(m):
             f'<tbody>{rows}</tbody></table>'
             '<div class="fn">Farm mats = profit if you gather the * mats yourself and only pay the vendor for spices etc. '
             'Buy mats = profit if you buy every mat at today&rsquo;s cheapest (AH or vendor); red = loses money. Best farm profit first.</div></section>')
+
+
+TOP_CRAFTS = 8
+CRAFT_MIN_SOLD = 10   # output must sell 10+ a day so you can list it right after crafting
+
+
+def sec_crafts(m, shown=()):
+    """Top profession crafts by profit each (buying every mat at today's cheapest), cooldown recipes left out."""
+    cd = set()
+    for r in csv.DictReader(open(os.path.join(HERE, "recipes.csv"), encoding="utf-8")):
+        if float(r["cooldown_hours"] or 0) > 0:
+            cd |= {r["recipe"].strip().lower(), r["output"].strip().lower()}
+    best = {}
+    for r in m.recipes:
+        oid = r.get("item_id")
+        if not oid or r["name"].lower() in cd or r["name"].lower().startswith("transmute") or m.name(oid).lower() in cd:
+            continue
+        if oid in shown or one_time_buy(m, oid) or m.manipulated(oid):   # anything already in a section above is left out
+            continue
+        now, qty = m.ah(oid)
+        if not now:
+            continue
+        v = [p for _, p in clean(m, oid)]
+        price = min(now, statistics.median(v)) if len(v) >= 15 else now   # a spike right now doesn't count
+        sold = sold_day(m, oid)
+        if not sold or sold < CRAFT_MIN_SOLD:
+            continue
+        cost = m.recipe_cost(r)
+        if cost is None:
+            continue
+        profit = price * (r.get("qty") or 1) * (1 - R.CUT) - cost
+        if profit <= 0 or (oid in best and best[oid]["profit"] >= profit):
+            continue
+        mats = ", ".join(f'{q:g} {n}' for _, n, q in r["reagents"])
+        best[oid] = dict(oid=oid, prof=r["prof"], makes=r.get("qty") or 1, now=now, qty=qty, cost=cost, profit=profit, mats=mats)
+    res = sorted(best.values(), key=lambda x: -x["profit"])[:TOP_CRAFTS]
+    rows = "".join(f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{f' <span class="mut">x{x["makes"]:g}</span>' if x["makes"] > 1 else ''}</td><td>{R.esc(x["prof"])}</td>'
+                   f'<td class="r">{sm(x["now"])}</td><td class="r">{x["qty"]}</td>{vc(m, x["oid"])}'
+                   f'<td class="r">{sm(x["cost"])}</td><td class="r"><b class="up">{sm(x["profit"])}</b></td>'
+                   f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in res)
+    if not rows:
+        rows = '<tr><td colspan="8" class="mut">nothing profitable right now</td></tr>'
+    return ('<section><div class="sh"><span class="no">8</span><h2>Top crafts</h2>'
+            f'<span class="tag">top {TOP_CRAFTS} profession crafts by profit, buying all mats - nothing already listed above</span></div>'
+            '<table class="g"><thead><tr><th>Makes</th><th>Profession</th><th class="r">Sells</th><th class="r">Listed</th>'
+            '<th class="r">Sold/day</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></section>')
 
 
 WOOD_NOTE = {"Thick Logs": "cooking supply vendors (Xen'to Orgrimmar, Ronald Burch Undercity, Aza'bek Barrens) about 20g; vendor buys back at 5g",
@@ -771,7 +818,7 @@ def snapshot(pdf):
     return png
 
 
-PIC_GROUPS = [(0, 1, 2), (3,), (4,), (5, 6)]   # sections per Discord picture: flips+movers+manipulation, cooldowns, raid, campfire+cooking
+PIC_GROUPS = [(0, 1, 2), (3,), (4,), (5, 6, 7)]   # sections per Discord picture: flips+movers+manipulation, cooldowns, raid, campfire+cooking
 
 
 def snapshot_parts(pdf, body):
@@ -845,6 +892,7 @@ def build():
             + sec_flips(m, skip, cols) + sec_movers(m) + sec_manip(m) + sec_cooldowns(m, cds, cols)
             + sec_raid(m, cols, skip) + sec_campfire(m)
             + sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
+    body += sec_crafts(m, {int(i) for i in re.findall(r'data-iid="(\d+)"', body)})
     body = re.sub(r'(<td class="nm[^"]*" data-iid="(\d+)">.*?)(</td>)',   # "Manipulated" badge on bought-out items
                   lambda x: x.group(1) + (' <span class="badge manip">Manipulated</span>' if m.manipulated(int(x.group(2))) else '')
                   + price_badge(m, int(x.group(2))) + x.group(3), body)   # price badges on every item in every section
