@@ -31,7 +31,7 @@ def summary(market_html):
     cert, pot, wait = [], [], []
     for name, status in re.findall(r'<td class="nm"[^>]*>(.*?) <span class="badge \w+">(.*?)</span>', flips):
         (cert if status == "Certified flip" else pot if status == "Potential flip"
-         else wait if status == "Sell now, buy tomorrow" else []).append(html.unescape(name))
+         else wait if status == "Above usual price" else []).append(html.unescape(name))
     manip = sorted({html.unescape(re.sub(r"<[^>]+>", "", n)).strip() for n in
                     re.findall(r'<td class="nm[^"]*"[^>]*>([^<]*)(?:(?!</td>).)*badge manip', t)})
     title = re.search(r"<h1>(.*?)</h1>", t).group(1)
@@ -41,7 +41,7 @@ def summary(market_html):
     if pot:
         lines.append("Potential flips: " + ", ".join(pot))
     if wait:
-        lines.append("Sell now, buy tomorrow (priced high now): " + ", ".join(wait))
+        lines.append("Above usual price (sell now, buy on the dip): " + ", ".join(wait))
     buys = re.findall(r'<td class="nm"[^>]*>([^<]*)(?:(?!</td>).)*badge cert">BUY</span></td><td class="r">[^<]*</td><td class="r">([^<]*)</td>', t)
     if buys:
         lines.append(":rotating_light: **Buy alert:** " + ", ".join(f"{html.unescape(n).strip()} at {p}" for n, p in buys))
