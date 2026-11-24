@@ -23,7 +23,7 @@ function draw(iid, name){
   for(let k=0;k<=3;k++){const v=y0+(y1-y0)*k/3; grid+=`<line x1="${L}" x2="${W-Rt}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-5}" y="${Y(v)+3}" class="ax" text-anchor="end">${money(v)}</text>`}
   const dd=new Date(t0*1000); dd.setHours(24,0,0,0);
   for(let t=dd/1000;t<t1;t+=86400){days+=`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" class="dl"/><text x="${X(t)+3}" y="${H-B+13}" class="ax">${new Date(t*1000).toLocaleDateString([], {weekday:'short',month:'numeric',day:'numeric'})}</text>`}
-  const med=d.med, path=d.t.map((t,i)=>`${i&&d.t[i-1]<t-5400?'M':i?'L':'M'}${X(t).toFixed(1)},${Y(d.p[i]).toFixed(1)}`).join('');
+  const med=d.med, path=d.t.map((t,i)=>`${i&&d.t[i-1]<t-43200?'M':i?'L':'M'}${X(t).toFixed(1)},${Y(d.p[i]).toFixed(1)}`).join('');
   pop.innerHTML=`<div class="ph"><b>${name}</b><span>now <b>${money(d.now||d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; 7-day low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>
   <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${grid}${days}
    <line x1="${L}" x2="${W-Rt}" y1="${Y(med)}" y2="${Y(med)}" class="md"/><text x="${W-Rt}" y="${Y(med)-3}" class="ax" text-anchor="end">usual</text>
@@ -87,7 +87,10 @@ def make(m, title, body, path):
         ps = [sorted(v[0] for v in hours[h])[len(hours[h]) // 2] for h in t]
         med = sorted(ps)[len(ps) // 2]
         # drop one-hour listing gaps, but always keep the latest scan so "now" matches the report (a fresh spike is real)
-        keep = [i for i, p in enumerate(ps[:-1]) if 0.4 * med <= p <= 2.5 * med] + [len(ps) - 1]
+        # only a lone one-hour blip is dropped; a move that lasts 2+ hours (a real rise or fall) stays on the chart
+        ok = [0.4 * med <= p <= 2.5 * med for p in ps]
+        keep = [i for i in range(len(ps) - 1)
+                if ok[i] or (i and not ok[i - 1]) or (i + 1 < len(ps) and not ok[i + 1])] + [len(ps) - 1]
         now = m.ah(iid)[0] or ps[-1]    # same price the report shows (a lone silly ask is replaced by the usual price)
         data[iid] = {"t0": t[0] * 3600, "t": [hours[t[i]][-1][2] for i in keep],
                      "p": [ps[i] for i in keep[:-1]] + [now],
