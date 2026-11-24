@@ -1,0 +1,179 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Hammy's TOOL chest</title>
+<style>html,body{margin:0;background:#120d1c}svg{display:block}</style></head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="35%" r="75%">
+      <stop offset="0" stop-color="#4b2f6b"/><stop offset=".55" stop-color="#231737"/><stop offset="1" stop-color="#0d0915"/>
+    </radialGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a3a22"/><stop offset="1" stop-color="#2b1a0e"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff3a8"/><stop offset=".45" stop-color="#ffcf3f"/><stop offset="1" stop-color="#c47a12"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a5b2c"/><stop offset="1" stop-color="#5e3315"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ffd86b" stop-opacity=".55"/><stop offset="1" stop-color="#ffd86b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9b6440"/><stop offset="1" stop-color="#6e4126"/>
+    </linearGradient>
+  </defs>
+
+  <!-- backdrop -->
+  <rect width="1200" height="675" fill="url(#sky)"/>
+  <g fill="#fff" opacity=".5">
+    <circle cx="90" cy="70" r="2"/><circle cx="1110" cy="110" r="2.5"/><circle cx="980" cy="40" r="1.6"/>
+    <circle cx="210" cy="150" r="1.4"/><circle cx="1040" cy="210" r="1.5"/><circle cx="60" cy="260" r="1.8"/>
+  </g>
+  <rect y="520" width="1200" height="155" fill="url(#floor)"/>
+  <g stroke="#2a170a" stroke-width="3" opacity=".6">
+    <line x1="0" y1="560" x2="1200" y2="560"/><line x1="0" y1="610" x2="1200" y2="610"/>
+    <line x1="180" y1="520" x2="160" y2="560"/><line x1="520" y1="560" x2="500" y2="610"/><line x1="860" y1="520" x2="850" y2="560"/>
+    <line x1="1010" y1="610" x2="1000" y2="675"/><line x1="330" y1="610" x2="320" y2="675"/>
+  </g>
+
+  <!-- title -->
+  <g text-anchor="middle" font-family="Impact, 'Arial Black', sans-serif">
+    <text x="600" y="118" font-size="96" fill="#1a0f05" stroke="#1a0f05" stroke-width="14" stroke-linejoin="round">Hammy's TOOL chest</text>
+    <text x="600" y="118" font-size="96" fill="url(#gold)" stroke="#6b3a06" stroke-width="3">Hammy's <tspan fill="#ff5a3c" font-size="112">TOOL</tspan> chest</text>
+  </g>
+
+  <!-- treasure chest (right) -->
+  <ellipse cx="900" cy="470" rx="230" ry="150" fill="url(#glow)"/>
+  <ellipse cx="900" cy="602" rx="190" ry="20" fill="#000" opacity=".35"/>
+  <!-- open lid -->
+  <path d="M752 430 L770 300 Q900 262 1030 300 L1048 430 Z" fill="#4a250c" stroke="#2c1606" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M770 300 Q900 262 1030 300 L1026 322 Q900 290 774 322 Z" fill="url(#wood)" stroke="#2c1606" stroke-width="4"/>
+  <path d="M794 430 L806 296 M1006 430 L994 296" stroke="#d9a520" stroke-width="12"/>
+  <!-- body -->
+  <rect x="740" y="420" width="320" height="175" rx="10" fill="url(#wood)" stroke="#2c1606" stroke-width="5"/>
+  <rect x="740" y="420" width="320" height="26" fill="#3d2009"/>
+  <path d="M790 420 V595 M1010 420 V595" stroke="#d9a520" stroke-width="16"/>
+  <path d="M790 420 V595 M1010 420 V595" stroke="#8a5a08" stroke-width="3" stroke-dasharray="2 22"/>
+  <!-- lock with sad face -->
+  <rect x="872" y="455" width="56" height="62" rx="8" fill="url(#gold)" stroke="#6b3a06" stroke-width="4"/>
+  <circle cx="888" cy="478" r="4" fill="#4a2a05"/><circle cx="912" cy="478" r="4" fill="#4a2a05"/>
+  <path d="M886 502 Q900 492 914 502" fill="none" stroke="#4a2a05" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- what's inside: one coin, a moth, cobweb -->
+  <path d="M752 420 Q770 405 790 420 M752 420 Q760 398 778 392" fill="none" stroke="#cfcfcf" stroke-width="1.6" opacity=".7"/>
+  <ellipse cx="955" cy="418" rx="20" ry="8" fill="url(#gold)" stroke="#6b3a06" stroke-width="2.5"/>
+  <text x="955" y="423" font-size="11" text-anchor="middle" fill="#6b3a06" font-family="Arial Black">1c</text>
+  <g transform="translate(1075 270) rotate(-12)">
+    <ellipse cx="-13" cy="0" rx="16" ry="11" fill="#cdbfa6" stroke="#6d6250" stroke-width="2"/>
+    <ellipse cx="13" cy="0" rx="16" ry="11" fill="#cdbfa6" stroke="#6d6250" stroke-width="2"/>
+    <ellipse cx="0" cy="2" rx="4" ry="10" fill="#6d6250"/>
+    <path d="M-2 -8 L-8 -18 M2 -8 L8 -18" stroke="#6d6250" stroke-width="2"/>
+  </g>
+  <g fill="none" stroke="#cdbfa6" stroke-width="2" opacity=".6" stroke-dasharray="4 6">
+    <path d="M955 405 Q1010 330 1065 285"/>
+  </g>
+  <!-- note on the chest -->
+  <g transform="rotate(6 1000 545)">
+    <rect x="955" y="520" width="92" height="52" fill="#f3e7c4" stroke="#8a7346" stroke-width="2"/>
+    <text x="1001" y="543" font-size="15" text-anchor="middle" font-family="'Comic Sans MS', 'Segoe Print', cursive" fill="#5a2a0a">IOU:</text>
+    <text x="1001" y="562" font-size="13" text-anchor="middle" font-family="'Comic Sans MS', 'Segoe Print', cursive" fill="#5a2a0a">all the gold</text>
+  </g>
+
+  <!-- tauren-ish warrior (left) -->
+  <ellipse cx="400" cy="612" rx="185" ry="22" fill="#000" opacity=".35"/>
+  <!-- legs + hooves -->
+  <rect x="330" y="495" width="52" height="100" rx="18" fill="url(#fur)" stroke="#2e1a0d" stroke-width="4"/>
+  <rect x="425" y="495" width="52" height="100" rx="18" fill="url(#fur)" stroke="#2e1a0d" stroke-width="4"/>
+  <path d="M322 590 h68 v20 q-34 10 -68 0 z M417 590 h68 v20 q-34 10 -68 0 z" fill="#3a2a22" stroke="#1a0f0a" stroke-width="4"/>
+  <!-- ragged tunic body -->
+  <path d="M285 330 Q400 290 520 330 L540 505 L515 495 L500 515 L470 497 L445 520 L420 498 L395 522 L370 498 L345 518 L320 496 L290 512 L265 500 Z"
+        fill="#6f6a4e" stroke="#2e2a18" stroke-width="5" stroke-linejoin="round"/>
+  <!-- patches -->
+  <rect x="440" y="400" width="44" height="38" fill="#8f3a3a" stroke="#3a1414" stroke-width="3" transform="rotate(8 462 419)"/>
+  <path d="M444 404 l6 6 M458 404 l6 6 M472 406 l6 6 M446 432 l6 -6 M462 434 l6 -6" stroke="#f0d9a8" stroke-width="2"/>
+  <rect x="312" y="430" width="34" height="30" fill="#3f6c8f" stroke="#152738" stroke-width="3" transform="rotate(-10 329 445)"/>
+  <!-- rope belt -->
+  <path d="M282 455 Q400 478 528 455" fill="none" stroke="#b08a4f" stroke-width="10" stroke-linecap="round"/>
+  <path d="M400 468 l-10 34 M404 468 l12 30" stroke="#b08a4f" stroke-width="6" stroke-linecap="round"/>
+  <!-- empty pocket turned out -->
+  <path d="M488 470 q16 2 20 30 q-14 12 -30 0 q0 -22 10 -30 z" fill="#d9d2bd" stroke="#6e6650" stroke-width="3"/>
+
+  <!-- left arm with busted shield -->
+  <path d="M290 345 Q235 380 230 450" fill="none" stroke="#2e1a0d" stroke-width="44" stroke-linecap="round"/>
+  <path d="M290 345 Q235 380 230 450" fill="none" stroke="url(#fur)" stroke-width="36" stroke-linecap="round"/>
+  <g transform="translate(215 450) rotate(-8)">
+    <circle r="78" fill="url(#wood)" stroke="#2c1606" stroke-width="6"/>
+    <circle r="78" fill="none" stroke="#8b8f96" stroke-width="10" stroke-dasharray="30 14"/>
+    <path d="M-20 -75 L-5 -30 L-25 5 L5 40 L-10 76" fill="none" stroke="#1a0c03" stroke-width="5" stroke-linejoin="round"/>
+    <!-- bandage -->
+    <g transform="rotate(35)"><rect x="-38" y="-10" width="76" height="20" rx="6" fill="#f2c9a0" stroke="#9c6b44" stroke-width="2"/>
+      <circle cx="-6" cy="-3" r="1.6" fill="#9c6b44"/><circle cx="6" cy="3" r="1.6" fill="#9c6b44"/><circle cx="-6" cy="4" r="1.6" fill="#9c6b44"/><circle cx="6" cy="-4" r="1.6" fill="#9c6b44"/></g>
+    <circle r="12" fill="#8b8f96" stroke="#3b3e43" stroke-width="3"/>
+  </g>
+
+  <!-- right arm scratching head (confused) -->
+  <path d="M515 345 Q590 330 575 255" fill="none" stroke="#2e1a0d" stroke-width="44" stroke-linecap="round"/>
+  <path d="M515 345 Q590 330 575 255" fill="none" stroke="url(#fur)" stroke-width="36" stroke-linecap="round"/>
+  <circle cx="568" cy="243" r="26" fill="#9b6440" stroke="#2e1a0d" stroke-width="4"/>
+  <path d="M552 228 q8 -8 16 0 M560 222 q8 -8 16 0" fill="none" stroke="#2e1a0d" stroke-width="3"/>
+  <!-- a tiny bent toy sword stuck in the belt -->
+  <g transform="translate(300 470) rotate(-35)">
+    <rect x="-4" y="-70" width="8" height="58" fill="#b9bec6" stroke="#4d525a" stroke-width="2"/>
+    <path d="M-4 -70 q4 -12 8 0" fill="#b9bec6" stroke="#4d525a" stroke-width="2"/>
+    <rect x="-16" y="-14" width="32" height="8" rx="3" fill="#8a5a08"/>
+    <rect x="-4" y="-6" width="8" height="22" fill="#5e3315"/>
+  </g>
+
+  <!-- head -->
+  <g>
+    <!-- horns -->
+    <path d="M335 205 Q275 200 262 130 Q300 170 345 178 Z" fill="#efe4c8" stroke="#5a4a2e" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M470 205 Q540 205 548 140 Q510 175 462 178 Z" fill="#efe4c8" stroke="#5a4a2e" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M300 160 l10 8 M520 165 l-10 8" stroke="#5a4a2e" stroke-width="3"/>
+    <!-- ears -->
+    <ellipse cx="318" cy="232" rx="34" ry="16" fill="#8a5636" stroke="#2e1a0d" stroke-width="4" transform="rotate(-18 318 232)"/>
+    <ellipse cx="488" cy="228" rx="34" ry="16" fill="#8a5636" stroke="#2e1a0d" stroke-width="4" transform="rotate(24 488 228)"/>
+    <!-- skull -->
+    <path d="M340 175 Q402 140 466 175 Q492 235 470 290 L338 290 Q314 235 340 175 Z" fill="url(#fur)" stroke="#2e1a0d" stroke-width="5"/>
+    <!-- tuft of hair -->
+    <path d="M378 160 q10 -30 22 -4 q8 -26 20 0 q10 -22 16 6" fill="#3b2416" stroke="#2e1a0d" stroke-width="3"/>
+    <!-- big muzzle -->
+    <ellipse cx="403" cy="300" rx="86" ry="56" fill="#d8b08a" stroke="#2e1a0d" stroke-width="5"/>
+    <ellipse cx="372" cy="292" rx="12" ry="8" fill="#3b2416"/>
+    <ellipse cx="434" cy="292" rx="12" ry="8" fill="#3b2416"/>
+    <!-- crooked nose ring -->
+    <path d="M384 306 q20 40 40 0" fill="none" stroke="#c9ccd2" stroke-width="7" transform="rotate(14 404 315)"/>
+    <!-- goofy open mouth -->
+    <path d="M360 330 Q400 362 446 326 Q420 346 360 330 Z" fill="#5a1d1d" stroke="#2e1a0d" stroke-width="4"/>
+    <rect x="392" y="333" width="14" height="12" fill="#fff" stroke="#2e1a0d" stroke-width="2"/>
+    <path d="M410 340 q10 18 22 6" fill="#e56b7a" stroke="#2e1a0d" stroke-width="2"/>
+    <!-- mismatched, cross eyes -->
+    <circle cx="370" cy="222" r="24" fill="#fff" stroke="#2e1a0d" stroke-width="4"/>
+    <circle cx="438" cy="218" r="17" fill="#fff" stroke="#2e1a0d" stroke-width="4"/>
+    <circle cx="382" cy="226" r="9" fill="#111"/><circle cx="429" cy="220" r="7" fill="#111"/>
+    <circle cx="385" cy="222" r="3" fill="#fff"/><circle cx="431" cy="217" r="2.4" fill="#fff"/>
+    <!-- uneven brows -->
+    <path d="M344 190 q22 -16 50 -6" fill="none" stroke="#2e1a0d" stroke-width="7" stroke-linecap="round"/>
+    <path d="M420 188 q18 6 38 -8" fill="none" stroke="#2e1a0d" stroke-width="7" stroke-linecap="round"/>
+    <!-- dented pot helmet -->
+    <path d="M352 168 Q402 120 456 168 L452 178 Q402 160 356 178 Z" fill="#8b8f96" stroke="#3b3e43" stroke-width="4" transform="rotate(-9 404 160)"/>
+    <path d="M396 140 q6 6 0 12" stroke="#3b3e43" stroke-width="3" fill="none" transform="rotate(-9 404 160)"/>
+    <rect x="452" y="150" width="34" height="6" rx="3" fill="#3b3e43" transform="rotate(-20 469 153)"/>
+  </g>
+  <!-- question marks -->
+  <g font-family="Impact, 'Arial Black', sans-serif" fill="#ffd84a" stroke="#5a3a06" stroke-width="3">
+    <text x="240" y="230" font-size="64" transform="rotate(-14 240 230)">?</text>
+    <text x="600" y="205" font-size="80" transform="rotate(12 600 205)">?</text>
+  </g>
+  <!-- speech bubble -->
+  <g>
+    <path d="M610 270 h190 q16 0 16 16 v52 q0 16 -16 16 h-150 l-30 24 l6 -24 h-16 q-16 0 -16 -16 v-52 q0 -16 16 -16 z"
+          fill="#fffdf3" stroke="#2a2a2a" stroke-width="4"/>
+    <text x="703" y="306" font-size="22" text-anchor="middle" font-family="'Comic Sans MS', 'Segoe Print', cursive" fill="#222">me tank. why</text>
+    <text x="703" y="334" font-size="22" text-anchor="middle" font-family="'Comic Sans MS', 'Segoe Print', cursive" fill="#222">gold go away?</text>
+  </g>
+
+  <!-- footer -->
+  <text x="600" y="655" text-anchor="middle" font-size="20" fill="#e9dcc0" font-family="'Segoe UI', sans-serif" opacity=".85">horde auction house tools &#183; mostly the tool is me &#183; tap the link for prices, updated every hour</text>
+</svg>
+</body></html>
