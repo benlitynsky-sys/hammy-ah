@@ -885,11 +885,8 @@ def build():
     last = datetime.fromtimestamp(m.last)
     when = part_of_day(datetime.now().hour)
     # market report: flips, then cooldowns, then raid consumables (the biggest) across the bottom half - all full width
-    title = f"Hammy's {when} Market Report"
-    body = (header(title, last, f'each day: <b>Morning</b> (12am-noon) and <b>Evening</b> (noon-12am), last {DAYS} days<br>'
-                                f'<span class="up">&#9650; green = spiked: its highest price</span> &middot; '
-                                f'<span class="dn">&#9660; red = dipped: its lowest price</span> &middot; grey = near usual')
-            )
+    title = "Hammy's Toolchest"
+    body = header(title, last, f'each day: <b>Morning</b> (12am-noon) and <b>Evening</b> (noon-12am), last {DAYS} days')
     parts = dict(cooldowns=sec_cooldowns(m, cds, cols), raid=sec_raid(m, cols, skip), manip=sec_manip(m), movers=sec_movers(m),
                  flips=sec_flips(m, skip, cols), cooking=sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
     parts["crafts"] = sec_crafts(m, {int(i) for i in re.findall(r'data-iid="(\d+)"', "".join(parts.values()))})   # nothing listed elsewhere
@@ -905,7 +902,10 @@ def build():
     market = render(title, body)
     try:   # web-page version: hover an item for its hour-by-hour 7-day chart
         import interactive
-        interactive.make(m, title, body, market[:-4] + " Interactive.html")
+        kits = re.sub(r'<div class="fn">(?:(?!</?div).)*</div>', '', sec_leveling(m), flags=re.S)
+        kits = ('<section><div class="sh"><h2>1-150 Profession Kits</h2><span class="tag">cheapest route at current prices'
+                ' &middot; campfire drops</span></div>' + kits + sec_campfire(m).replace('<span class="no">6</span>', '') + '</section>')
+        interactive.make(m, title, body + kits, market[:-4] + " Interactive.html")   # kits tile at the bottom of the web page
     except Exception as e:
         print(f"interactive page failed: {e}")
     # profession routes: its own page
