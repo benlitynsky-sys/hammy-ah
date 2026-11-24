@@ -874,7 +874,7 @@ LEGEND = ('<div class="legend"><b>Badges</b> (price now vs its weekly usual): '
 def header(title, last, extra):
     return (f'<header><div><h1>{title}</h1>'
             f'<div class="scope">WoW Forever - US - PvP ruleset - Horde auction house</div></div>'
-            f'<div class="when">prices as of <b>{last:%a %b %d, %I:%M %p}</b><br>{extra}</div></header>')
+            f'<div class="when">prices as of <b>{R.pacific(last.timestamp())}</b><br>{extra}</div></header>')
 
 
 def build():
