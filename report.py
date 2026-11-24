@@ -134,16 +134,22 @@ class Market:
         return p, q
 
     def manipulated(self, iid):
-        """Real but artificial price: someone bought out most of the cheap stock. Plenty still listed (20+), yet the
-        cheapest is over 2x its 3-day typical price and listings fell under 40% of their typical count."""
+        """Just bought out and still inflated: plenty listed (20+), the cheapest RIGHT NOW is over 2x its weekly usual,
+        listings are under 40% of their usual count, and within the last 24h it was near usual (under 1.3x) with
+        at least twice today's stock - so the jump is a fresh buyout, not a normal swing or an old one that faded."""
         r = self.rows.get(iid)
         if not (r and r[-1][0] >= self.last - 2 * 3600) or r[-1][2] < 20:
             return False
-        hist = [x for x in r if x[0] >= self.last - 3 * 86400 and x[1]]
-        if len(hist) < 6:
+        week = [x for x in r if x[0] >= self.last - 7 * 86400 and x[1]]
+        if len(week) < 12:
             return False
-        ps, qs = sorted(x[1] for x in hist), sorted(x[2] for x in hist)
-        return r[-1][1] > 2 * ps[len(ps) // 2] and r[-1][2] < 0.4 * qs[len(qs) // 2]
+        ps, qs = sorted(x[1] for x in week), sorted(x[2] for x in week)
+        usual, usual_q = ps[len(ps) // 2], qs[len(qs) // 2]
+        now, q = r[-1][1], r[-1][2]
+        if now <= 2 * usual or q >= 0.4 * usual_q:
+            return False
+        before = [x for x in r[:-1] if x[0] >= self.last - 24 * 3600]
+        return any(p <= 1.3 * usual and bq >= 2 * q for _, p, bq, *_ in before)
 
     def gear_now(self, iid):
         r = self.gear.get(iid)
