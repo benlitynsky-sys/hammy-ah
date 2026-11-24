@@ -28,10 +28,12 @@ def summary(market_html):
     t = open(market_html, encoding="utf-8").read()
     when = re.search(r"prices as of <b>(.*?)</b>", t)
     flips = t[t.find("Flip list"):t.find("Cooldowns</h2>")]
-    cert, pot, wait = [], [], []
-    for name, status in re.findall(r'<td class="nm"[^>]*>(.*?) <span class="badge \w+">(.*?)</span>', flips):
-        (cert if status == "Certified flip" else pot if status == "Potential flip"
-         else wait if status == "Above usual price" else []).append(html.unescape(name))
+    cert, pot, buy, sell = [], [], [], []
+    for name, cell in re.findall(r'<td class="nm"[^>]*>([^<]*)((?:(?!</td>).)*)</td>', flips):
+        badges, name = set(re.findall(r'badge (\w+)"', cell)), html.unescape(name).strip()
+        for b, lst in (("cert", cert), ("pot", pot), ("buy", buy), ("sell", sell)):
+            if b in badges:
+                lst.append(name)
     manip = sorted({html.unescape(re.sub(r"<[^>]+>", "", n)).strip() for n in
                     re.findall(r'<td class="nm[^"]*"[^>]*>([^<]*)(?:(?!</td>).)*badge manip', t)})
     title = re.search(r"<h1>(.*?)</h1>", t).group(1)
@@ -40,9 +42,11 @@ def summary(market_html):
         lines.append("Certified flips: " + ", ".join(cert))
     if pot:
         lines.append("Potential flips: " + ", ".join(pot))
-    if wait:
-        lines.append("Above usual price (sell now, buy on the dip): " + ", ".join(wait))
-    buys = re.findall(r'<td class="nm"[^>]*>([^<]*)(?:(?!</td>).)*badge cert">BUY</span></td><td class="r">[^<]*</td><td class="r">([^<]*)</td>', t)
+    if buy:
+        lines.append(":green_circle: Buy (20%+ under usual): " + ", ".join(buy))
+    if sell:
+        lines.append(":red_circle: Sell (20%+ over usual): " + ", ".join(sell))
+    buys = re.findall(r'<td class="nm"[^>]*>([^<]*)(?:(?!</td>).)*badge tgt">Buy target</span>(?:(?!</td>).)*</td><td class="r">[^<]*</td><td class="r">([^<]*)</td>', t)
     if buys:
         lines.append(":rotating_light: **Buy alert:** " + ", ".join(f"{html.unescape(n).strip()} at {p}" for n, p in buys))
     if manip:
