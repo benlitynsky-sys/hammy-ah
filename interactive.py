@@ -22,7 +22,8 @@ function draw(iid, name){
   let grid='', days='';
   for(let k=0;k<=3;k++){const v=y0+(y1-y0)*k/3; grid+=`<line x1="${L}" x2="${W-Rt}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-5}" y="${Y(v)+3}" class="ax" text-anchor="end">${money(v)}</text>`}
   const dd=new Date(t0*1000); dd.setHours(24,0,0,0);
-  for(let t=dd/1000;t<t1;t+=86400){days+=`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" class="dl"/><text x="${X(t)+3}" y="${H-B+13}" class="ax">${new Date(t*1000).toLocaleDateString([], {weekday:'short',month:'numeric',day:'numeric'})}</text>`}
+  const nd=Math.ceil((t1-t0)/86400), st=Math.max(1,Math.ceil(nd/7)); let di=0;
+  for(let t=dd/1000;t<t1;t+=86400,di++){if(di%st)continue; days+=`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" class="dl"/><text x="${X(t)+3}" y="${H-B+13}" class="ax">${new Date(t*1000).toLocaleDateString([], nd>10?{month:'numeric',day:'numeric'}:{weekday:'short',month:'numeric',day:'numeric'})}</text>`}
   const med=d.med, path=d.t.map((t,i)=>`${i&&d.t[i-1]<t-43200?'M':i?'L':'M'}${X(t).toFixed(1)},${Y(d.p[i]).toFixed(1)}`).join('');
   pop.innerHTML=`<div class="ph"><b>${name}</b><span>now <b>${money(d.now||d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; 7-day low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>
   <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${grid}${days}
@@ -120,12 +121,40 @@ body{padding:18px}
 """
 
 
+def archived_rows(iids, before):
+    """Hourly rows from the permanent monthly archive files in archive/ (if downloaded), older than the working file."""
+    import glob
+    import sqlite3
+    out = {}
+    if not iids:
+        return out
+    q = ",".join("?" * len(iids))
+    for db in sorted(glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "archive", "ah113-*.sqlite"))):
+        try:
+            con = sqlite3.connect(db)
+            seen = {}
+            for t in ("snap", "allsnap"):
+                for ts, iid, fl, qty, sold in con.execute(
+                        f"SELECT ts, item_id, CASE WHEN qty < 20 AND min_unit > 0 THEN min_unit ELSE floor END, qty, sold_est "
+                        f"FROM {t} WHERE ts < ? AND item_id IN ({q})", (before, *iids)):
+                    seen[(iid, ts)] = (ts, fl, qty, sold)
+            con.close()
+            for (iid, _), r in seen.items():
+                out.setdefault(iid, []).append(r)
+        except sqlite3.Error:
+            pass
+    for v in out.values():
+        v.sort()
+    return out
+
+
 def make(m, title, body, path):
     """Write the interactive web page for this report body next to the PDF."""
-    days = 7 * 86400
     data = {}
-    for iid in sorted({int(x) for x in re.findall(r'data-iid="(\d+)"', body)}):
-        rows = [r for r in m.rows.get(iid, []) if r[0] >= m.last - days]
+    iids = sorted({int(x) for x in re.findall(r'data-iid="(\d+)"', body)})
+    old = archived_rows(iids, min((v[0][0] for v in m.rows_long.values() if v), default=m.last))
+    for iid in iids:   # charts show the full history: archive + working file
+        rows = old.get(iid, []) + m.rows_long.get(iid, [])
         hours = {}
         for ts, p, q, *_ in rows:
             hours.setdefault(ts // 3600, []).append((p, q, ts))
@@ -133,7 +162,8 @@ def make(m, title, body, path):
             continue
         t = sorted(hours)
         ps = [sorted(v[0] for v in hours[h])[len(hours[h]) // 2] for h in t]
-        med = sorted(ps)[len(ps) // 2]
+        wk = [p for h, p in zip(t, ps) if h * 3600 >= m.last - 7 * 86400] or ps
+        med = sorted(wk)[len(wk) // 2]   # the 'usual' line = the 7-day median, same as the report
         # drop one-hour listing gaps, but always keep the latest scan so "now" matches the report (a fresh spike is real)
         # only a lone one-hour blip is dropped; a move that lasts 2+ hours (a real rise or fall) stays on the chart
         ok = [0.4 * med <= p <= 2.5 * med for p in ps]
@@ -146,7 +176,7 @@ def make(m, title, body, path):
     import onepage
     page = (f'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{title}</title><style>{onepage.CSS.replace("__ZOOM__", "1.55")}{CSS}</style></head><body><div class="wrap">'
-            f'<p class="hint">Tap a section to open it. Hover over (or tap) any item name for its hour-by-hour 7-day price; click to pin it open.</p>'
+            f'<p class="hint">Tap a section to open it. Hover over (or tap) any item name for its full hour-by-hour price history; click to pin it open.</p>'
             f'{body}</div><div id="pop"></div>'
             f'<script type="application/json" id="series">{json.dumps(data, separators=(",", ":"))}</script>'
             f'<script>{JS}</script></body></html>')
