@@ -13,7 +13,7 @@ const pop = document.getElementById('pop');
 let pinned = null;
 function money(c){c=Math.round(c);const g=Math.floor(c/10000),s=Math.floor(c%10000/100),k=c%100;
   return g?`${g}g ${String(s).padStart(2,'0')}s`:s?`${s}s ${String(k).padStart(2,'0')}c`:`${k}c`}
-function fmt(t){return new Date(t*1000).toLocaleString('en-US', {timeZone:'America/Phoenix',weekday:'short',hour:'numeric',minute:'2-digit',hour12:true})}
+function fmt(t){return new Date(t*1000).toLocaleString('en-US', {timeZone:'America/Phoenix',weekday:'short',hour:'numeric',minute:'2-digit',hour12:true})+' PST'}
 function draw(iid, name, el=pop){
   const d = D[iid]; if(!d || !d.p.length){el.innerHTML=`<b>${name}</b><div class="mut">no hourly data yet</div>`;return}
   const W=560,H=210,L=52,Rt=12,T=12,B=30, t0=d.t0, t1=d.t[d.t.length-1];
