@@ -54,10 +54,10 @@ document.addEventListener('click',e=>{if(pinned&&!pop.contains(e.target)&&!e.tar
 // each section becomes a beveled picture tile; tap it to open that section's tables
 const ART={'Flip list':['🔄','#2f81f7','#0b2a5e'],'Top daily movers':['📈','#2ea043','#0b3318'],
   'Potential manipulation':['🕵️','#a371f7','#2a1556'],'Cooldowns':['⏳','#e3b341','#4a3205'],
-  'Raid consumables':['🐉','#f85149','#4a0d0c'],'Cooking':['🍖','#f0883e','#4a2208'],'Top crafts':['⚒️','#8b949e','#1c2128']};
+  'Raid consumables':['🐉','#f85149','#4a0d0c'],'Cooking':['🍖','#f0883e','#4a2208'],'Top crafts':['⚒️','#8b949e','#1c2128'],'1-150 Profession Kits':['🧰','#39c5cf','#0b3a3e']};
 let openSet=[]; try{openSet=JSON.parse(localStorage.getItem('open')||'[]')}catch(e){}
-document.querySelectorAll('.wrap section').forEach(sec=>{
-  const sh=sec.querySelector('.sh'); if(!sh)return;
+document.querySelectorAll('.wrap > section').forEach(sec=>{
+  const sh=sec.querySelector(':scope > .sh'); if(!sh)return;
   const name=sh.querySelector('h2').textContent.trim(), tag=(sh.querySelector('.tag')||{}).textContent||'';
   const [icon,c1,c2]=ART[name]||['📊','#58a6ff','#0d2d5e'];
   const body=document.createElement('div'); body.className='sb';
