@@ -21,6 +21,19 @@ import sys
 from collections import defaultdict
 from datetime import datetime, date
 
+
+def pacific(ts=None, fmt="%a %b %d, {h}:%M %p"):
+    """Time shown to people: US Pacific (PST/PDT) with am/pm, whatever clock the PC or cloud runs on."""
+    import time as _t
+    from datetime import timedelta
+    utc = datetime.utcfromtimestamp(_t.time() if ts is None else ts)
+    def sunday(month, n):
+        d = datetime(utc.year, month, 1)
+        return d + timedelta(days=(6 - d.weekday()) % 7 + 7 * (n - 1))
+    dst = sunday(3, 2).replace(hour=10) <= utc < sunday(11, 1).replace(hour=9)
+    t = utc - timedelta(hours=7 if dst else 8)
+    return t.strftime(fmt.replace("{h}", str(int(t.strftime("%I"))))) + (" PDT" if dst else " PST")
+
 import forever_ah as f
 import plays
 
@@ -595,7 +608,7 @@ def build():
             f'<span>each chart starts at the item&rsquo;s first scan and ends at the last one</span>')
     body = (f'<div class="wrap"><header><div><h1>Horde AH Market Report</h1>'
             f'<div class="scope">WoW Forever - US - PvP ruleset - Horde auction house</div></div>'
-            f'<div class="when">prices as of the last scan<br><b>{last:%a %b %d, %I:%M %p}</b><br>'
+            f'<div class="when">prices as of the last scan<br><b>{pacific(last.timestamp())}</b><br>'
             f'{m.n_scans} hourly scans since {datetime.fromtimestamp(m.t0):%a %b %d}</div></header>'
             f'<div class="legend">{demo}</div>'
             + section_raid(m) + section_gear(m) + section_cooldowns(m) + section_leveling(m) + "</div>")
