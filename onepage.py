@@ -523,13 +523,41 @@ def sec_campfire(m):
 GUIDE_SKIP_TYPES = {"Everyday Meals", "Miscellaneous Cuisines", "SEASON OF DISCOVERY", "Winter Veil Treats"}
 
 
+EASY_PLACES = ("Orgrimmar", "Thunder Bluff", "Undercity", "Durotar", "Mulgore", "Tirisfal Glades")
+
+
+def guide_kind(learn):
+    """Which 'hard to get' group a recipe source belongs in, or None if any trainer / a home-city vendor has it."""
+    l = learn.lower()
+    if l.startswith("cooking trainer"):
+        return None
+    if "alliance" in l:
+        return "alliance"
+    if l.startswith("drop"):
+        return "drop"
+    if l.startswith("quest"):
+        return "quest"
+    if "merchant's favor" in l:
+        return "favor"
+    if "alliance" in l:
+        return "alliance"
+    if any(p.lower() in l for p in EASY_PLACES) and " or " not in l and "," not in l.split(":", 1)[-1]:
+        return None   # sold in a Horde city / starting zone - easy
+    if any(p.lower() in l for p in EASY_PLACES):
+        return None   # at least one easy vendor
+    return "far"
+
+
 def sec_cook_guide(m):
-    """Recipe guide under Cooking: every recipe that makes money now, every mid/high-level recipe worth knowing, the
-    camping recipes, and where a Horde cook learns each one (cooking_sources.csv - from wow.gg / method.gg, Nov 2026)."""
+    """Hard-to-get cooking recipes only: drops, quests, faraway vendors, Merchant's Favor and Alliance-only recipes,
+    with where a Horde cook gets each one (cooking_sources.csv - from wow.gg / method.gg, Nov 2026). Anything any cooking
+    trainer teaches, or a vendor in a Horde city / starting zone sells, is left out."""
     src = list(csv.DictReader(open(os.path.join(HERE, "cooking_sources.csv"), encoding="utf-8"), delimiter="|"))
-    camp_names = {"Basic Campfire Kit", "Journeyman Campfire Kit", "Expert Campfire Kit", "Cookie's Feast", "Iron Oven"}
-    prof, useful, camp = [], [], []
+    groups = {k: [] for k in ("drop", "quest", "far", "favor", "alliance")}
     for x in src:
+        kind = guide_kind(x["learn"])
+        if not kind:
+            continue
         name, skill = x["recipe"], int(x["skill"])
         r = (m.by_name.get(("Cooking", name.lower())) or [None])[0]
         oid = r.get("item_id") if r else None
@@ -540,15 +568,9 @@ def sec_cook_guide(m):
             farm = sell - sum((m.vendor(i) or 0) * q for i, _, q in r["reagents"])
         cat = (r or {}).get("category") or ""
         eff = x["effect"] or (cat if cat and cat not in GUIDE_SKIP_TYPES else "")
-        row = dict(name=name, skill=skill, learn=x["learn"], eff=eff, oid=oid if now else None, farm=farm)
-        if name in camp_names:
-            camp.append(row)
-        elif farm is not None and farm >= 100:   # 1s+ profit each
-            prof.append(row)
-        elif skill >= 125:
-            useful.append(row)
-    prof.sort(key=lambda x: -x["farm"])
-    useful.sort(key=lambda x: (x["skill"], x["name"]))
+        groups[kind].append(dict(name=name, skill=skill, learn=x["learn"], eff=eff, oid=oid if now else None, farm=farm))
+    for v in groups.values():
+        v.sort(key=lambda x: (x["skill"], x["name"]))
 
     def tr(x):
         nm = (f'<td class="nm" data-iid="{x["oid"]}">' if x["oid"] else '<td class="nm">') + R.esc(x["name"]) + '</td>'
@@ -561,16 +583,19 @@ def sec_cook_guide(m):
         return f'<tr class="grp"><td colspan="7"><b>{title}</b></td></tr>' + "".join(tr(x) for x in rows) if rows else ""
 
     camp_tbl = sec_campfire(m).replace('<span class="no">6</span>', '')
-    return ('<h3 class="cg">Cooking recipe guide (Horde)</h3>'
-            '<div class="mut cgn">Where to learn every money-making and mid/high-level recipe. Profit each = farm your own meat/fish, '
-            'pay only for vendor spices. Cooking cap: Expert Cookbook at 125 from Wulan (Desolace); 225-300 from the quest '
-            'Clamlette Surprise, Dirge Quikcleave in Gadgetzan (character level 35). Merchant&rsquo;s Favor recipes: Aza&rsquo;bek near '
-            'the Crossroads. Sources: wow.gg and method.gg (Nov 2026).</div>'
-            '<table class="g"><thead><tr><th>Recipe</th><th class="r">Skill</th><th>Buff / use</th><th>Learn it</th>'
+    return ('<h3 class="cg">Hard-to-get cooking recipes (Horde)</h3>'
+            '<div class="mut cgn">Drops, quests, faraway vendors and rep recipes only - anything a cooking trainer teaches or a '
+            'Horde city vendor sells is left out. Cooking cap: Expert Cookbook at 125 from Wulan (Desolace); 225-300 from the quest '
+            'Clamlette Surprise, Dirge Quikcleave in Gadgetzan (character level 35). Trainers out in the world: Mudduk '
+            '(Stranglethorn), Duhng (Barrens), Ortak Lomgok (Mount Hyjal), Gorg (Riverglades). Profit each = farm your own meat/fish. '
+            'Sources: wow.gg and method.gg (Nov 2026).</div>'
+            '<table class="g"><thead><tr><th>Recipe</th><th class="r">Skill</th><th>Buff / use</th><th>Where to get it</th>'
             '<th class="r">Profit each</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th></tr></thead><tbody>'
-            + grp("Makes money right now - best first", prof)
-            + grp("Mid &amp; high-level recipes worth knowing", useful)
-            + grp("Camping", sorted(camp, key=lambda x: x["skill"]))
+            + grp("Drops", groups["drop"])
+            + grp("Quests", groups["quest"])
+            + grp("Faraway vendors", groups["far"])
+            + grp("Merchant&rsquo;s Favor (Aza&rsquo;bek, near the Crossroads)", groups["favor"])
+            + grp("Alliance-only vendors - look for the recipe on the AH", groups["alliance"])
             + '</tbody></table>' + camp_tbl)
 
 
