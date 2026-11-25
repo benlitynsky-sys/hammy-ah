@@ -438,20 +438,40 @@ def sec_flips(m, skip, cols):
         if not x["badge"]:
             x["status"] = ""
     res.sort(key=lambda x: (-x["rank"], -x["per_stack"]))
-    rows = []
+    head = thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, cols[-1])
+    lists = {"down": [], "mid": [], "up": []}
     for x in res[:TOP_FLIPS]:
         pos = (x["now"] - x["lo"]) / max(1, x["hi"] - x["lo"]) if x["now"] else 0.5
         zone = "up" if pos <= 0.3 else "dn" if pos >= 0.7 else ""
         badge = x["badge"]
-        rows.append(f'<tr class="row-{badge}"><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}{f' <span class="badge {badge}">{x["status"]}</span>' if badge else ''}</td><td class="r now {zone}">{sm(x["now"])}</td>'
-                    f'<td class="r"><b>{R.chg(m.change_24h(x["iid"]))}</b></td><td class="r">{x["qty"]}</td>{vc(m, x["iid"])}'
-                    f'{hilo_cells(m, x["iid"], cols)}</tr>')
-    if not rows:
-        rows.append(f'<tr><td colspan="{6 + 2 * len(cols)}" class="mut">Nothing passes yet.</td></tr>')
+        lists[swing_dir(m, x["iid"], pos)].append(
+            f'<tr class="row-{badge}"><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}{f' <span class="badge {badge}">{x["status"]}</span>' if badge else ''}</td><td class="r now {zone}">{sm(x["now"])}</td>'
+            f'<td class="r"><b>{R.chg(m.change_24h(x["iid"]))}</b></td><td class="r">{x["qty"]}</td>{vc(m, x["iid"])}'
+            f'{hilo_cells(m, x["iid"], cols)}</tr>')
+    empty = f'<tr><td colspan="{6 + 2 * len(cols)}" class="mut">Nothing right now.</td></tr>'
+    out = ""
+    for k, title, note in (("down", "On downswing", "price falling over the last few hours - wait for the bottom to buy, don't sell into it"),
+                           ("mid", "Middleground", "price flat over the last few hours - between its daily low and high, no clear move yet"),
+                           ("up", "On upswing", "price rising over the last few hours - sell into it if you hold some; too late to buy cheap")):
+        out += (f'<h3 class="cg">{title} <span class="mut cgn">{note}</span></h3>'
+                f'<table class="g">{head}<tbody>' + ("".join(lists[k]) or empty) + '</tbody></table>')
     return ('<section><div class="sh"><span class="no">1</span><h2>Flip list</h2>'
             '<span class="tag">40s+ each, 1g+ per stack, a real up &amp; down every day at a steady price</span></div>'
-            f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, cols[-1])}<tbody>'
-            + "".join(rows) + '</tbody></table></section>')
+            + out + '</section>')
+
+
+def swing_dir(m, iid, pos):
+    """'down', 'mid' or 'up': where the price is heading now - last 3 hours vs the 3 hours before (2%+ move = a swing)."""
+    s = clean(m, iid)
+    a = [p for t, p in s if t > m.last - 3 * 3600]
+    b = [p for t, p in s if m.last - 6 * 3600 < t <= m.last - 3 * 3600]
+    if a and b:
+        r = statistics.median(a) / statistics.median(b)
+        if r <= 0.98:
+            return "down"
+        if r >= 1.02:
+            return "up"
+    return "mid"
 
 
 MANIP_MIN = 500   # 5s usual price - ignore trash
@@ -633,17 +653,17 @@ def sec_cooking(m):
             + sec_cook_guide(m) + '</section>')
 
 
-TOP_CRAFTS = 20
+TOP_CRAFTS = 10   # per profession
 CRAFT_MIN_SOLD = 10   # output must sell 10+ a day so you can list it right after crafting
 
 
 def sec_crafts(m, shown=()):
-    """Top profession crafts by profit each (buying every mat at today's cheapest), cooldown recipes left out."""
+    """Top 10 crafts per profession by profit per craft (buying every mat at today's cheapest), cooldown recipes left out."""
     cd = set()
     for r in csv.DictReader(open(os.path.join(HERE, "recipes.csv"), encoding="utf-8")):
         if float(r["cooldown_hours"] or 0) > 0:
             cd |= {r["recipe"].strip().lower(), r["output"].strip().lower()}
-    best = {}
+    cand = []
     for r in m.recipes:
         oid = r.get("item_id")
         if not oid or r["name"].lower() in cd or r["name"].lower().startswith("transmute") or m.name(oid).lower() in cd:
@@ -662,22 +682,33 @@ def sec_crafts(m, shown=()):
         if cost is None:
             continue
         profit = price * (r.get("qty") or 1) * (1 - R.CUT) - cost
-        if profit <= 0 or (oid in best and best[oid]["profit"] >= profit):
+        if profit <= 0:
             continue
         mats = ", ".join(f'{q:g} {n}' for _, n, q in r["reagents"])
-        best[oid] = dict(oid=oid, prof=r["prof"], makes=r.get("qty") or 1, now=now, qty=qty, cost=cost, profit=profit, mats=mats)
-    res = sorted(best.values(), key=lambda x: -x["profit"])[:TOP_CRAFTS]
-    rows = "".join(f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{f' <span class="mut">x{x["makes"]:g}</span>' if x["makes"] > 1 else ''}</td><td>{R.esc(x["prof"])}</td>'
-                   f'<td class="r">{sm(x["now"])}</td><td class="r">{x["qty"]}</td>{vc(m, x["oid"])}'
-                   f'<td class="r">{sm(x["cost"])}</td><td class="r"><b class="up">{sm(x["profit"])}</b></td>'
-                   f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in res)
-    if not rows:
-        rows = '<tr><td colspan="9" class="mut">nothing profitable right now</td></tr>'
+        cand.append(dict(oid=oid, prof=r["prof"], makes=r.get("qty") or 1, now=now, qty=qty, cost=cost, profit=profit, mats=mats))
+    best = {}
+    for x in cand:   # one line per item, its most profitable recipe
+        if x["oid"] not in best or best[x["oid"]]["profit"] < x["profit"]:
+            best[x["oid"]] = x
+    byprof = defaultdict(list)
+    for x in best.values():
+        byprof[x["prof"]].append(x)
+    for v in byprof.values():
+        v.sort(key=lambda x: -x["profit"])
+    head = ('<table class="g"><thead><tr><th>Makes</th><th class="r">Sells</th><th class="r">Listed</th>'
+            '<th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>')
+    out = ""
+    for prof in sorted(byprof, key=lambda p: -byprof[p][0]["profit"]):   # profession with the best craft first
+        top = byprof[prof][:TOP_CRAFTS]
+        rows = "".join(f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{f' <span class="mut">x{x["makes"]:g}</span>' if x["makes"] > 1 else ''}</td>'
+                       f'<td class="r">{sm(x["now"])}</td><td class="r">{x["qty"]}</td>{vc(m, x["oid"])}'
+                       f'<td class="r">{sm(x["cost"])}</td><td class="r"><b class="up">{sm(x["profit"])}</b></td>'
+                       f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in top)
+        out += f'<h3 class="cg">{R.esc(prof)} <span class="mut cgn">top {len(top)} by profit per craft</span></h3>{head}<tbody>{rows}</tbody></table>'
+    out = out or '<div class="mut">nothing profitable right now</div>'
     return ('<section><div class="sh"><span class="no">7</span><h2>Top crafts</h2>'
-            f'<span class="tag">top {TOP_CRAFTS} profession crafts by profit, buying all mats - nothing already listed above</span></div>'
-            '<table class="g"><thead><tr><th>Makes</th><th>Profession</th><th class="r">Sells</th><th class="r">Listed</th>'
-            '<th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>'
-            f'<tbody>{rows}</tbody></table></section>')
+            f'<span class="tag">top {TOP_CRAFTS} per profession by profit per craft, buying all mats - no cooldowns, nothing already listed above</span></div>'
+            + out + '</section>')
 
 
 WOOD_NOTE = {"Thick Logs": "cooking supply vendors (Xen'to Orgrimmar, Ronald Burch Undercity, Aza'bek Barrens) about 20g; vendor buys back at 5g",
