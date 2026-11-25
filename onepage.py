@@ -716,6 +716,28 @@ def sec_camp_cooking(m):
             '<span class="badge tgt">Buy target</span> = at or under the buy target (Thick Logs 13g, Expert Campfire Kit 15g).</div>')
 
 
+BUY_MIN_DAYS = 4   # need 4+ days of history before calling anything a Buy
+
+
+def fresh_dip(m, cs, usual):
+    """Buy = a fresh dip under a steady price. Not when: too new to know, the last day has been low all day, or the price
+    has been stepping down day after day (each day's middle price lower than the day before - a slide, not a dip)."""
+    if cs[0][0] > m.last - BUY_MIN_DAYS * 86400:
+        return False
+    days = []
+    for k in range(3):   # middle price of the last 24h, the 24h before that, and the 24h before that
+        v = [p for t, p in cs if m.last - (k + 1) * 86400 < t <= m.last - k * 86400]
+        days.append(statistics.median(v) if len(v) >= 4 else None)
+    d0, d1, d2 = days
+    if d0 and d0 <= 0.85 * usual:
+        return False
+    if d0 and d1 and d0 < 0.92 * d1:                       # dropped 8%+ day over day
+        return False
+    if d0 and d1 and d2 and d0 < 0.97 * d1 and d1 < 0.97 * d2:   # two down days in a row
+        return False
+    return True
+
+
 def price_badge(m, iid):
     """Where the price is now vs its weekly usual (median of the last 7 days, listing gaps removed)."""
     cs = clean(m, iid)
@@ -727,10 +749,8 @@ def price_badge(m, iid):
     r = now / usual
     for lo, cls, label in PRICE_BADGES:
         if (lo >= 1 and r >= lo) or (lo < 1 and r <= lo):
-            if cls == "buy":   # Buy = a fresh dip under a steady price, not a price that's been sliding for a day+ or too new to know
-                day = [p for t, p in cs if t >= m.last - 24 * 3600]
-                if cs[0][0] > m.last - 3 * 86400 or (day and statistics.median(day) <= 0.85 * usual):
-                    cls, label = "mdn", "Moving down"
+            if cls == "buy" and not fresh_dip(m, cs, usual):
+                cls, label = "mdn", "Moving down"
             return f' <span class="badge {cls}">{label}</span>'
     return ""
 
