@@ -77,7 +77,7 @@ def name_gear(cfg, api, budget=300):
 
 PUBLISH_MIN = 26     # Blizzard posts each new AH 113 snapshot at about :26 past the hour
 WAIT_UNTIL_MIN = 45  # a run that starts before this keeps watching for the snapshot instead of quitting
-RUN_BUDGET = 18 * 60  # GitHub stops a run at 30 min - leave room for the report build
+RUN_BUDGET = 21 * 60  # GitHub stops a run at 30 min - a run that starts at :05 still watches past :26 and has ~7 min to build
 
 
 def wait_for_snapshot(cfg, api, started):
