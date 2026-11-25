@@ -361,15 +361,15 @@ def sec_raid(m, cols, skip):
     last = cols[-1]
 
     def rows(title, ids):
-        return (f'<tr class="grp"><td colspan="{3 + 2 * len(cols)}"><b>{title}</b></td></tr>'
-                + "".join(f'<tr><td class="nm" data-iid="{i}">{R.esc(m.name(i))}</td><td class="r now">{sm(m.ah(i)[0])}</td>{vc(m, i)}'
+        return (f'<tr class="grp"><td colspan="{4 + 2 * len(cols)}"><b>{title}</b></td></tr>'
+                + "".join(f'<tr><td class="nm" data-iid="{i}">{R.esc(m.name(i))}</td><td class="r now">{sm(m.ah(i)[0])}</td>{lc(m, i)}{vc(m, i)}'
                           f'{hilo_cells(m, i, cols)}</tr>' for i in ids))
     days = (R.RAID_DAY - date.today()).days
     note = (f'<div class="fn">Top {TOP_RAID} of each: consumables ranked by craft profit, materials by price x how many raid consumes use them. '
             f'No listings yet: {R.esc(", ".join(unlisted))}.</div>')
     return (f'<section><div class="sh"><span class="no">5</span><h2>Raid consumables</h2>'
             f'<span class="tag">{R.esc(R.RAIDS)} - Dec 9, {days} days</span></div>'
-            f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("Sold/day (7d avg)", "r")], cols, last)}<tbody>'
+            f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("Listed/day (7d avg)", "r"), ("Sold/day (7d avg)", "r")], cols, last)}<tbody>'
             f'{rows("Consumables - most profitable to craft", cons)}{rows("Materials - most used in raid consumes", mat_ids)}'
             f'</tbody></table>{note}</section>')
 
