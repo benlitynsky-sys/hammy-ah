@@ -439,39 +439,24 @@ def sec_flips(m, skip, cols):
             x["status"] = ""
     res.sort(key=lambda x: (-x["rank"], -x["per_stack"]))
     head = thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, cols[-1])
-    lists = {"down": [], "mid": [], "up": []}
+    lists = {"low": [], "high": []}
     for x in res[:TOP_FLIPS]:
         pos = (x["now"] - x["lo"]) / max(1, x["hi"] - x["lo"]) if x["now"] else 0.5
         zone = "up" if pos <= 0.3 else "dn" if pos >= 0.7 else ""
         badge = x["badge"]
-        lists[swing_dir(m, x["iid"], pos)].append(
+        lists["low" if pos < 0.5 else "high"].append(
             f'<tr class="row-{badge}"><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}{f' <span class="badge {badge}">{x["status"]}</span>' if badge else ''}</td><td class="r now {zone}">{sm(x["now"])}</td>'
             f'<td class="r"><b>{R.chg(m.change_24h(x["iid"]))}</b></td><td class="r">{x["qty"]}</td>{vc(m, x["iid"])}'
             f'{hilo_cells(m, x["iid"], cols)}</tr>')
     empty = f'<tr><td colspan="{6 + 2 * len(cols)}" class="mut">Nothing right now.</td></tr>'
     out = ""
-    for k, title, note in (("down", "On downswing", "price falling over the last few hours - wait for the bottom to buy, don't sell into it"),
-                           ("mid", "Middleground", "price flat over the last few hours - between its daily low and high, no clear move yet"),
-                           ("up", "On upswing", "price rising over the last few hours - sell into it if you hold some; too late to buy cheap")):
+    for k, title, note in (("low", "Priced low", "now in the bottom half of its usual daily range - buy here"),
+                           ("high", "Priced high", "now in the top half of its usual daily range - sell here")):
         out += (f'<h3 class="cg">{title} <span class="mut cgn">{note}</span></h3>'
                 f'<table class="g">{head}<tbody>' + ("".join(lists[k]) or empty) + '</tbody></table>')
     return ('<section><div class="sh"><span class="no">1</span><h2>Flip list</h2>'
             '<span class="tag">40s+ each, 1g+ per stack, a real up &amp; down every day at a steady price</span></div>'
             + out + '</section>')
-
-
-def swing_dir(m, iid, pos):
-    """'down', 'mid' or 'up': where the price is heading now - last 3 hours vs the 3 hours before (2%+ move = a swing)."""
-    s = clean(m, iid)
-    a = [p for t, p in s if t > m.last - 3 * 3600]
-    b = [p for t, p in s if m.last - 6 * 3600 < t <= m.last - 3 * 3600]
-    if a and b:
-        r = statistics.median(a) / statistics.median(b)
-        if r <= 0.98:
-            return "down"
-        if r >= 1.02:
-            return "up"
-    return "mid"
 
 
 MANIP_MIN = 500   # 5s usual price - ignore trash
