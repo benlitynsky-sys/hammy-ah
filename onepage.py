@@ -655,6 +655,9 @@ def sec_cooking(m):
 
 TOP_CRAFTS = 10   # per profession
 CRAFT_MIN_SOLD = 10   # output must sell 10+ a day so you can list it right after crafting
+GEAR_MIN_LISTED = 3   # crafted gear: 3+ on the AH right now
+GEAR_MAX_MARKUP = 6   # and priced at most 6x its mats - above that it is a lone silly ask, not a market
+GEAR_MIN_HOURS = 54   # and seen in 54+ of the last 72 hourly scans
 
 
 def sec_crafts(m, shown=()):
@@ -671,21 +674,32 @@ def sec_crafts(m, shown=()):
         if oid in shown or one_time_buy(m, oid) or m.manipulated(oid):   # anything already in a section above is left out
             continue
         now, qty = m.ah(oid)
-        if not now:
-            continue
-        v = [p for _, p in clean(m, oid)]
-        price = min(now, statistics.median(v)) if len(v) >= 15 else now   # a spike right now doesn't count
-        sold = sold_day(m, oid)
-        if not sold or sold < CRAFT_MIN_SOLD:
-            continue
+        gear = False
+        if now:
+            v = [p for _, p in clean(m, oid)]
+            price = min(now, statistics.median(v)) if len(v) >= 15 else now   # a spike right now doesn't count
+            sold = sold_day(m, oid)
+            if not sold or sold < CRAFT_MIN_SOLD:
+                continue
+        else:   # crafted gear (one per listing): Blizzard gives no sold count, so ask for a steady market instead
+            now, qty = m.gear_now(oid)
+            if not now or qty < GEAR_MIN_LISTED:
+                continue
+            hist = [(t, p) for t, p in m.series(oid, gear=True) if t >= m.last - 3 * 86400]
+            if len(hist) < GEAR_MIN_HOURS:   # listed most hours of the last 3 days = people keep buying and relisting it
+                continue
+            price = min(now, statistics.median(p for _, p in hist))   # cheapest ask, never above its usual
+            gear = True
         cost = m.recipe_cost(r)
         if cost is None:
+            continue
+        if gear and price > GEAR_MAX_MARKUP * cost:
             continue
         profit = price * (r.get("qty") or 1) * (1 - R.CUT) - cost
         if profit <= 0:
             continue
         mats = ", ".join(f'{q:g} {n}' for _, n, q in r["reagents"])
-        cand.append(dict(oid=oid, prof=r["prof"], makes=r.get("qty") or 1, now=now, qty=qty, cost=cost, profit=profit, mats=mats))
+        cand.append(dict(oid=oid, prof=r["prof"], makes=r.get("qty") or 1, now=now, qty=qty, cost=cost, profit=profit, mats=mats, gear=gear))
     best = {}
     for x in cand:   # one line per item, its most profitable recipe
         if x["oid"] not in best or best[x["oid"]]["profit"] < x["profit"]:
@@ -701,13 +715,14 @@ def sec_crafts(m, shown=()):
     for prof in sorted(byprof, key=lambda p: -byprof[p][0]["profit"]):   # profession with the best craft first
         top = byprof[prof][:TOP_CRAFTS]
         rows = "".join(f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{f' <span class="mut">x{x["makes"]:g}</span>' if x["makes"] > 1 else ''}</td>'
-                       f'<td class="r">{sm(x["now"])}</td><td class="r">{x["qty"]}</td>{vc(m, x["oid"])}'
+                       f'<td class="r">{sm(x["now"])}</td><td class="r">{x["qty"]}</td>'
+                       f'{('<td class="r mut" title="gear: Blizzard gives no sold count">gear</td>' + vnc(x["oid"])) if x["gear"] else vc(m, x["oid"])}'
                        f'<td class="r">{sm(x["cost"])}</td><td class="r"><b class="up">{sm(x["profit"])}</b></td>'
                        f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in top)
         out += f'<h3 class="cg">{R.esc(prof)} <span class="mut cgn">top {len(top)} by profit per craft</span></h3>{head}<tbody>{rows}</tbody></table>'
     out = out or '<div class="mut">nothing profitable right now</div>'
     return ('<section><div class="sh"><span class="no">7</span><h2>Top crafts</h2>'
-            f'<span class="tag">top {TOP_CRAFTS} per profession by profit per craft, buying all mats - no cooldowns, nothing already listed above</span></div>'
+            f'<span class="tag">top {TOP_CRAFTS} per profession by profit per craft, buying all mats - no cooldowns, nothing already listed above. Gear has no sold count from Blizzard, so it must be listed 3+ and steadily on the AH</span></div>'
             + out + '</section>')
 
 
