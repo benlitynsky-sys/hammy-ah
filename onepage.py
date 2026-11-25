@@ -970,6 +970,12 @@ def build():
     when = part_of_day(datetime.now().hour)
     # market report: flips, then cooldowns, then raid consumables (the biggest) across the bottom half - all full width
     title = "Hammy's Toolchest"
+    try:   # show when Blizzard posted this snapshot (about :26 past), not when our scan ran
+        from email.utils import parsedate_to_datetime
+        lm = m.con.execute("SELECT v FROM meta WHERE k='last_modified'").fetchone()
+        last = datetime.fromtimestamp(parsedate_to_datetime(lm[0]).timestamp()) if lm and lm[0] else last
+    except Exception:
+        pass
     body = header(title, last, f'each day: <b>Morning</b> (12am-noon) and <b>Evening</b> (noon-12am), last {DAYS} days')
     parts = dict(cooldowns=sec_cooldowns(m, cds, cols), raid=sec_raid(m, cols, skip), manip=sec_manip(m), movers=sec_movers(m),
                  flips=sec_flips(m, skip, cols), cooking=sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
