@@ -495,6 +495,60 @@ def sec_campfire(m):
             'Mid / end-game split is by dungeon level.</div></section>')
 
 
+GUIDE_SKIP_TYPES = {"Everyday Meals", "Miscellaneous Cuisines", "SEASON OF DISCOVERY", "Winter Veil Treats"}
+
+
+def sec_cook_guide(m):
+    """Recipe guide under Cooking: every recipe that makes money now, every mid/high-level recipe worth knowing, the
+    camping recipes, and where a Horde cook learns each one (cooking_sources.csv - from wow.gg / method.gg, Nov 2026)."""
+    src = list(csv.DictReader(open(os.path.join(HERE, "cooking_sources.csv"), encoding="utf-8"), delimiter="|"))
+    camp_names = {"Basic Campfire Kit", "Journeyman Campfire Kit", "Expert Campfire Kit", "Cookie's Feast", "Iron Oven"}
+    prof, useful, camp = [], [], []
+    for x in src:
+        name, skill = x["recipe"], int(x["skill"])
+        r = (m.by_name.get(("Cooking", name.lower())) or [None])[0]
+        oid = r.get("item_id") if r else None
+        now = m.ah(oid)[0] if oid else None
+        farm = None
+        if r and now:
+            sell = now * (r.get("qty") or 1) * (1 - R.CUT)
+            farm = sell - sum((m.vendor(i) or 0) * q for i, _, q in r["reagents"])
+        cat = (r or {}).get("category") or ""
+        eff = x["effect"] or (cat if cat and cat not in GUIDE_SKIP_TYPES else "")
+        row = dict(name=name, skill=skill, learn=x["learn"], eff=eff, oid=oid if now else None, farm=farm)
+        if name in camp_names:
+            camp.append(row)
+        elif farm is not None and farm >= 100:   # 1s+ profit each
+            prof.append(row)
+        elif skill >= 125:
+            useful.append(row)
+    prof.sort(key=lambda x: -x["farm"])
+    useful.sort(key=lambda x: (x["skill"], x["name"]))
+
+    def tr(x):
+        nm = (f'<td class="nm" data-iid="{x["oid"]}">' if x["oid"] else '<td class="nm">') + R.esc(x["name"]) + '</td>'
+        pf = f'<b class="up">{sm(x["farm"])}</b>' if x["farm"] and x["farm"] > 0 else '<span class="mut">-</span>'
+        return (f'<tr>{nm}<td class="r">{x["skill"]}</td><td>{R.esc(x["eff"]) or "<span class=mut>-</span>"}</td>'
+                f'<td>{R.esc(x["learn"])}</td><td class="r">{pf}</td>'
+                + (vc(m, x["oid"]) if x["oid"] else '<td class="r mut">-</td>') + '</tr>')
+
+    def grp(title, rows):
+        return f'<tr class="grp"><td colspan="6"><b>{title}</b></td></tr>' + "".join(tr(x) for x in rows) if rows else ""
+
+    camp_tbl = sec_campfire(m).replace('<span class="no">6</span>', '')
+    return ('<h3 class="cg">Cooking recipe guide (Horde)</h3>'
+            '<div class="mut cgn">Where to learn every money-making and mid/high-level recipe. Profit each = farm your own meat/fish, '
+            'pay only for vendor spices. Cooking cap: Expert Cookbook at 125 from Wulan (Desolace); 225-300 from the quest '
+            'Clamlette Surprise, Dirge Quikcleave in Gadgetzan (character level 35). Merchant&rsquo;s Favor recipes: Aza&rsquo;bek near '
+            'the Crossroads. Sources: wow.gg and method.gg (Nov 2026).</div>'
+            '<table class="g"><thead><tr><th>Recipe</th><th class="r">Skill</th><th>Buff / use</th><th>Learn it</th>'
+            '<th class="r">Profit each</th><th class="r">Sold/day (7d avg)</th></tr></thead><tbody>'
+            + grp("Makes money right now - best first", prof)
+            + grp("Mid &amp; high-level recipes worth knowing", useful)
+            + grp("Camping", sorted(camp, key=lambda x: x["skill"]))
+            + '</tbody></table>' + camp_tbl)
+
+
 TOP_COOK = 20
 
 
@@ -525,7 +579,8 @@ def sec_cooking(m):
             '<th class="r">Farm mats</th><th class="r">Buy mats</th><th>Mats (* = farm or buy, rest from a vendor)</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>'
             '<div class="fn">Farm mats = profit if you gather the * mats yourself and only pay the vendor for spices etc. '
-            'Buy mats = profit if you buy every mat at today&rsquo;s cheapest (AH or vendor); red = loses money. Best farm profit first.</div></section>')
+            'Buy mats = profit if you buy every mat at today&rsquo;s cheapest (AH or vendor); red = loses money. Best farm profit first.</div>'
+            + sec_cook_guide(m) + '</section>')
 
 
 TOP_CRAFTS = 20
@@ -765,6 +820,7 @@ table.g{width:100%;border-collapse:collapse}
 .grp td{background:var(--band);padding:1px 2px}
 .grp .pr{margin-left:12px;color:var(--up);font-weight:700}.grp .pr.dn{color:var(--dn)}
 .g .mats{white-space:normal;color:var(--ink2)}
+h3.cg{margin:14px 0 2px;font-size:13px}.cgn{font-size:10px;margin-bottom:4px;white-space:normal}
 .lv .route{white-space:normal;color:var(--ink2);}
 .lv .st b{color:var(--ink)}
 .up{color:var(--up)}.dn{color:var(--dn)}.mut{color:var(--mut)}
