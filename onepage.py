@@ -299,9 +299,34 @@ def lc(m, iid):
     return '<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>'
 
 
+_VENDOR = None
+
+
+def vendor_price(iid):
+    """Copper per unit if a Horde player can buy it from a vendor NPC somewhere (horde_vendor.json), else None."""
+    global _VENDOR
+    if _VENDOR is None:
+        try:
+            _VENDOR = json.load(open(os.path.join(HERE, "horde_vendor.json"), encoding="utf-8"))["items"]
+        except (OSError, ValueError, KeyError):
+            _VENDOR = {}
+    v = _VENDOR.get(str(iid))
+    return v[0] if v else None
+
+
+def vnc(iid):
+    """Vendor column: cheapest Horde vendor price per unit; blank when no vendor sells it."""
+    p = vendor_price(iid) if iid else None
+    if not p:
+        return '<td class="r mut">-</td>'
+    ltd = ' <span class="mut">ltd</span>' if _VENDOR.get(str(iid), [0, False])[1] else ''
+    return f'<td class="r">{sm(max(1, round(p)))}{ltd}</td>'
+
+
 def vc(m, iid):
+    """Sold/day (7d avg) cell plus the Vendor cell to its right."""
     v = sold_day(m, iid)
-    return '<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>'
+    return ('<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>') + vnc(iid)
 
 
 TOP_MOVERS = 20
@@ -327,7 +352,7 @@ def sec_movers(m):
     return ('<section><div class="sh"><span class="no">2</span><h2>Top daily movers</h2>'
             '<span class="tag">most gold traded in the last 24 hours (estimated)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">24h</th><th class="r">Sold (24h)</th>'
-            '<th class="r">Gold traded (24h)</th><th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Listed/day (7d avg)</th></tr></thead>'
+            '<th class="r">Gold traded (24h)</th><th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Listed/day (7d avg)</th></tr></thead>'
             f'<tbody>{rows}</tbody></table></section>')
 
 
@@ -361,7 +386,7 @@ def sec_raid(m, cols, skip):
     last = cols[-1]
 
     def rows(title, ids):
-        return (f'<tr class="grp"><td colspan="{4 + 2 * len(cols)}"><b>{title}</b></td></tr>'
+        return (f'<tr class="grp"><td colspan="{5 + 2 * len(cols)}"><b>{title}</b></td></tr>'
                 + "".join(f'<tr><td class="nm" data-iid="{i}">{R.esc(m.name(i))}</td><td class="r now">{sm(m.ah(i)[0])}</td>{lc(m, i)}{vc(m, i)}'
                           f'{hilo_cells(m, i, cols)}</tr>' for i in ids))
     days = (R.RAID_DAY - date.today()).days
@@ -369,7 +394,7 @@ def sec_raid(m, cols, skip):
             f'No listings yet: {R.esc(", ".join(unlisted))}.</div>')
     return (f'<section><div class="sh"><span class="no">5</span><h2>Raid consumables</h2>'
             f'<span class="tag">{R.esc(R.RAIDS)} - Dec 9, {days} days</span></div>'
-            f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("Listed/day (7d avg)", "r"), ("Sold/day (7d avg)", "r")], cols, last)}<tbody>'
+            f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("Listed/day (7d avg)", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, last)}<tbody>'
             f'{rows("Consumables - most sold first", cons)}{rows("Materials used in raid consumes - most sold first", mat_ids)}'
             f'</tbody></table>{note}</section>')
 
@@ -422,10 +447,10 @@ def sec_flips(m, skip, cols):
                     f'<td class="r"><b>{R.chg(m.change_24h(x["iid"]))}</b></td><td class="r">{x["qty"]}</td>{vc(m, x["iid"])}'
                     f'{hilo_cells(m, x["iid"], cols)}</tr>')
     if not rows:
-        rows.append(f'<tr><td colspan="{5 + 2 * len(cols)}" class="mut">Nothing passes yet.</td></tr>')
+        rows.append(f'<tr><td colspan="{6 + 2 * len(cols)}" class="mut">Nothing passes yet.</td></tr>')
     return ('<section><div class="sh"><span class="no">1</span><h2>Flip list</h2>'
             '<span class="tag">40s+ each, 1g+ per stack, a real up &amp; down every day at a steady price</span></div>'
-            f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day (7d avg)", "r")], cols, cols[-1])}<tbody>'
+            f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, cols[-1])}<tbody>'
             + "".join(rows) + '</tbody></table></section>')
 
 
@@ -459,11 +484,11 @@ def sec_manip(m):
         f'<td class="r"><b class="dn">-{round((1 - x["q"] / x["uq"]) * 100)}%</b></td>{vc(m, x["iid"])}</tr>'
         for x in res[:TOP_MANIP])
     if not rows:
-        rows = '<tr><td colspan="7" class="mut">nothing looks bought out right now</td></tr>'
+        rows = '<tr><td colspan="8" class="mut">nothing looks bought out right now</td></tr>'
     return ('<section><div class="sh"><span class="no">3</span><h2>Potential manipulation</h2>'
             '<span class="tag">cheap stock vanishing while the price climbs (all AH 113 goods worth 5s+)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">Usual</th><th class="r">vs usual</th>'
-            '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day (7d avg)</th></tr></thead>'
+            '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>'
             '<div class="fn"><span class="badge manip">Manipulated</span> over 2x usual with under 40% of the usual listings - '
             'sell into it, don&rsquo;t buy, it usually falls back once people relist.</div></section>')
@@ -485,12 +510,12 @@ def sec_campfire(m):
         price = f'{sm(now)} <span class="mut">({qty})</span>' if now else '<span class="mut">not listed</span>'
         name = f'<span data-iid="{iid}">{R.esc(item)}</span>' if iid and now else R.esc(item)
         return (f'<td><b>{name}</b> <span class="mut">{R.esc(where)}</span></td><td class="r">{price}</td>'
-                + (vc(m, iid) if iid else '<td class="r mut">-</td>'))
+                + (vc(m, iid) if iid else '<td class="r mut">-</td>' * 2))
     rows = "".join(f'<tr><td class="nm">{p}</td>{cell(mid)}{cell(end)}</tr>' for p, mid, end in CAMP)
     return ('<section><div class="sh"><span class="no">6</span><h2>Campfire drops</h2>'
             '<span class="tag">camp features from dungeons - price now (listed)</span></div>'
-            '<table class="g"><thead><tr><th>Profession</th><th>Mid-level drop (skill 140)</th><th class="r">Now</th><th class="r">Sold/day (7d avg)</th>'
-            '<th>End-game drop (skill 300)</th><th class="r">Now</th><th class="r">Sold/day (7d avg)</th></tr></thead><tbody>' + rows + '</tbody></table>'
+            '<table class="g"><thead><tr><th>Profession</th><th>Mid-level drop (skill 140)</th><th class="r">Now</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th>'
+            '<th>End-game drop (skill 300)</th><th class="r">Now</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th></tr></thead><tbody>' + rows + '</tbody></table>'
             '<div class="fn">Placed at a campfire for an hourly group buff. Tradeable, so you can buy one instead of farming the boss. '
             'Mid / end-game split is by dungeon level.</div></section>')
 
@@ -530,10 +555,10 @@ def sec_cook_guide(m):
         pf = f'<b class="up">{sm(x["farm"])}</b>' if x["farm"] and x["farm"] > 0 else '<span class="mut">-</span>'
         return (f'<tr>{nm}<td class="r">{x["skill"]}</td><td>{R.esc(x["eff"]) or "<span class=mut>-</span>"}</td>'
                 f'<td>{R.esc(x["learn"])}</td><td class="r">{pf}</td>'
-                + (vc(m, x["oid"]) if x["oid"] else '<td class="r mut">-</td>') + '</tr>')
+                + (vc(m, x["oid"]) if x["oid"] else '<td class="r mut">-</td>' * 2) + '</tr>')
 
     def grp(title, rows):
-        return f'<tr class="grp"><td colspan="6"><b>{title}</b></td></tr>' + "".join(tr(x) for x in rows) if rows else ""
+        return f'<tr class="grp"><td colspan="7"><b>{title}</b></td></tr>' + "".join(tr(x) for x in rows) if rows else ""
 
     camp_tbl = sec_campfire(m).replace('<span class="no">6</span>', '')
     return ('<h3 class="cg">Cooking recipe guide (Horde)</h3>'
@@ -542,7 +567,7 @@ def sec_cook_guide(m):
             'Clamlette Surprise, Dirge Quikcleave in Gadgetzan (character level 35). Merchant&rsquo;s Favor recipes: Aza&rsquo;bek near '
             'the Crossroads. Sources: wow.gg and method.gg (Nov 2026).</div>'
             '<table class="g"><thead><tr><th>Recipe</th><th class="r">Skill</th><th>Buff / use</th><th>Learn it</th>'
-            '<th class="r">Profit each</th><th class="r">Sold/day (7d avg)</th></tr></thead><tbody>'
+            '<th class="r">Profit each</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th></tr></thead><tbody>'
             + grp("Makes money right now - best first", prof)
             + grp("Mid &amp; high-level recipes worth knowing", useful)
             + grp("Camping", sorted(camp, key=lambda x: x["skill"]))
@@ -575,7 +600,7 @@ def sec_cooking(m):
                    f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in res[:TOP_COOK])
     return ('<section><div class="sh"><span class="no">6</span><h2>Cooking</h2>'
             f'<span class="tag">top {TOP_COOK} recipes by profit each, after the 5% cut</span></div>'
-            '<table class="g"><thead><tr><th>Makes</th><th class="r">Sells</th><th class="r">Listed</th><th class="r">Sold/day (7d avg)</th>'
+            '<table class="g"><thead><tr><th>Makes</th><th class="r">Sells</th><th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th>'
             '<th class="r">Farm mats</th><th class="r">Buy mats</th><th>Mats (* = farm or buy, rest from a vendor)</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>'
             '<div class="fn">Farm mats = profit if you gather the * mats yourself and only pay the vendor for spices etc. '
@@ -622,11 +647,11 @@ def sec_crafts(m, shown=()):
                    f'<td class="r">{sm(x["cost"])}</td><td class="r"><b class="up">{sm(x["profit"])}</b></td>'
                    f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in res)
     if not rows:
-        rows = '<tr><td colspan="8" class="mut">nothing profitable right now</td></tr>'
+        rows = '<tr><td colspan="9" class="mut">nothing profitable right now</td></tr>'
     return ('<section><div class="sh"><span class="no">7</span><h2>Top crafts</h2>'
             f'<span class="tag">top {TOP_CRAFTS} profession crafts by profit, buying all mats - nothing already listed above</span></div>'
             '<table class="g"><thead><tr><th>Makes</th><th>Profession</th><th class="r">Sells</th><th class="r">Listed</th>'
-            '<th class="r">Sold/day (7d avg)</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>'
+            '<th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>'
             f'<tbody>{rows}</tbody></table></section>')
 
 
@@ -684,7 +709,7 @@ def sec_camp_cooking(m):
                     f'<td class="mats mut">{WOOD_NOTE.get(n, "")}</td></tr>')
     return ('<h3 class="sub">Campfire craftables</h3>'
             '<table class="g"><thead><tr><th>Makes</th><th class="r">Cooking</th><th class="r">Now</th><th class="r">Usual</th>'
-            '<th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Mats cost</th><th class="r">Profit each</th><th>Mats</th></tr></thead>'
+            '<th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit each</th><th>Mats</th></tr></thead>'
             f'<tbody>{"".join(rows)}{"".join(wood)}</tbody></table>'
             '<div class="fn">Profit each = AH price after the 5% cut minus buying the mats at today&rsquo;s cheapest. '
             'Thick Logs cost about 20g at cooking supply vendors - more than a kit sells for - so only AH logs under ~15g pay. '
@@ -725,7 +750,7 @@ def sec_cooldowns(m, cds, cols):
     rows, seen = [], set()
     last = cols[-1]
     for c in cds:
-        rows.append(f'<tr class="grp"><td colspan="{3 + 2 * len(cols)}"><b>{R.esc(c["recipe"])}</b> '
+        rows.append(f'<tr class="grp"><td colspan="{4 + 2 * len(cols)}"><b>{R.esc(c["recipe"])}</b> '
                     f'<span class="mut">{R.esc(c["prof"])} {c["cd"]:.0f}h</span>'
                     + (f'<span class="pr">+{sm(c["profit"])} ({sm(c["per_day"])}/day)</span></td></tr>' if c["profit"] >= 0 else
                      f'<span class="pr dn">loses {sm(-c["profit"])} - sell the inputs instead</span></td></tr>'))
@@ -736,7 +761,7 @@ def sec_cooldowns(m, cds, cols):
                         f'{hilo_cells(m, iid, cols)}</tr>')
     return ('<section><div class="sh"><span class="no">4</span><h2>Cooldowns</h2>'
             '<span class="tag">1g+ profit, best per day first - flip badges use the same rules as the flip list</span></div>'
-            f'<table class="g">{thead([("Makes / uses", "nm"), ("Now", "r"), ("Sold/day (7d avg)", "r")], cols, last)}'
+            f'<table class="g">{thead([("Makes / uses", "nm"), ("Now", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, last)}'
             '<tbody>' + "".join(rows) + '</tbody></table></section>')
 
 
