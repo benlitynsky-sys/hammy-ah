@@ -355,9 +355,9 @@ def sec_raid(m, cols, skip):
         else:
             unlisted.append(r["item"])
     mat_ids = [i for i in mats if i not in skip and i not in {c for _, c in cons} and m.ah(i)[0] and m.ah(i)[0] >= RAID_MAT_MIN]
-    cons = [i for _, i in sorted(cons, key=lambda x: -x[0])][:TOP_RAID]     # most profitable to craft first
-    mat_ids.sort(key=lambda i: -m.ah(i)[0] * len(mats[i]))                     # pricey + used in many consumes
-    mat_ids = mat_ids[:TOP_RAID]
+    turnover = lambda i: sold_day(m, i) or 0                                   # most sold per day first
+    cons = sorted((i for _, i in cons), key=turnover, reverse=True)[:TOP_RAID]
+    mat_ids = sorted(mat_ids, key=turnover, reverse=True)[:TOP_RAID]
     last = cols[-1]
 
     def rows(title, ids):
@@ -365,12 +365,12 @@ def sec_raid(m, cols, skip):
                 + "".join(f'<tr><td class="nm" data-iid="{i}">{R.esc(m.name(i))}</td><td class="r now">{sm(m.ah(i)[0])}</td>{lc(m, i)}{vc(m, i)}'
                           f'{hilo_cells(m, i, cols)}</tr>' for i in ids))
     days = (R.RAID_DAY - date.today()).days
-    note = (f'<div class="fn">Top {TOP_RAID} of each: consumables ranked by craft profit, materials by price x how many raid consumes use them. '
+    note = (f'<div class="fn">Top {TOP_RAID} of each: both ranked by units sold per day (7-day average). '
             f'No listings yet: {R.esc(", ".join(unlisted))}.</div>')
     return (f'<section><div class="sh"><span class="no">5</span><h2>Raid consumables</h2>'
             f'<span class="tag">{R.esc(R.RAIDS)} - Dec 9, {days} days</span></div>'
             f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("Listed/day (7d avg)", "r"), ("Sold/day (7d avg)", "r")], cols, last)}<tbody>'
-            f'{rows("Consumables - most profitable to craft", cons)}{rows("Materials - most used in raid consumes", mat_ids)}'
+            f'{rows("Consumables - most sold first", cons)}{rows("Materials used in raid consumes - most sold first", mat_ids)}'
             f'</tbody></table>{note}</section>')
 
 
