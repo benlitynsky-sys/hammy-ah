@@ -795,18 +795,18 @@ def sec_cooldowns(m, cds, cols):
     rows, seen = [], set()
     last = cols[-1]
     for c in cds:
-        rows.append(f'<tr class="grp"><td colspan="{4 + 2 * len(cols)}"><b>{R.esc(c["recipe"])}</b> '
+        rows.append(f'<tr class="grp"><td colspan="{5 + 2 * len(cols)}"><b>{R.esc(c["recipe"])}</b> '
                     f'<span class="mut">{R.esc(c["prof"])} {c["cd"]:.0f}h</span>'
                     + (f'<span class="pr">+{sm(c["profit"])} ({sm(c["per_day"])}/day)</span></td></tr>' if c["profit"] >= 0 else
                      f'<span class="pr dn">loses {sm(-c["profit"])} - sell the inputs instead</span></td></tr>'))
         for iid, nm, lab, note in ([(c["oid"], c["oname"], "", "")] + [(i, n, "in", "") for i, n, _ in c["ins"]]):
             if not iid or not m.ah(iid)[0]:
                 continue
-            rows.append(f'<tr><td class="nm {lab}" data-iid="{iid}">{R.esc(m.name(iid))}<span class="mut">{note}</span>{flip_badge(m, iid, cols)}</td><td class="r now">{sm(m.ah(iid)[0])}</td>{vc(m, iid)}'
+            rows.append(f'<tr><td class="nm {lab}" data-iid="{iid}">{R.esc(m.name(iid))}<span class="mut">{note}</span>{flip_badge(m, iid, cols)}</td><td class="r now">{sm(m.ah(iid)[0])}</td>{lc(m, iid)}{vc(m, iid)}'
                         f'{hilo_cells(m, iid, cols)}</tr>')
     return ('<section><div class="sh"><span class="no">4</span><h2>Cooldowns</h2>'
             '<span class="tag">1g+ profit, best per day first - flip badges use the same rules as the flip list</span></div>'
-            f'<table class="g">{thead([("Makes / uses", "nm"), ("Now", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, last)}'
+            f'<table class="g">{thead([("Makes / uses", "nm"), ("Now", "r"), ("Listed/day (7d avg)", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, last)}'
             '<tbody>' + "".join(rows) + '</tbody></table></section>')
 
 
