@@ -146,7 +146,7 @@ class Market:
                 p = typ
         it = self.items.get(iid) or {}
         if it.get("name") in VENDOR_SOLD and it.get("buy"):
-            p = min(p, it["buy"])
+            p = min(p, self.unit_buy(iid))
         return p, q
 
     def manipulated(self, iid):
@@ -173,9 +173,20 @@ class Market:
             return r[-1][1], r[-1][2]
         return None, 0
 
+    def unit_buy(self, iid):
+        """Vendor price for ONE item. The item data's buy price is for a vendor stack (Mild Spices: 10c buys 5), so use
+        the per-unit price from horde_vendor.json when we have it."""
+        if not hasattr(self, "_hv"):
+            try:
+                self._hv = json.load(open(os.path.join(HERE, "horde_vendor.json"), encoding="utf-8"))["items"]
+            except (OSError, ValueError, KeyError):
+                self._hv = {}
+        v = self._hv.get(str(iid))
+        return v[0] if v else (self.items.get(iid) or {}).get("buy")
+
     def vendor(self, iid):
         it = self.items.get(iid) or {}
-        return it.get("buy") if it.get("name") in VENDOR and it.get("buy") else None
+        return self.unit_buy(iid) if it.get("name") in VENDOR and it.get("buy") else None
 
     def cost(self, iid, prof=None, depth=0, seen=()):
         """Cheapest way to get one: buy on the AH, buy from a vendor, or craft it (same profession only).
