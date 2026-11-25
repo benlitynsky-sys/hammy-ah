@@ -75,14 +75,61 @@ def name_gear(cfg, api, budget=300):
     print(f"gear names: {len(rows)} looked up, {len(todo) - len(rows)} left for next time")
 
 
+PUBLISH_MIN = 26     # Blizzard posts each new AH 113 snapshot at about :26 past the hour
+WAIT_UNTIL_MIN = 45  # a run that starts before this keeps watching for the snapshot instead of quitting
+RUN_BUDGET = 18 * 60  # GitHub stops a run at 30 min - leave room for the report build
+
+
+def wait_for_snapshot(cfg, api, started):
+    """Watch for Blizzard's next snapshot with a cheap 'changed since?' check every 15 s (no download). Returns True
+    when new data is out; False when it's past :WAIT_UNTIL_MIN or this run is out of time."""
+    import urllib.error
+    con = F.db_connect(cfg, "113")
+    lm = F.meta_get(con, "last_modified")
+    con.close()
+    path = f"/data/wow/ruleset/{cfg['RULESET']}/auctions/113/commodities"
+    while time.time() - started < RUN_BUDGET and time.localtime().tm_min < WAIT_UNTIL_MIN:
+        try:
+            api.get(path, cfg["NAMESPACE"], {"If-Modified-Since": lm} if lm else None)
+            return True                      # 200 = something new
+        except urllib.error.HTTPError as e:
+            if e.code != 304:
+                print(f"watch: Blizzard said {e.code}")
+        except Exception as e:
+            print(f"watch: {e}")
+        time.sleep(15)
+    return False
+
+
+def start_next_run(cfg):
+    """Hand the watch to a fresh run (GitHub caps a run at 30 min); it starts the moment this one saves."""
+    import requests
+    try:
+        requests.post(f"https://api.github.com/repos/{cfg['GITHUB_REPO']}/actions/workflows/scan.yml/dispatches",
+                      headers={"Authorization": f"Bearer {cfg['GITHUB_TOKEN']}", "Accept": "application/vnd.github+json"},
+                      json={"ref": "main"}, timeout=30).raise_for_status()
+        print("watch: handed off to a new run")
+    except Exception as e:
+        print(f"watch: could not start the next run ({e})")
+
+
 def main():
     cfg = F.load_config()
     if (str(cfg.get("AUCTION_HOUSE")) != "113" or str(cfg.get("RULESET")) != "1"
             or cfg.get("NAMESPACE") != "dynamic-forever-us"):
         sys.exit("cloud scan is for WoW Forever US PvP Horde AH 113 only")
     api = F.Api(cfg)
+    started = time.time()
     F.check_market(cfg, api)
-    if F.poll_once(cfg, "113", api):
+    new = F.poll_once(cfg, "113", api)
+    if not new and time.localtime().tm_min < WAIT_UNTIL_MIN:
+        # GitHub often starts scheduled runs late, so rather than miss the :26 snapshot, wait for it right here
+        print(f"watch: waiting for the :{PUBLISH_MIN} snapshot")
+        if wait_for_snapshot(cfg, api, started):
+            new = F.poll_once(cfg, "113", api)
+        elif time.localtime().tm_min < WAIT_UNTIL_MIN:
+            start_next_run(cfg)
+    if new:
         try:   # older history for the item charts (they show everything since tracking began)
             import archive
             archive.fetch_all(cfg)
