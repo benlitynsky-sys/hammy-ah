@@ -645,6 +645,44 @@ GEAR_MAX_MARKUP = 6   # and priced at most 6x its mats - above that it is a lone
 GEAR_MIN_HOURS = 54   # and seen in 54+ of the last 72 hourly scans
 
 
+_SOLD = None
+
+
+def last_sold(m, iid):
+    """(ts, highest unit price) from the most recent hour this item really sold, within 3 days; else None.
+    Sales = listings that vanished early priced at or under the new cheapest (see forever_ah.save_sales)."""
+    global _SOLD
+    if _SOLD is None:
+        _SOLD = {}
+        try:
+            import sqlite3
+            con = sqlite3.connect(os.path.join(HERE, "ah_113.sqlite"))
+            for ts, i, hi in con.execute("SELECT ts, item_id, hi FROM sales WHERE ts >= ? ORDER BY ts", (m.last - 3 * 86400,)):
+                _SOLD[i] = (ts, hi)
+            con.close()
+        except Exception:
+            pass
+    return _SOLD.get(iid)
+
+
+def ago(ts, now):
+    h = max(0, round((now - ts) / 3600))
+    return "this hour" if h == 0 else f"{h}h ago" if h < 48 else f"{h // 24}d ago"
+
+
+def craft_row(m, x):
+    makes = f' <span class="mut">x{x["makes"]:g}</span>' if x["makes"] > 1 else ''
+    if x["ls"]:
+        sold = f'<td class="r">{sm(x["price"])} <span class="mut">{ago(x["ls"][0], m.last)}</span></td>'
+    else:
+        sold = f'<td class="r mut" title="no sale seen yet - using the cheapest listing">~{sm(x["price"])}</td>'
+    vol = ('<td class="r mut" title="gear: Blizzard gives no sold count">gear</td>' + vnc(x["oid"])) if x["gear"] else vc(m, x["oid"])
+    return (f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{makes}</td>{sold}'
+            f'<td class="r">{sm(x["now"])}</td><td class="r">{x["qty"]}</td>{vol}'
+            f'<td class="r">{sm(x["cost"])}</td><td class="r"><b class="up">{sm(x["profit"])}</b></td>'
+            f'<td class="mats">{R.esc(x["mats"])}</td></tr>')
+
+
 def sec_crafts(m, shown=()):
     """Top 10 crafts per profession by profit per craft (buying every mat at today's cheapest), cooldown recipes left out."""
     cd = set()
@@ -678,13 +716,16 @@ def sec_crafts(m, shown=()):
         cost = m.recipe_cost(r)
         if cost is None:
             continue
+        ls = last_sold(m, oid)
+        if ls:   # what it really sold for: the highest price paid in its latest hour of sales
+            price = ls[1]
         if gear and price > GEAR_MAX_MARKUP * cost:
             continue
         profit = price * (r.get("qty") or 1) * (1 - R.CUT) - cost
         if profit <= 0:
             continue
         mats = ", ".join(f'{q:g} {n}' for _, n, q in r["reagents"])
-        cand.append(dict(oid=oid, prof=r["prof"], makes=r.get("qty") or 1, now=now, qty=qty, cost=cost, profit=profit, mats=mats, gear=gear))
+        cand.append(dict(oid=oid, prof=r["prof"], makes=r.get("qty") or 1, now=now, qty=qty, cost=cost, profit=profit, mats=mats, gear=gear, price=price, ls=ls))
     best = {}
     for x in cand:   # one line per item, its most profitable recipe
         if x["oid"] not in best or best[x["oid"]]["profit"] < x["profit"]:
@@ -694,20 +735,16 @@ def sec_crafts(m, shown=()):
         byprof[x["prof"]].append(x)
     for v in byprof.values():
         v.sort(key=lambda x: -x["profit"])
-    head = ('<table class="g"><thead><tr><th>Makes</th><th class="r">Sells</th><th class="r">Listed</th>'
+    head = ('<table class="g"><thead><tr><th>Makes</th><th class="r">Last sold (highest)</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
             '<th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>')
     out = ""
     for prof in sorted(byprof, key=lambda p: -byprof[p][0]["profit"]):   # profession with the best craft first
         top = byprof[prof][:TOP_CRAFTS]
-        rows = "".join(f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{f' <span class="mut">x{x["makes"]:g}</span>' if x["makes"] > 1 else ''}</td>'
-                       f'<td class="r">{sm(x["now"])}</td><td class="r">{x["qty"]}</td>'
-                       f'{('<td class="r mut" title="gear: Blizzard gives no sold count">gear</td>' + vnc(x["oid"])) if x["gear"] else vc(m, x["oid"])}'
-                       f'<td class="r">{sm(x["cost"])}</td><td class="r"><b class="up">{sm(x["profit"])}</b></td>'
-                       f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in top)
+        rows = "".join(craft_row(m, x) for x in top)
         out += f'<h3 class="cg">{R.esc(prof)} <span class="mut cgn">top {len(top)} by profit per craft</span></h3>{head}<tbody>{rows}</tbody></table>'
     out = out or '<div class="mut">nothing profitable right now</div>'
     return ('<section><div class="sh"><span class="no">7</span><h2>Top crafts</h2>'
-            f'<span class="tag">top {TOP_CRAFTS} per profession by profit per craft, buying all mats - no cooldowns, nothing already listed above. Gear has no sold count from Blizzard, so it must be listed 3+ and steadily on the AH</span></div>'
+            f'<span class="tag">top {TOP_CRAFTS} per profession by profit per craft, buying all mats - no cooldowns, nothing already listed above. Profit uses the highest price it actually sold for in its latest hour of sales (~ = no sale seen yet, cheapest listing used). Gear must be listed 3+ and steadily on the AH</span></div>'
             + out + '</section>')
 
 
