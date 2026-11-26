@@ -617,12 +617,12 @@ def manip_flag(m, iid):
     return None
 
 
-CRASH_DROP, CRASH_BACK, CRASH_CALM, CRASH_HOURS, CRASH_PILE = 0.5, 0.75, 0.75, 24, 1000
+CRASH_DROP, CRASH_BACK, CRASH_CALM, CRASH_HOURS, CRASH_PILE = 0.35, 0.75, 0.75, 24, 1000
 
 
 def crash_scoop(m, iid):
     """Crash-and-scoop: someone dumps a pile at a silly low price, other sellers' auto-undercut posts just under it,
-    and the dumper buys all the cheap stock back. Shows as one or two hours at half its weekly usual or less (right
+    and the dumper buys all the cheap stock back. Shows as one or two hours at 35% of its weekly usual or less (a normal dip to half is just noise) (right
     after a normal hour, and well under anything it normally sells for) only on very high-volume mats (1,000+ normally listed, 1,000+ during the crash - not one stray cheap
     listing), back to 75%+ of usual within 3 hours. Stays flagged until the price has stayed at 75%+ of usual for
     24 hours straight at some point since the crash. Returns (crash time, crash price, usual) or None."""
