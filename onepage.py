@@ -453,6 +453,24 @@ def sec_raid(m, cols, skip):
 GAP_RATIO, GAP_CHEAP_SHARE = 1.5, 0.3
 
 
+def top_sale(m, iid):
+    """Highest price it has really SOLD at (not listed at): exact sold prices from the sales table, plus older hours
+    where units vanished early (they went at the cheaper of that hour's and the previous hour's cheapest price).
+    Takes the highest price seen selling in 2+ separate hours, so one odd sale can't set it. None if unknown."""
+    if not hasattr(m, "_topsale"):
+        m._topsale = {}
+        for i, hi in m.con.execute("SELECT item_id, hi FROM sales WHERE qty > 0"):
+            m._topsale.setdefault(i, []).append(hi)
+        m._sales_t0 = m.con.execute("SELECT MIN(ts) FROM sales").fetchone()[0] or m.last
+    c = list(m._topsale.get(iid, []))
+    r = m.rows_long.get(iid) or []
+    for a, b in zip(r, r[1:]):
+        if b[0] < m._sales_t0 and (b[3] or 0) > 0 and a[1] and b[1]:
+            c.append(min(a[1], b[1]))
+    c.sort(reverse=True)
+    return c[1] if len(c) >= 2 else None
+
+
 def gap_setups(m):
     """Potential to be manipulated (Hammy's rule): right now a small cheap layer sits under a big wall priced 1.5x+
     higher, so one buyer could clear the cheap ones and relist them just under the wall. Uses every live listing from
@@ -488,8 +506,12 @@ def gap_setups(m):
                 if wall >= max(2 * cum, 0.2 * total) and (not best or nxt / p > best["ratio"]):
                     best = dict(iid=iid, cheap=cum, cost=cost, top=p, low=lv[0][0], wall_p=nxt, wall=wall, total=total,
                                 ratio=nxt / p, usual=r[len(r) // 2])
-        if best:
-            best["gain"] = best["cheap"] * (best["wall_p"] - 1) * (1 - R.CUT) - best["cost"]
+        if best:   # what the buyer makes reposting the cheap ones 1c under the highest price it has actually sold at
+            ts = top_sale(m, iid)
+            if not ts or ts - 1 <= best["top"]:
+                continue
+            best["relist"] = ts - 1
+            best["gain"] = best["cheap"] * best["relist"] * (1 - R.CUT) - best["cost"]
             if best["gain"] > 0:
                 out.append(best)
     return sorted(out, key=lambda x: -x["gain"])
@@ -566,13 +588,13 @@ def sec_flips(m, skip, cols):
         f'<td class="r"><b>{sm(g["wall_p"])}</b> <span class="mut">({g["ratio"]:.1f}x)</span></td><td class="r">{g["wall"]:,}</td>'
         f'<td class="r">{g["total"]:,}</td>{lc(m, g["iid"])}'
         + (f'<td class="r">{sold_day(m, g["iid"]):,.0f}</td>' if sold_day(m, g["iid"]) is not None else '<td class="r mut">-</td>')
-        + f'<td class="r">{sm(g["usual"])}</td><td class="r up">+{sm(g["gain"])}</td></tr>' for g in gs[:15])
+        + f'<td class="r">{sm(g["usual"])}</td><td class="r">{sm(g["relist"])}</td><td class="r up">+{sm(g["gain"])}</td></tr>' for g in gs[:15])
     out += ('<h3 class="cg">Potential to be manipulated <span class="mut cgn">a few cheap ones sit under a big wall priced 1.5x+ higher - '
-            'someone could buy the cheap ones and relist them just under the wall</span></h3>'
+            'someone could buy the cheap ones and relist them just under the highest price it has actually sold at (after the 5% cut)</span></h3>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest</th><th class="r">Cheap ones</th><th class="r">Cost to buy them</th>'
             '<th class="r">Next price up (gap)</th><th class="r">Listed there</th><th class="r">Total listed</th><th class="r">Listed/day (7d avg)</th><th class="r">Sold/day (7d avg)</th><th class="r">Usual</th>'
-            '<th class="r">Buy + relist makes</th></tr></thead><tbody>'
-            + (grow or '<tr><td colspan="11" class="mut">No big price gaps right now.</td></tr>') + '</tbody></table>')
+            '<th class="r">Relist at (top sale)</th><th class="r">Buy + relist makes</th></tr></thead><tbody>'
+            + (grow or '<tr><td colspan="12" class="mut">No big price gaps right now.</td></tr>') + '</tbody></table>')
     return ('<section><div class="sh"><span class="no">1</span><h2>AH Deviation Watchlist</h2>'
             '<span class="tag">1g+ each, keeps swinging up-down-up-down (7%+ swings, most paying 5%+ after the cut) at a steady base price - no fixed days</span></div>'
             + out + '</section>')
