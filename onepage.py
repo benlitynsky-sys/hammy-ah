@@ -8,6 +8,7 @@ Sections: 1 Raid consumables + their materials (daily high/low, last 7 days)
 Writes output/Hammys <Morning|Mid Day|Evening> Market Report.pdf (by the time it's built), auto-shrinking until it fits on one letter page."""
 import csv
 import json
+import math
 import os
 import re
 import statistics
@@ -1302,6 +1303,43 @@ def header(title, last, extra):
             f'<div class="when">prices as of <b>{R.pacific(last.timestamp())}</b><br>{extra}</div></header>')
 
 
+PICK_MIN_SOLD = 20   # sold per day (7d avg) - enough to actually buy a stack into
+
+
+def stock_pick(m):
+    """Raid-prep pick of the hour: a raid consumable (raid_consumes.csv) or one of its mats that sells steadily, is at or
+    under its 7-day usual, isn't manipulated and isn't sliding day after day. Best = deepest discount, weighted by volume."""
+    ids = set()
+    for r in csv.DictReader(open(os.path.join(HERE, "raid_consumes.csv"), encoding="utf-8")):
+        iid = m.name_id.get(r["item"].lower())
+        if not iid:
+            continue
+        ids.add(iid)
+        for rec in m.by_out.get(iid, [])[:1]:
+            ids |= {rid for rid, _, _ in rec["reagents"] if not m.vendor(rid)}
+    best = None
+    for iid in ids:
+        now = m.ah(iid)[0]
+        cs = clean(m, iid)
+        sold = sold_day(m, iid) or 0
+        if not now or len(cs) < 48 or sold < PICK_MIN_SOLD or now < 2000 or manip_flag(m, iid) or m.manipulated(iid):
+            continue
+        wk = [p for t, p in cs if t >= m.last - 7 * 86400]
+        usual = statistics.median(wk)
+        if now > usual:
+            continue
+        days = []
+        for k in range(3):
+            v = [p for t, p in cs if m.last - (k + 1) * 86400 < t <= m.last - k * 86400]
+            days.append(statistics.median(v) if len(v) >= 4 else None)
+        if all(days) and days[0] < 0.95 * days[1] < 0.95 * 0.95 * days[2]:   # still sliding - wait
+            continue
+        score = (1 - now / usual + 0.02) * math.log10(sold + 10)
+        if not best or score > best["score"]:
+            best = dict(iid=iid, name=m.name(iid), now=now, usual=usual, low=min(wk), sold=sold, score=score)
+    return best
+
+
 def build():
     m = R.Market()
     cols = day_cols(m)
@@ -1345,7 +1383,12 @@ def build():
                    'and Artisan (from 200 at a trainer; 225 for First Aid from a book, 300 from a quest). Forever reworked some '
                    'recipes - check recipe colors at your trainer.</div>' + k300 if k300 else '')
                 + sec_campfire(m).replace('<span class="no">6</span>', '') + '</section>')
-        interactive.make(m, title, body + kits + dsl_section(m) + sec_utility(m), market[:-4] + " Interactive.html")   # kits tile at the bottom of the web page
+        interactive.make(m, title, body + kits + dsl_section(m) + sec_utility(m), market[:-4] + " Interactive.html")
+        try:   # raid-prep pick for the Discord post
+            pk = stock_pick(m)
+            json.dump({k: v for k, v in pk.items() if k != "score"} if pk else {}, open(os.path.join(os.path.dirname(market), "pick.json"), "w"))
+        except Exception as e:
+            print(f"stock pick failed: {e}")   # kits tile at the bottom of the web page
     except Exception as e:
         print(f"interactive page failed: {e}")
     # profession routes: its own page
