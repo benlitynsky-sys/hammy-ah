@@ -520,11 +520,25 @@ def manip_flag(m, iid):
     ps, qs = sorted(x[1] for x in hist), sorted(x[2] for x in hist)
     usual, uq = ps[len(ps) // 2], qs[len(qs) // 2]
     now, q = r[-1][1], r[-1][2]
-    if usual < MANIP_MIN or uq < 50 or q < 20 or iid in DURABLE_IDS(m):
+    if usual < MANIP_MIN or uq < 50 or iid in DURABLE_IDS(m) or now < 1.80 * usual:
         return None
-    if now >= 1.80 * usual and q < 0.6 * uq:
-        return "Manipulated" if m.manipulated(iid) else "Potential manipulation"
+    if m.manipulated(iid) or bought_out(r, usual, m.last):
+        return "Manipulated"
+    if q >= 20 and q < 0.6 * uq:
+        return "Potential manipulation"
     return None
+
+
+def bought_out(r, usual, last):
+    """A buyout in the last 2 days: the price sat near usual, half or more of the listings vanished in one hour, and
+    within 3 hours the price was 1.8x usual or more (whether or not the buyer has relisted lots since)."""
+    w = [x for x in r if x[0] >= last - 2 * 86400]
+    for j in range(1, len(w)):
+        prev, cur = w[j - 1], w[j]
+        if prev[1] and prev[1] <= 1.3 * usual and prev[2] >= 10 and (cur[3] or 0) >= 0.5 * prev[2]:
+            if any(x[1] and x[1] >= 1.8 * usual for x in w[j:j + 4]):
+                return True
+    return False
 
 
 def sec_manip(m):
