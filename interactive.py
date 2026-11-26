@@ -102,7 +102,7 @@ function loadLK(){ if(!LKP) LKP=fetch('lookup.json?v='+Date.now()).then(r=>r.jso
 function lkShow(id,name){
   if(!LK.s[id]){document.getElementById('lkchart').innerHTML='<div class="sub"><b>'+name+'</b></div><div class="mut">Not listed on the Horde PvP ruleset AH since we started tracking it (gear from Nov 23, 2026). It can be sold on the AH - nobody has posted one yet.</div>';
     document.getElementById('lkres').innerHTML=''; document.getElementById('lkq').value=name; return}
-  const s=LK.s[id], h0=LK.h0, t=s.h.map(x=>(h0+x)*3600), last=t[t.length-1];
+  const s=LK.s[id], h0=LK.h0, t=s.h.map(x=>(h0+x)*3600+((LK.mi||{})[x]||0)), last=t[t.length-1];
   const wk=s.p.filter((p,i)=>t[i]>=last-7*86400).sort((a,b)=>a-b);
   D['lk'+id]={t0:t[0],t,p:s.p,q:s.q,med:wk[Math.floor(wk.length/2)]||s.p[0],now:s.p[s.p.length-1]};
   draw('lk'+id, name+(LK.g.includes(+id)?' <span class="mut">(gear - lowest buyout)</span>':''), document.getElementById('lkchart'));
@@ -224,12 +224,13 @@ def write_lookup(m, path):
     {"h0": first hour, "n": {id: name}, "g": [gear ids], "s": {id: {"h": hour offsets, "p": prices, "q": listed}}}"""
     named = {i for i in set(m.rows_long) if not _noname(m, i)}
     old = archived_rows(sorted(named), min((v[0][0] for v in m.rows_long.values() if v), default=m.last))
-    series = {}
+    series, real = {}, {}   # real: hour -> seconds past the hour of that hour's snapshot (shared by every item)
     for i in named:
         hrs = {}
         for ts, p, q, *_ in old.get(i, []) + m.rows_long.get(i, []):
             if p:
                 hrs[ts // 3600] = (p, q)
+                real[ts // 3600] = max(real.get(ts // 3600, 0), ts % 3600)
         if hrs:
             series[i] = hrs
     gear = {}
@@ -238,11 +239,13 @@ def write_lookup(m, path):
             if i in series or not mn or _noname(m, i):
                 continue
             gear.setdefault(i, {})[ts // 3600] = (mn, n)
+            real.setdefault(ts // 3600, ts % 3600)
     except Exception:
         pass
     series.update(gear)
     h0 = min(min(v) for v in series.values())
-    out = {"h0": h0, "n": {i: m.name(i) for i in series}, "g": sorted(gear), "s": {}}
+    out = {"h0": h0, "n": {i: m.name(i) for i in series}, "g": sorted(gear), "s": {},
+           "mi": {h - h0: sec for h, sec in real.items() if h >= h0}}
     try:   # every tradeable weapon / armor / recipe in the game, so items nobody has listed yet still turn up
         for k, n in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "catalog.json"), encoding="utf-8")).items():
             if int(k) not in series:
