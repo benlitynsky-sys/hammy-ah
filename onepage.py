@@ -1169,7 +1169,7 @@ def build():
         pass
     body = header(title, last, f'each day: <b>Morning</b> (12am-noon) and <b>Evening</b> (noon-12am), last {DAYS} days')
     parts = dict(cooldowns=sec_cooldowns(m, cds, cols), raid=sec_raid(m, cols, skip), manip=sec_manip(m), movers=sec_movers(m),
-                 flips=sec_flips(m, skip, cols), cooking=sec_cooking(m).replace("</section>", sec_camp_cooking(m) + "</section>"))
+                 flips=sec_flips(m, skip, cols), cooking=(lambda c: c[:c.rindex("</section>")] + sec_camp_cooking(m) + c[c.rindex("</section>"):])(sec_cooking(m)))
     parts["crafts"] = sec_crafts(m, {int(i) for i in re.findall(r'data-iid="(\d+)"', "".join(parts.values()))})   # nothing listed elsewhere
     body += "".join(parts[k] for k in SECTION_ORDER)
     n = iter(range(1, 99))
