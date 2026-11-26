@@ -212,7 +212,7 @@ def sec_dsl(m, sm):
             '<th>Needs</th><th class="r">Rep to earn</th><th class="r">Rep gold</th><th class="r">Favor to earn</th>'
             '<th class="r">Crates gold</th><th class="r">Total</th></tr></thead><tbody>' + plan_rows + '</tbody></table>')
     return ('<section><div class="sh"><h2>Durotar Supply and Logistics</h2><span class="tag">cheapest way to the rep and '
-            'Merchant&rsquo;s Favor for the DSL camp recipes, priced from AH 113 now</span></div>'
+            'Merchant&rsquo;s Favor for the DSL camp recipes, priced from the Horde PvP ruleset AH now</span></div>'
             + how + step1 + wt + ct + plan + lists +
             '<div class="mut cgn" style="margin-top:8px">Sources: wowcalc.net, ConquestCapped, wow-professions.com (Nov 2026); '
             'item data from Blizzard. Recipe costs and standings from wow-professions.</div></section>')
