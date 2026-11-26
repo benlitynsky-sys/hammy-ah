@@ -61,12 +61,12 @@ pop.addEventListener('mouseleave',e=>{if(!pinned&&!(e.relatedTarget&&e.relatedTa
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){pinned=null;pop.style.display='none'}});
 document.addEventListener('click',e=>{if(pinned&&!pop.contains(e.target)&&!e.target.closest('[data-iid]')){pinned=null;pop.style.display='none'}});
 // each section becomes a beveled picture tile; tap it to open that section's tables
-const ART={'Flip list':['🔄','#2f81f7','#0b2a5e'],'Top daily movers':['📈','#2ea043','#0b3318'],
-  'Potential manipulation':['🕵️','#a371f7','#2a1556'],'Cooldowns':['⏳','#e3b341','#4a3205'],
+const ART={'AH Deviation Watchlist':['🔄','#2f81f7','#0b2a5e'],'AH Most Active':['📈','#2ea043','#0b3318'],
+  'AH Manipulation':['🕵️','#a371f7','#2a1556'],'Cooldowns':['⏳','#e3b341','#4a3205'],
   'Raid consumables':['🐉','#f85149','#4a0d0c'],'Cooking':['🍖','#f0883e','#4a2208'],'Top crafts':['⚒️','#8b949e','#1c2128'],'1-150, 150-300 Profession Kits':['🧰','#39c5cf','#0b3a3e'],"Likely all you’ll use this for":['🔍','#58a6ff','#102a4c'],'Cool utility items':['🧨','#d2a8ff','#3a1d5c'],'Durotar Supply and Logistics':['📦','#e3b341','#4a3205']};
 // button order (search stays first)
-const ORDER=['Top daily movers','Raid consumables','Durotar Supply and Logistics','Top crafts','Cooldowns','1-150, 150-300 Profession Kits','Cooking',
-  'Flip list','Potential manipulation','Cool utility items'];
+const ORDER=['AH Most Active','AH Deviation Watchlist','AH Manipulation','Raid consumables','Durotar Supply and Logistics','Top crafts','Cooldowns','1-150, 150-300 Profession Kits','Cooking',
+  'Cool utility items'];
 (()=>{const secs=[...document.querySelectorAll('.wrap > section')], nm=s=>((s.querySelector(':scope > .sh h2')||{}).textContent||'').trim();
   let at=secs.find(s=>nm(s).startsWith('Likely all')); if(!at)return;
   ORDER.forEach(n=>{const s=secs.find(x=>nm(x)===n); if(s){at.after(s); at=s}})})();
