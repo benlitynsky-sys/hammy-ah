@@ -1207,15 +1207,16 @@ def sec_plays(m):
         even = paid / (1 - R.CUT)
         rows.append(f'<tr><td class="nm" data-iid="{iid}">{R.esc(h["name"])}</td><td class="r">{q:,}</td><td class="r">{sm(paid)}</td>'
                     f'<td class="r now">{sm(now) if now else "-"}</td><td class="r">{sm(usual) if usual else "-"}</td>'
-                    f'<td class="r">{sm(even)}</td>'
-                    f'<td class="r">{f"<b class={chr(34)}{"up" if pl >= 0 else "dn"}{chr(34)}>{"+" if pl >= 0 else "-"}{sm(abs(pl))}</b>" if pl is not None else "-"}</td>'
+                    f'<td class="r">{sm(even)}</td>{lc(m, iid)}'
+                    + (f'<td class="r">{sold_day(m, iid):,.0f}</td>' if sold_day(m, iid) is not None else '<td class="r mut">-</td>')
+                    + f'<td class="r">{f"<b class={chr(34)}{"up" if pl >= 0 else "dn"}{chr(34)}>{"+" if pl >= 0 else "-"}{sm(abs(pl))}</b>" if pl is not None else "-"}</td>'
                     f'<td class="r">{sm(tgt) if tgt else "-"}{" <span class=mut>(usual)</span>" if h.get("target") == "usual" else ""}'
                     f'{f" &middot; {sm(great)}" if great else ""}</td>'
                     f'<td class="r mut">{when(h.get("bought_ts") or bought.get(iid))}</td></tr>')
     hold_t = ('<table class="g"><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Paid each</th><th class="r">Cheapest now</th>'
-              '<th class="r">Usual (7d)</th><th class="r">Break-even</th><th class="r">If sold now</th><th class="r">Sell alerts at</th>'
+              '<th class="r">Usual (7d)</th><th class="r">Break-even</th><th class="r">Posted/day (7d avg)</th><th class="r">Sold/day (7d avg)</th><th class="r">If sold now</th><th class="r">Sell alerts at</th>'
               '<th class="r">Bought</th></tr></thead><tbody>'
-              + ("".join(rows) or '<tr><td colspan="9" class="mut">not holding anything right now</td></tr>') + '</tbody></table>')
+              + ("".join(rows) or '<tr><td colspan="11" class="mut">not holding anything right now</td></tr>') + '</tbody></table>')
     hist = []
     for t in sorted(trades, key=lambda t: -t["ts"]):
         sell = t["kind"] == "sell"
