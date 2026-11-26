@@ -583,11 +583,14 @@ def crash_scoop(m, iid):
     return res
 
 
+RELIST_BACK = 0.5   # still flagged only while the price holds over half of the manipulated markup
+
+
 def relisted(m, iid):
     """Buyout + relist in the last 2 days: the price sat near its weekly usual (under 1.3x) with 20+ listed, half or
     more of the listings went in one hour (bought out), then within 6 hours the stock went back UP (1.5x the low point
     after the buyout and 20+ more) while the price was 1.8x usual or more - the buyer reposting at their price. Stays
-    flagged while it's still 1.5x usual or more. Returns (buyout time, relist time, relist price, relist qty, usual) or None."""
+    flagged while it's still 1.5x usual or more AND holds over half of the markup from usual to the peak. Returns (buyout time, relist time, relist price, relist qty, usual) or None."""
     if not hasattr(m, "_relist"):
         m._relist = {}
     if iid in m._relist:
@@ -612,6 +615,10 @@ def relisted(m, iid):
             if x[1] >= 1.8 * usual and x[2] >= max(1.5 * lo, lo + 20):
                 res = (cur[0], x[0], x[1], x[2], usual)
                 break
+    if res:   # over once the price has come back down more than halfway from the manipulated peak toward usual
+        peak = max(y[1] for y in r if y[0] >= res[1])
+        if r[-1][1] < usual + RELIST_BACK * (peak - usual):
+            res = None
     m._relist[iid] = res
     return res
 
@@ -673,7 +680,7 @@ def sec_manip(m):
             f'<tbody>{rows}</tbody></table>'
             '<div class="fn"><span class="badge manip">Manipulated</span> <b>buyout + relist</b>: the cheap stock is bought out, then '
             '<b>more</b> stock is posted at 1.8x usual or more within a few hours - the buyer reposting at their price. Sell into it, '
-            'don&rsquo;t buy; it stays flagged while it&rsquo;s still 1.5x usual or more. Not flagged: stock clears and the price rises '
+            'don&rsquo;t buy; the badge drops once the price falls back more than halfway from the manipulated peak toward usual. Not flagged: stock clears and the price rises '
             'while listings <b>stay low</b> - that&rsquo;s real demand. Also given to a <b>crash &amp; scoop</b>: someone '
             'posts a pile of a high-volume mat (1,000+ usually listed, like Runecloth) at a silly low price, sellers&rsquo; auto-undercut posts follow it down, and they buy all the cheap stock - '
             'if you see a sudden crash on one of these, don&rsquo;t post into it. The badge stays until the price has been back near '
