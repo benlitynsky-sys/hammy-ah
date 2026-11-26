@@ -412,6 +412,10 @@ def poll_once(cfg, ah, api=None, con=None, quiet=False):
     n_all = save_all_commodities(con, ah, ts, commodities, cfg["FLOOR_UNITS"]) if commodities else 0
     if cfg.get("RULESET"):
         save_gear(con, ts, gear_auctions)
+        try:   # names for gear we've never looked up, so the search tile can find every weapon / armor piece
+            fill_names(con, api, {a.get("item", {}).get("id") for a in gear_auctions} - {None})
+        except Exception as e:
+            print("name lookup skipped:", str(e)[:120])
     if lm:
         meta_set(con, "last_modified", lm)
     con.commit()
@@ -419,6 +423,35 @@ def poll_once(cfg, ah, api=None, con=None, quiet=False):
         print(f"{datetime.now():%Y-%m-%d %H:%M} AH {ah}: saved {len(rows)} watchlist items"
               f" + {n_all} commodities from {len(auctions)} auctions")
     return True
+
+
+def fill_names(con, api, ids, limit=2000, workers=8):
+    """Look up (once, cached in iteminfo) the name/class of items we have no record of - up to `limit` per scan."""
+    have = {r[0] for r in con.execute("SELECT item_id FROM iteminfo WHERE name NOT LIKE 'item %'")}
+    todo = sorted(i for i in ids if i not in have)[:limit]
+    if not todo:
+        return 0
+    from concurrent.futures import ThreadPoolExecutor
+
+    def get(iid):
+        try:
+            return iid, api.get(f"/data/wow/item/{iid}", "static-forever-us")[0]
+        except Exception:
+            return iid, None
+
+    def s(v):
+        return v.get("name", "") if isinstance(v, dict) else (v or "")
+    rows = []
+    with ThreadPoolExecutor(workers) as ex:
+        for iid, it in ex.map(get, todo):
+            if not it or not s(it.get("name")):
+                continue
+            sell = it.get("sell_price")
+            sell = sell if isinstance(sell, int) else (sell or {}).get("value", 0) if isinstance(sell, dict) else 0
+            rows.append((iid, s(it.get("name")), s(it.get("item_class")), s(it.get("item_subclass")),
+                         it.get("required_level") or 0, sell or 0))
+    con.executemany("INSERT OR REPLACE INTO iteminfo VALUES (?,?,?,?,?,?)", rows)
+    return len(rows)
 
 
 def save_sales(con, ts, vanished, cheapest_now):
