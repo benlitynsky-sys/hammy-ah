@@ -523,10 +523,10 @@ def manip_flag(m, iid):
     ps, qs = sorted(x[1] for x in hist), sorted(x[2] for x in hist)
     usual, uq = ps[len(ps) // 2], qs[len(qs) // 2]
     now, q = r[-1][1], r[-1][2]
-    if usual < MANIP_MIN or uq < 50 or iid in DURABLE_IDS(m):
-        return None
     if crash_scoop(m, iid):
         return "Manipulated"
+    if usual < MANIP_MIN or uq < 50 or iid in DURABLE_IDS(m):
+        return None
     if now < 1.80 * usual:
         return None
     if m.manipulated(iid) or bought_out(r, usual, m.last):
@@ -536,13 +536,13 @@ def manip_flag(m, iid):
     return None
 
 
-CRASH_DROP, CRASH_BACK, CRASH_CALM, CRASH_HOURS, CRASH_PILE = 0.5, 0.75, 0.75, 24, 100
+CRASH_DROP, CRASH_BACK, CRASH_CALM, CRASH_HOURS, CRASH_PILE = 0.5, 0.75, 0.75, 24, 1000
 
 
 def crash_scoop(m, iid):
     """Crash-and-scoop: someone dumps a pile at a silly low price, other sellers' auto-undercut posts just under it,
     and the dumper buys all the cheap stock back. Shows as one or two hours at half its weekly usual or less (right
-    after a normal hour, and well under anything it normally sells for) while a real pile is listed (100+, at least half the normal count - not one stray cheap
+    after a normal hour, and well under anything it normally sells for) only on very high-volume mats (1,000+ normally listed, 1,000+ during the crash - not one stray cheap
     listing), back to 75%+ of usual within 3 hours. Stays flagged until the price has stayed at 75%+ of usual for
     24 hours straight at some point since the crash. Returns (crash time, crash price, usual) or None."""
     if not hasattr(m, "_crash"):
@@ -556,7 +556,7 @@ def crash_scoop(m, iid):
     ps = sorted(x[1] for x in r)
     usual = ps[len(ps) // 2]
     uq = sorted(x[2] for x in r)[len(r) // 2]
-    if usual < MANIP_MIN or uq < CRASH_PILE or iid in DURABLE_IDS(m):
+    if usual < 100 or uq < CRASH_PILE or iid in DURABLE_IDS(m):   # 1s+ - cheap high-volume mats get crashed too
         return None
     for j in range(1, len(r) - 1):
         if r[j][0] - r[0][0] < 2 * 86400:   # needs 2+ days of history first, so "usual" means something
@@ -608,9 +608,9 @@ def sec_manip(m):
         ps, qs = sorted(x[1] for x in hist), sorted(x[2] for x in hist)
         usual, uq = ps[len(ps) // 2], qs[len(qs) // 2]
         now, q = r[-1][1], r[-1][2]
-        if usual < MANIP_MIN or uq < 50 or q < 20 or iid in DURABLE_IDS(m):
-            continue
         cr = crash_scoop(m, iid)
+        if not cr and (usual < MANIP_MIN or uq < 50 or q < 20 or iid in DURABLE_IDS(m)):
+            continue
         if cr:
             when = R.pacific(cr[0], fmt="%a {h}:%M %p")
             why = (f'crash &amp; scoop: dumped to {sm(cr[1])} {when} ({round(cr[1] / cr[2] * 100)}% of usual) so '
@@ -638,7 +638,7 @@ def sec_manip(m):
             f'<tbody>{rows}</tbody></table>'
             '<div class="fn"><span class="badge manip">Manipulated</span> over 2x usual with under 40% of the usual listings - '
             'sell into it, don&rsquo;t buy, it usually falls back once people relist. Also given to a <b>crash &amp; scoop</b>: someone '
-            'posts a pile at a silly low price, sellers&rsquo; auto-undercut posts follow it down, and they buy all the cheap stock - '
+            'posts a pile of a high-volume mat (1,000+ usually listed, like Runecloth) at a silly low price, sellers&rsquo; auto-undercut posts follow it down, and they buy all the cheap stock - '
             'if you see a sudden crash on one of these, don&rsquo;t post into it. The badge stays until the price has been back near '
             'usual for 24 hours straight.</div></section>')
 
