@@ -13,7 +13,7 @@ const RC = JSON.parse((document.getElementById('rcinfo')||{}).textContent||'{}')
 function rcBtn(iid){const r=RC[String(iid).replace(/^lk/,'')]; if(!r)return '';
   const row=(k,v)=>v?`<div><span class="mut">${k}</span> ${v}</div>`:'';
   return `<div class="rcw"><button type="button" class="rcb">${r.w}</button><div class="rct"><b>${r.n}</b>`+
-    row('Profession',r.prof+(r.sk?' ('+r.sk+')':''))+row('Where',r.src)+row('On AH',r.ah)+(r.bop?'<div class="mut">Binds on pickup - you must get it yourself</div>':'')+`</div></div>`}
+    row('Profession',r.prof+(r.sk?' ('+r.sk+')':''))+row('Where',r.src)+row('On AH',r.ah)+row('Needs',r.mats)+row('Mats cost now',r.cost)+row('Cooldown',r.cd)+(r.bop?'<div class="mut">Binds on pickup - you must get it yourself</div>':'')+`</div></div>`}
 function rcWire(el){const w=el.querySelector('.rcw'); if(!w)return;
   w.querySelector('.rcb').addEventListener('click',e=>{e.stopPropagation(); w.classList.toggle('open')})}
 const pop = document.getElementById('pop');
@@ -314,6 +314,29 @@ def recipe_info(m):
                 out[oid] = dict(w=w, n=R.esc(f"{w}: {nm}"), prof=rs[0]["prof"], sk=None,
                                 src="Where it comes from isn&rsquo;t in our database yet", ah=ah(rid), bop=False)
                 break
+    cds = {}
+    try:
+        for r in csv.DictReader(open(os.path.join(here, "recipes.csv"), encoding="utf-8")):
+            h = float(r.get("cooldown_hours") or 0)
+            if h > 0:
+                cds[r["output"].strip().lower()] = h
+    except (OSError, KeyError, ValueError):
+        pass
+    for oid, x in out.items():   # what one craft needs, priced now
+        rs = m.by_out.get(oid)
+        if not rs:
+            continue
+        r = rs[0]
+        parts = []
+        for iid, n, q in r["reagents"]:
+            c, _ = m.cost(iid, r["prof"])
+            parts.append(f"{q:g} {R.esc(n)}" + (f" <span class=mut>({R.money(c * q)})</span>" if c else ""))
+        x["mats"] = ", ".join(parts) + (f" &rarr; makes {r['qty']:g}" if (r.get("qty") or 1) > 1 else "")
+        tot = m.recipe_cost(r)
+        x["cost"] = R.money(tot) if tot else None
+        h = cds.get(m.name(oid).lower())
+        if h:
+            x["cd"] = f"{h:g} hours (about {round(h / 24, 1):g} days)" if h >= 24 else f"{h:g} hours"
     return out
 
 
