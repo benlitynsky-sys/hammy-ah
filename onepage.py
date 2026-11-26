@@ -1374,9 +1374,11 @@ def sec_plays(m):
             'scan, plus every buy and sale</span></div>'
             '<h3 class="cg">Holding now <span class="mut cgn">newest buy first &middot; &ldquo;If sold now&rdquo; = selling '
             'at the cheapest price now, after the 5% AH cut</span></h3>' + hold_t
-            + f'<h3 class="cg" style="margin-top:18px">Buys and sales <span class="mut cgn">newest first'
-            + (f' &middot; realized profit so far: <b class="{"up" if total >= 0 else "dn"}">{"+" if total >= 0 else "-"}{sm(abs(total))}</b>'
-               if any(t["kind"] == "sell" for t in trades) else "") + '</span></h3>' + hist_t + '</section>')
+            + f'<h3 class="cg" style="margin-top:18px">Buys and sales <span class="mut cgn">newest first</span>'
+            + (f'<span style="margin-left:14px">Realized profit</span><span class="badge kitp"'
+               + ('' if total >= 0 else ' style="background:#da3633;box-shadow:inset 0 0 0 1px #f85149"')
+               + f'>{"+" if total >= 0 else "-"}{sm(abs(total))}</span>'
+               if any(t["kind"] == "sell" for t in trades) else "") + '</h3>' + hist_t + '</section>')
 
 
 def kit_blocks(m, path="leveling.csv", mirror=False, label=""):
