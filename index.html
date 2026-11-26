@@ -220,7 +220,10 @@ if(lkq){
   lkq.addEventListener('focus',loadLK);
   lkq.addEventListener('input',async()=>{await loadLK(); const q=lkq.value.trim().toLowerCase(), box=document.getElementById('lkres');
     if(q.length<2){box.innerHTML='';return}
-    const hits=LK.list.filter(x=>x[2].includes(q)).sort((a,b)=>(b[2].startsWith(q)-a[2].startsWith(q))||a[1].length-b[1].length).slice(0,12);
+    const ws=q.replace(/[^a-z0-9' ]/g,' ').split(' ').filter(Boolean), sc=x=>ws.filter(w=>x[2].includes(w)).length;
+    let hits=LK.list.filter(x=>sc(x)==ws.length);   // every word, any order, punctuation ignored
+    if(!hits.length&&ws.length>1)hits=LK.list.filter(x=>sc(x)>=ws.length-1);   // forgive one extra/misspelled word
+    hits=hits.sort((a,b)=>(b[2].includes(q)-a[2].includes(q))||(b[2].startsWith(q)-a[2].startsWith(q))||(sc(b)-sc(a))||a[1].length-b[1].length).slice(0,12);
     box.innerHTML=hits.length?hits.map(([id,n])=>`<button type="button" data-lk="${id}">${n}</button>`).join(''):'<span class="mut">no item by that name</span>'});
   document.getElementById('lkres').addEventListener('click',e=>{const b=e.target.closest('[data-lk]'); if(b)lkShow(b.dataset.lk,b.textContent)});
   lkq.addEventListener('keydown',e=>{if(e.key==='Enter'){const b=document.querySelector('#lkres [data-lk]'); if(b)lkShow(b.dataset.lk,b.textContent)}});
