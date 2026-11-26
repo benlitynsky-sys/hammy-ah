@@ -14,6 +14,11 @@ function rcBtn(iid){const r=RC[String(iid).replace(/^lk/,'')]; if(!r)return '';
   const row=(k,v)=>v?`<div><span class="mut">${k}</span> ${v}</div>`:'';
   return `<div class="rcw"><button type="button" class="rcb">${r.w}</button><div class="rct"><b>${r.n}</b>`+
     row('Profession',r.prof+(r.sk?' ('+r.sk+')':''))+row('Where',r.src)+row('On AH',r.ah)+row('Needs',r.mats)+row('Mats cost now',r.cost)+row('Cooldown',r.cd)+(r.bop?'<div class="mut">Binds on pickup - you must get it yourself</div>':'')+`</div></div>`}
+const TT = JSON.parse((document.getElementById('ttinfo')||{}).textContent||'{}');
+const QC={POOR:'#9d9d9d',COMMON:'#e6e9ee',UNCOMMON:'#1eff00',RARE:'#0070dd',EPIC:'#a335ee',LEGENDARY:'#ff8000'};
+function ttBox(iid){const x=TT[String(iid).replace(/^lk/,'')]; if(!x||!x[1].length)return '';
+  return '<div class="ttb">'+x[1].map(([s,c])=>`<div class="${c}">${s.replace(/</g,'&lt;')}</div>`).join('')+'</div>'}
+function qName(iid,name){const x=TT[String(iid).replace(/^lk/,'')]; return x?`<b style="color:${QC[x[0]]||'#e6e9ee'}">${name}</b>`:`<b>${name}</b>`}
 function rcWire(el){const w=el.querySelector('.rcw'); if(!w)return;
   w.querySelector('.rcb').addEventListener('click',e=>{e.stopPropagation(); w.classList.toggle('open')})}
 const pop = document.getElementById('pop');
@@ -22,7 +27,7 @@ function money(c){c=Math.round(c);const g=Math.floor(c/10000),s=Math.floor(c%100
   return g?`${g}g ${String(s).padStart(2,'0')}s`:s?`${s}s ${String(k).padStart(2,'0')}c`:`${k}c`}
 function fmt(t){return new Date(t*1000).toLocaleString('en-US', {timeZone:'America/Phoenix',weekday:'short',hour:'numeric',minute:'2-digit',hour12:true})+' PST'}
 function draw(iid, name, el=pop){
-  const d = D[iid]; if(!d || !d.p.length){el.innerHTML=`${rcBtn(iid)}<div class="ph${RC[String(iid).replace(/^lk/,'')]?' hasrc':''}"><b>${name}</b></div><div class="mut">no hourly data yet</div>`;rcWire(el);return}
+  const d = D[iid]; if(!d || !d.p.length){el.innerHTML=`${rcBtn(iid)}<div class="ph${RC[String(iid).replace(/^lk/,'')]?' hasrc':''}">${qName(iid,name)}</div>${ttBox(iid)}<div class="mut">never listed on the Horde PvP ruleset AH since we started tracking it</div>`;rcWire(el);return}
   const W=560,H=210,L=52,Rt=12,T=12,B=30, t0=d.t0, t1=d.t[d.t.length-1];
   const lo=Math.min(...d.p), hi=Math.max(...d.p), pad=(hi-lo)*.08||hi*.05;
   const y0=lo-pad, y1=hi+pad, X=t=>L+(t-t0)/(Math.max(1,t1-t0))*(W-L-Rt), Y=p=>T+(1-(p-y0)/(y1-y0))*(H-T-B);
@@ -32,7 +37,7 @@ function draw(iid, name, el=pop){
   const nd=Math.ceil((t1-t0)/86400), st=Math.max(1,Math.ceil(nd/7)); let di=0;
   for(let t=dd/1000;t<t1;t+=86400,di++){if(di%st)continue; days+=`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" class="dl"/><text x="${X(t)+3}" y="${H-B+13}" class="ax">${new Date(t*1000).toLocaleDateString('en-US', nd>10?{timeZone:'America/Phoenix',month:'numeric',day:'numeric'}:{timeZone:'America/Phoenix',weekday:'short',month:'numeric',day:'numeric'})}</text>`}
   const med=d.med, path=d.t.map((t,i)=>`${i&&d.t[i-1]<t-43200?'M':i?'L':'M'}${X(t).toFixed(1)},${Y(d.p[i]).toFixed(1)}`).join('');
-  el.innerHTML=`${rcBtn(iid)}<div class="ph${RC[String(iid).replace(/^lk/,'')]?' hasrc':''}"><b>${name}</b><span>now <b>${money(d.now||d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>
+  el.innerHTML=`${rcBtn(iid)}<div class="ph${RC[String(iid).replace(/^lk/,'')]?' hasrc':''}">${qName(iid,name)}<span>now <b>${money(d.now||d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>${ttBox(iid)}
   <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${grid}${days}
    <line x1="${L}" x2="${W-Rt}" y1="${Y(med)}" y2="${Y(med)}" class="md"/><text x="${W-Rt}" y="${Y(med)-3}" class="ax" text-anchor="end">usual</text>
    <path d="${path}" class="ln"/><g id="hv" style="display:none"><line id="hx" y1="${T}" y2="${H-B}" class="hx"/><circle id="hc" r="4" class="hc"/></g>
@@ -100,7 +105,8 @@ function loadLK(){ if(!LKP) LKP=fetch('lookup.json?v='+Date.now()).then(r=>r.jso
     LK.list=Object.entries(j.n).map(([id,n])=>[id,n,n.toLowerCase()]); const st=document.getElementById('lkst'); if(st)st.textContent=LK.list.length.toLocaleString()+' items ('+Object.keys(j.s).length.toLocaleString()+' seen listed)';});
   return LKP }
 function lkShow(id,name){
-  if(!LK.s[id]){document.getElementById('lkchart').innerHTML='<div class="sub"><b>'+name+'</b></div><div class="mut">Not listed on the Horde PvP ruleset AH since we started tracking it (gear from Nov 23, 2026). It can be sold on the AH - nobody has posted one yet.</div>';
+  if(LK.rc&&LK.rc[id])RC[id]=LK.rc[id]; if(LK.tt&&LK.tt[id])TT[id]=LK.tt[id];
+  if(!LK.s[id]){const el=document.getElementById('lkchart'); el.innerHTML=rcBtn(id)+'<div class="sub'+(RC[id]?' hasrc':'')+'">'+qName(id,name)+'</div>'+ttBox(id)+'<div class="mut">Not listed on the Horde PvP ruleset AH since we started tracking it (gear from Nov 23, 2026). It can be sold on the AH - nobody has posted one yet.</div>'; rcWire(el);
     document.getElementById('lkres').innerHTML=''; document.getElementById('lkq').value=name; return}
   const s=LK.s[id], h0=LK.h0, t=s.h.map(x=>(h0+x)*3600+((LK.mi||{})[x]||0)), last=t[t.length-1];
   const wk=s.p.filter((p,i)=>t[i]>=last-7*86400).sort((a,b)=>a-b);
@@ -124,6 +130,8 @@ if(lkq){
 """
 
 CSS = """
+.ttb{background:#0b0e12;border:1px solid #3a424d;border-radius:6px;padding:5px 8px;margin:5px 0;font-size:11px;line-height:1.4;max-width:540px}
+.ttb .g{color:#1eff00}.ttb .m{color:#8b949e}.ttb .y{color:#ffd100}
 .lk{padding:4px 2px}
 .lk input{width:100%;box-sizing:border-box;padding:7px 9px;border-radius:7px;border:1px solid #3a424d;background:#0b0e12;color:#e6e9ee;font:inherit;font-size:12px}
 .lk input:focus{outline:none;border-color:#58a6ff;box-shadow:0 0 0 2px rgba(88,166,255,.25)}
@@ -255,6 +263,18 @@ def write_lookup(m, path):
                 out["n"][int(k)] = n
     except (OSError, ValueError):
         pass
+    try:
+        import tooltips
+        gearish = [i for i in out["n"] if (m.items.get(int(i)) or {}).get("cls") in ("Armor", "Weapon") or int(i) in gear or i not in series]
+        c = tooltips.fetch(gearish, 400)   # fills in ~400 more each run until every item is cached
+        out["tt"] = {i: c[str(i)] for i in out["n"] if c.get(str(i)) and c[str(i)][1]}
+    except Exception as e:
+        print("lookup tooltips skipped:", e)
+    try:
+        info = recipe_info(m)
+        out["rc"] = {i: info[i] for i in out["n"] if i in info}
+    except Exception as e:
+        print("lookup recipe buttons skipped:", e)
     for i, hrs in series.items():
         hs = sorted(hrs)
         out["s"][i] = {"h": [h - h0 for h in hs], "p": [int(hrs[h][0]) for h in hs], "q": [int(hrs[h][1] or 0) for h in hs]}
@@ -353,6 +373,8 @@ def make(m, title, body, path):
     old = archived_rows(iids, min((v[0][0] for v in m.rows_long.values() if v), default=m.last))
     for iid in iids:   # charts show the full history: archive + working file
         rows = old.get(iid, []) + m.rows_long.get(iid, [])
+        if not rows:   # gear / one-off items live in the gear table: lowest buyout each hour
+            rows = [(ts, p, q) for ts, p, q, *_ in m.gear.get(iid, []) if p]
         hours = {}
         for ts, p, q, *_ in rows:
             hours.setdefault(ts // 3600, []).append((p, q, ts))
@@ -367,7 +389,7 @@ def make(m, title, body, path):
         ok = [0.4 * med <= p <= 2.5 * med for p in ps]
         keep = [i for i in range(len(ps) - 1)
                 if ok[i] or (i and not ok[i - 1]) or (i + 1 < len(ps) and not ok[i + 1])] + [len(ps) - 1]
-        now = m.ah(iid)[0] or ps[-1]    # same price the report shows (a lone silly ask is replaced by the usual price)
+        now = m.ah(iid)[0] or m.gear_now(iid)[0] or ps[-1]    # same price the report shows (a lone silly ask is replaced by the usual price)
         data[iid] = {"t0": t[0] * 3600, "t": [hours[t[i]][-1][2] for i in keep],
                      "p": [ps[i] for i in keep[:-1]] + [now],
                      "q": [hours[t[i]][-1][1] for i in keep], "med": med, "now": now}
@@ -377,6 +399,14 @@ def make(m, title, body, path):
         rc = {i: info[i] for i in iids if i in info}
     except Exception as e:   # never break the page over the recipe button
         print("recipe button data skipped:", e)
+    tt = {}
+    try:   # weapon / armor tooltips (stats, abilities) for the items on the page
+        import tooltips
+        gear_ids = [i for i in iids if (m.items.get(i) or {}).get("cls") in ("Armor", "Weapon")]
+        c = tooltips.fetch(gear_ids, 600)
+        tt = {i: c[str(i)] for i in gear_ids if c.get(str(i)) and c[str(i)][1]}
+    except Exception as e:
+        print("tooltips skipped:", e)
     lookup = ('<section><div class="sh"><h2>Likely all you&rsquo;ll use this for</h2><span class="tag">search any item on the Horde PvP ruleset AH for its full price history</span></div>'
               '<div class="lk"><input id="lkq" type="search" placeholder="Type an item name, e.g. Black Lotus" autocomplete="off">'
               '<div class="mut" style="font-size:9px;margin-top:2px">every item ever listed on the Horde PvP ruleset AH, plus every tradeable weapon, armor piece and recipe (even ones that have never been listed) &middot; <span id="lkst">loads when you tap the box</span></div>'
@@ -390,6 +420,7 @@ def make(m, title, body, path):
             f'{body}</div><div id="pop"></div>'
             f'<script type="application/json" id="series">{json.dumps(data, separators=(",", ":"))}</script>'
             f'<script type="application/json" id="rcinfo">{json.dumps(rc, separators=(",", ":")).replace("</", "<"+chr(92)+"/")}</script>'
+            f'<script type="application/json" id="ttinfo">{json.dumps(tt, separators=(",", ":")).replace("</", "<"+chr(92)+"/")}</script>'
             f'<script>{JS}</script></body></html>')
     open(path, "w", encoding="utf-8").write(page)
     return path
