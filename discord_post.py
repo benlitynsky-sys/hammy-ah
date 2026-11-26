@@ -39,17 +39,35 @@ def summary(market_html):
                     re.findall(r'<td class="nm[^"]*"[^>]*>([^<]*)(?:(?!</td>).)*badge manip', t)})
     title = re.search(r"<h1>(.*?)</h1>", t).group(1)
     lines = [f"**{html.unescape(title)}** - prices as of {when.group(1) if when else '?'}"]
-    if cert:
-        lines.append("Certified flips: " + ", ".join(cert))
-    if buy:
-        lines.append(":green_circle: Buy (20%+ under usual): " + ", ".join(buy))
-    if sell:
-        lines.append(":red_circle: Sell (20%+ over usual): " + ", ".join(sell))
-    buys = re.findall(r'<td class="nm"[^>]*>([^<]*)(?:(?!</td>).)*badge tgt">Buy target</span>(?:(?!</td>).)*</td><td class="r">[^<]*</td><td class="r">([^<]*)</td>', t)
-    if buys:
-        lines.append(":rotating_light: **Buy alert:** " + ", ".join(f"{html.unescape(n).strip()} at {p}" for n, p in buys))
-    if manip:
-        lines.append("Manipulated (bought out - sell into it, don't buy): " + ", ".join(manip))
+    import datetime as _dt
+    import report as _R
+    try:
+        pk = json.load(open(os.path.join(os.path.dirname(market_html), "pick.json")))
+    except (OSError, ValueError):
+        pk = {}
+    days = (_R.RAID_DAY - _dt.date.today()).days
+    if pk:
+        off = 1 - pk["now"] / pk["usual"]
+        lines += ["",
+                  f":package: **Raid Prep Pick of the Hour** - our top stock-up buy ahead of the raid release in {days} days "
+                  f"(Dec 9), when demand for raid supplies is expected to push prices up:",
+                  f"> **{pk['name']}** at **{_R.money(pk['now'])}** each - "
+                  + (f"{off:.0%} under its usual {_R.money(pk['usual'])}" if off >= 0.01 else f"right at its usual {_R.money(pk['usual'])}")
+                  + f", about {pk['sold']:,.0f} sell per day",
+                  "_Disclaimer: this is an educated guess from current market data - the raids aren't out yet, so price "
+                  "moves aren't guaranteed._"]
+    lines += ["", "**Inside the Toolchest:**",
+              ":mag: Item search - full price history for any item",
+              ":chart_with_upwards_trend: AH Most Active",
+              ":arrows_counterclockwise: AH Deviation Watchlist",
+              ":detective: AH Manipulation",
+              ":dragon: Raid consumables",
+              ":package: Durotar Supply and Logistics",
+              ":hammer_pick: Top crafts",
+              ":hourglass: Cooldowns",
+              ":toolbox: 1-150, 150-300 Profession Kits",
+              ":meat_on_bone: Cooking",
+              ":firecracker: Cool utility items", ""]
     where = " (runs in the cloud)" if os.environ.get("CLOUD") else ""
     lines.append(f"_updates every hour{where} - last edit {__import__('report').pacific(fmt='%a {h}:%M %p')}_")
     return "\n".join(lines)
