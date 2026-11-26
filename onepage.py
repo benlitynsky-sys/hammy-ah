@@ -1372,9 +1372,8 @@ def sec_plays(m):
               + ("".join(hist) or '<tr><td colspan="7" class="mut">no trades logged yet</td></tr>') + '</tbody></table>')
     return ('<section><div class="sh"><h2>Hammy&#39;s Plays</h2><span class="tag">what Hammy is holding, priced from the latest '
             'scan, plus every buy and sale</span></div>'
-            '<h3 class="cg">Holding now <span class="mut cgn">newest buy first &middot; &ldquo;If sold now&rdquo; = selling '
-            'at the cheapest price now, after the 5% AH cut</span></h3>' + hold_t
-            + f'<h3 class="cg" style="margin-top:18px">Buys and sales <span class="mut cgn">newest first</span>'
+            '<h3 class="cg" style="text-align:center">Holdings</h3>' + hold_t
+            + f'<h3 class="cg" style="margin-top:18px;text-align:center">Buys and sales'
             + (f'<span style="margin-left:14px">Realized profit</span><span class="badge kitp"'
                + ('' if total >= 0 else ' style="background:#da3633;box-shadow:inset 0 0 0 1px #f85149"')
                + f'>{"+" if total >= 0 else "-"}{sm(abs(total))}</span>'
