@@ -521,13 +521,59 @@ def manip_flag(m, iid):
     ps, qs = sorted(x[1] for x in hist), sorted(x[2] for x in hist)
     usual, uq = ps[len(ps) // 2], qs[len(qs) // 2]
     now, q = r[-1][1], r[-1][2]
-    if usual < MANIP_MIN or uq < 50 or iid in DURABLE_IDS(m) or now < 1.80 * usual:
+    if usual < MANIP_MIN or uq < 50 or iid in DURABLE_IDS(m):
+        return None
+    if crash_scoop(m, iid):
+        return "Manipulated"
+    if now < 1.80 * usual:
         return None
     if m.manipulated(iid) or bought_out(r, usual, m.last):
         return "Manipulated"
     if q >= 20 and q < 0.6 * uq:
         return "Potential manipulation"
     return None
+
+
+CRASH_DROP, CRASH_BACK, CRASH_CALM, CRASH_HOURS, CRASH_PILE = 0.5, 0.75, 0.75, 24, 100
+
+
+def crash_scoop(m, iid):
+    """Crash-and-scoop: someone dumps a pile at a silly low price, other sellers' auto-undercut posts just under it,
+    and the dumper buys all the cheap stock back. Shows as one or two hours at half its weekly usual or less (right
+    after a normal hour) while a real pile is listed (100+, at least half the normal count - not one stray cheap
+    listing), back to 75%+ of usual within 3 hours. Stays flagged until the price has stayed at 75%+ of usual for
+    24 hours straight at some point since the crash. Returns (crash time, crash price, usual) or None."""
+    if not hasattr(m, "_crash"):
+        m._crash = {}
+    if iid in m._crash:
+        return m._crash[iid]
+    m._crash[iid] = res = None
+    r = [x for x in m.rows.get(iid) or [] if x[1]]
+    if len(r) < 24 or r[-1][0] < m.last - 2 * 3600:
+        return None
+    ps = sorted(x[1] for x in r)
+    usual = ps[len(ps) // 2]
+    uq = sorted(x[2] for x in r)[len(r) // 2]
+    if usual < MANIP_MIN or uq < CRASH_PILE or iid in DURABLE_IDS(m):
+        return None
+    for j in range(1, len(r) - 1):
+        if (r[j][1] <= CRASH_DROP * usual and r[j - 1][1] >= 0.8 * usual and r[j][2] >= max(CRASH_PILE, uq / 2)
+                and any(x[1] >= CRASH_BACK * usual for x in r[j + 1:j + 4])):
+            res = (r[j][0], r[j][1], usual)   # keep the latest crash
+    if res:
+        start = None   # any 24h stretch after the crash with no hour under 75% of usual clears it
+        for x in r:
+            if x[0] <= res[0]:
+                continue
+            if x[1] < CRASH_CALM * usual:
+                start = None
+            elif start is None:
+                start = x[0]
+            elif x[0] - start >= CRASH_HOURS * 3600:
+                res = None
+                break
+    m._crash[iid] = res
+    return res
 
 
 def bought_out(r, usual, last):
@@ -557,25 +603,37 @@ def sec_manip(m):
         now, q = r[-1][1], r[-1][2]
         if usual < MANIP_MIN or uq < 50 or q < 20 or iid in DURABLE_IDS(m):
             continue
-        if manip_flag(m, iid):   # 80%+ over usual with stock down 40%+
-            res.append(dict(iid=iid, now=now, usual=usual, q=q, uq=uq, man=m.manipulated(iid)))
-    res.sort(key=lambda x: (-x["man"], -x["now"] / x["usual"]))
+        cr = crash_scoop(m, iid)
+        if cr:
+            when = R.pacific(cr[0], fmt="%a {h}:%M %p")
+            why = (f'crash &amp; scoop: dumped to {sm(cr[1])} {when} ({round(cr[1] / cr[2] * 100)}% of usual) so '
+                   f'auto-posts undercut it, then the cheap stock was bought up - flagged until it sits near usual for 24h')
+        elif manip_flag(m, iid):   # 80%+ over usual with stock down 40%+
+            why = "bought out" if (m.manipulated(iid) or manip_flag(m, iid) == "Manipulated") else "cheap stock vanishing - watch"
+        else:
+            continue
+        res.append(dict(iid=iid, now=now, usual=usual, q=q, uq=uq, man=manip_flag(m, iid) == "Manipulated", why=why))
+    res.sort(key=lambda x: (-x["man"], -abs(x["now"] / x["usual"] - 1)))
     rows = "".join(
         f'<tr><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}</td>'
         f'<td class="r now">{sm(x["now"])}</td><td class="r">{sm(x["usual"])}</td>'
-        f'<td class="r"><b class="up">+{round((x["now"] / x["usual"] - 1) * 100)}%</b></td>'
+        f'<td class="r"><b class="{"up" if x["now"] >= x["usual"] else "dn"}">{round((x["now"] / x["usual"] - 1) * 100):+d}%</b></td>'
         f'<td class="r">{x["q"]:,} <span class="mut">of {x["uq"]:,}</span></td>'
-        f'<td class="r"><b class="dn">-{round((1 - x["q"] / x["uq"]) * 100)}%</b></td>{vc(m, x["iid"])}</tr>'
+        f'<td class="r"><b class="{"dn" if x["q"] < x["uq"] else "up"}">{round((x["q"] / x["uq"] - 1) * 100):+d}%</b></td>{vc(m, x["iid"])}'
+        f'<td class="mut" style="font-size:11px">{x["why"]}</td></tr>'
         for x in res[:TOP_MANIP])
     if not rows:
-        rows = '<tr><td colspan="8" class="mut">nothing looks bought out right now</td></tr>'
+        rows = '<tr><td colspan="9" class="mut">nothing looks bought out right now</td></tr>'
     return ('<section><div class="sh"><span class="no">3</span><h2>AH Manipulation</h2>'
-            '<span class="tag">cheap stock vanishing while the price climbs (all Horde PvP ruleset goods worth 5s+)</span></div>'
+            '<span class="tag">cheap stock vanishing while the price climbs, or price crashes used to scoop up auto-undercut stock (all Horde PvP ruleset goods worth 5s+)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">Usual</th><th class="r">vs usual</th>'
-            '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th></tr></thead>'
+            '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th>What happened</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>'
             '<div class="fn"><span class="badge manip">Manipulated</span> over 2x usual with under 40% of the usual listings - '
-            'sell into it, don&rsquo;t buy, it usually falls back once people relist.</div></section>')
+            'sell into it, don&rsquo;t buy, it usually falls back once people relist. Also given to a <b>crash &amp; scoop</b>: someone '
+            'posts a pile at a silly low price, sellers&rsquo; auto-undercut posts follow it down, and they buy all the cheap stock - '
+            'if you see a sudden crash on one of these, don&rsquo;t post into it. The badge stays until the price has been back near '
+            'usual for 24 hours straight.</div></section>')
 
 
 def DURABLE_IDS(m):
@@ -1293,7 +1351,7 @@ LEGEND = ('<div class="legend"><b>Badges</b> (price now vs its weekly usual): '
           '<span class="badge mup">Moving up</span> 10-20% over &middot; '
           '<span class="badge sell">Sell</span> 20%+ over &middot; no badge = near usual<br>'
           '<span class="badge manip">Manipulated</span> not a normal swing: someone bought out the cheap stock - the price is real now but '
-          'artificial; sell into it, don&rsquo;t buy &middot; '
+          'artificial; sell into it, don&rsquo;t buy (or a crash &amp; scoop: a fake price crash to buy up undercut stock - don&rsquo;t post into a sudden crash) &middot; '
           '<span class="badge cert">Certified flip</span> up &amp; down 3+ times this week</div>')
 
 
