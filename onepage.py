@@ -1173,6 +1173,65 @@ def kit_cost(m, r):
     return tot, notes
 
 
+def sec_plays(m):
+    """Hammy's Plays: what Hammy holds now (holdings.json) priced from the latest scan, then every logged buy and sell
+    (trades.json), newest first."""
+    ld = lambda n: json.load(open(os.path.join(HERE, n), encoding="utf-8")) if os.path.exists(os.path.join(HERE, n)) else []
+    try:
+        hold, trades = ld("holdings.json"), ld("trades.json")
+    except ValueError:
+        hold, trades = [], []
+    when = lambda ts: R.pacific(ts, fmt="%a %b %d, {h}:%M %p") if ts else "-"
+    bought = {}
+    for t in trades:
+        if t["kind"] == "buy":
+            bought[t["item_id"]] = max(bought.get(t["item_id"], 0), t["ts"])
+    rows = []
+    for h in sorted(hold, key=lambda h: -(h.get("bought_ts") or bought.get(h["item_id"]) or 0)):
+        iid, q, paid = h["item_id"], h["qty"], h["paid"]
+        now = m.ah(iid)[0]
+        wk = sorted(x[1] for x in m.rows.get(iid, []) if x[1])
+        usual = wk[len(wk) // 2] if wk else None
+        tgt = usual if h.get("target") == "usual" else h.get("target")
+        great = h.get("great") or (tgt * 1.1 if tgt else None)
+        pl = int(round((now * (1 - R.CUT) - paid) * q)) if now else None
+        even = paid / (1 - R.CUT)
+        rows.append(f'<tr><td class="nm" data-iid="{iid}">{R.esc(h["name"])}</td><td class="r">{q:,}</td><td class="r">{sm(paid)}</td>'
+                    f'<td class="r now">{sm(now) if now else "-"}</td><td class="r">{sm(usual) if usual else "-"}</td>'
+                    f'<td class="r">{sm(even)}</td>'
+                    f'<td class="r">{f"<b class={chr(34)}{"up" if pl >= 0 else "dn"}{chr(34)}>{"+" if pl >= 0 else "-"}{sm(abs(pl))}</b>" if pl is not None else "-"}</td>'
+                    f'<td class="r">{sm(tgt) if tgt else "-"}{" <span class=mut>(usual)</span>" if h.get("target") == "usual" else ""}'
+                    f'{f" &middot; {sm(great)}" if great else ""}</td>'
+                    f'<td class="r mut">{when(h.get("bought_ts") or bought.get(iid))}</td></tr>')
+    hold_t = ('<table class="g"><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Paid each</th><th class="r">Cheapest now</th>'
+              '<th class="r">Usual (7d)</th><th class="r">Break-even</th><th class="r">If sold now</th><th class="r">Sell alerts at</th>'
+              '<th class="r">Bought</th></tr></thead><tbody>'
+              + ("".join(rows) or '<tr><td colspan="9" class="mut">not holding anything right now</td></tr>') + '</tbody></table>')
+    hist = []
+    for t in sorted(trades, key=lambda t: -t["ts"]):
+        sell = t["kind"] == "sell"
+        res = ""
+        if sell and t.get("profit") is not None:
+            res = f'<b class="{"up" if t["profit"] >= 0 else "dn"}">{"+" if t["profit"] >= 0 else "-"}{sm(abs(t["profit"]))}</b>'
+        elif t.get("note"):
+            res = f'<span class="mut">{R.esc(t["note"])}</span>'
+        hist.append(f'<tr><td class="mut">{when(t["ts"])}</td>'
+                    f'<td><span class="badge {"sell" if sell else "buy"}">{"Sold" if sell else "Bought"}</span></td>'
+                    f'<td class="nm" data-iid="{t["item_id"]}">{R.esc(t["name"])}</td><td class="r">{t["qty"]:,}</td>'
+                    f'<td class="r">{sm(t["price"])}</td><td class="r">{sm(t["price"] * t["qty"])}</td><td class="r">{res}</td></tr>')
+    total = sum(t.get("profit") or 0 for t in trades if t["kind"] == "sell")
+    hist_t = ('<table class="g"><thead><tr><th>When</th><th></th><th>Item</th><th class="r">Qty</th><th class="r">Each</th>'
+              '<th class="r">Total</th><th class="r">Profit (after 5% cut)</th></tr></thead><tbody>'
+              + ("".join(hist) or '<tr><td colspan="7" class="mut">no trades logged yet</td></tr>') + '</tbody></table>')
+    return ('<section><div class="sh"><h2>Hammy&#39;s Plays</h2><span class="tag">what Hammy is holding, priced from the latest '
+            'scan, plus every buy and sale</span></div>'
+            '<h3 class="cg">Holding now <span class="mut cgn">newest buy first &middot; &ldquo;If sold now&rdquo; = selling '
+            'at the cheapest price now, after the 5% AH cut</span></h3>' + hold_t
+            + f'<h3 class="cg" style="margin-top:18px">Buys and sales <span class="mut cgn">newest first'
+            + (f' &middot; realized profit so far: <b class="{"up" if total >= 0 else "dn"}">{"+" if total >= 0 else "-"}{sm(abs(total))}</b>'
+               if any(t["kind"] == "sell" for t in trades) else "") + '</span></h3>' + hist_t + '</section>')
+
+
 def kit_blocks(m, path="leveling.csv", mirror=False, label=""):
     """{profession: kit block html} in file order. mirror=True flips it for the right-hand side of the web page:
     columns run Cost | Crafts | Recipe | Skill, everything right-aligned, price badge to the LEFT of the title."""
@@ -1469,7 +1528,7 @@ def build():
                 '@media(max-width:760px){.kitpair{flex-direction:column}.kl{padding-right:0}.kr{padding-left:0;border-left:0;'
                 'border-top:2px solid #2a3038;margin-top:10px;padding-top:6px}}</style>' + pairs
                 + sec_campfire(m).replace('<span class="no">6</span>', '') + '</section>')
-        interactive.make(m, title, body + kits + dsl_section(m) + sec_utility(m), market[:-4] + " Interactive.html")
+        interactive.make(m, title, body + kits + dsl_section(m) + sec_utility(m) + sec_plays(m), market[:-4] + " Interactive.html")
         try:   # raid-prep pick for the Discord post
             pk = stock_pick(m)
             json.dump({k: v for k, v in pk.items() if k != "score"} if pk else {}, open(os.path.join(os.path.dirname(market), "pick.json"), "w"))
