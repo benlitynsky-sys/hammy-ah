@@ -385,7 +385,7 @@ def sec_movers(m):
         + (f'<td class="r"><b>{x["gold"] / 10000:,.0f}g</b></td>' if x["gold"] >= 1e7 else f'<td class="r"><b>{sm(x["gold"])}</b></td>')
         + f'<td class="r">{x["q"]:,}</td>{vc(m, x["iid"])}{lc(m, x["iid"])}</tr>'
         for x in res[:TOP_MOVERS])
-    return ('<section><div class="sh"><span class="no">2</span><h2>Top daily movers</h2>'
+    return ('<section><div class="sh"><span class="no">2</span><h2>AH Most Active</h2>'
             '<span class="tag">most gold traded in the last 24 hours (estimated)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">24h</th><th class="r">Sold (24h)</th>'
             '<th class="r">Gold traded (24h)</th><th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Listed/day (7d avg)</th></tr></thead>'
@@ -499,7 +499,7 @@ def sec_flips(m, skip, cols):
                            ("high", "Priced high", "now in the top half of its usual daily range - sell here")):
         out += (f'<h3 class="cg">{title} <span class="mut cgn">{note}</span></h3>'
                 f'<table class="g">{head}<tbody>' + ("".join(lists[k]) or empty) + '</tbody></table>')
-    return ('<section><div class="sh"><span class="no">1</span><h2>Flip list</h2>'
+    return ('<section><div class="sh"><span class="no">1</span><h2>AH Deviation Watchlist</h2>'
             '<span class="tag">40s+ each, 1g+ per stack, keeps swinging up-down-up-down (7%+ swings, most paying 5%+ after the cut) at a steady base price - no fixed days</span></div>'
             + out + '</section>')
 
@@ -568,7 +568,7 @@ def sec_manip(m):
         for x in res[:TOP_MANIP])
     if not rows:
         rows = '<tr><td colspan="8" class="mut">nothing looks bought out right now</td></tr>'
-    return ('<section><div class="sh"><span class="no">3</span><h2>Potential manipulation</h2>'
+    return ('<section><div class="sh"><span class="no">3</span><h2>AH Manipulation</h2>'
             '<span class="tag">cheap stock vanishing while the price climbs (all Horde PvP ruleset goods worth 5s+)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">Usual</th><th class="r">vs usual</th>'
             '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th></tr></thead>'
