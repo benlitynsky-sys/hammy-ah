@@ -50,6 +50,9 @@ CAMP = [
     ("Tailoring", ("Spinning Wheel", "Unstable Sentinel", "Dalaran"), ("Loom", "Baroness Anastari", "Stratholme")),
 ]
 DURABLE |= {x[0].lower() for _, *tiers in CAMP for x in tiers}   # camp features are tools too
+DURABLE |= {"flint and tinder", "blacksmith hammer", "mining pick", "skinning knife", "arclight spanner",
+            "gyromatic micro-adjustor", "runed copper rod", "runed silver rod", "runed golden rod", "runed truesilver rod",
+            "runed arcanite rod", "thieves' tools", "simple fishing pole", "elegant writing tool"}   # profession tools: kept and reused
 
 
 FLIP_STACK_MIN = 10000   # a flip has to make 1g+ on one full stack
