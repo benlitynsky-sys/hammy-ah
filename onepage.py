@@ -335,16 +335,19 @@ def listed_day(m, iid, hours=168):
 
 
 def sold_today(m, iid):
-    """Best estimate of units sold since midnight PST: listings that vanished at or under the item's next cheapest
-    price (a buyer takes the cheapest first, so pricier ones that vanished were cancels). None if unknown."""
-    if not hasattr(m, "_today"):
-        mid = (m.last - 7 * 3600) // 86400 * 86400 + 7 * 3600   # midnight UTC-7
-        try:
-            m._today = dict(m.con.execute("SELECT item_id, SUM(qty) FROM sales WHERE ts >= ? GROUP BY item_id", (mid,)))
-            m._today_ok = bool(m.con.execute("SELECT 1 FROM sales WHERE ts >= ? LIMIT 1", (mid,)).fetchone())
-        except Exception:
-            m._today, m._today_ok = {}, False
-    return m._today.get(iid, 0) if m._today_ok else None
+    """Best estimate of units sold since midnight PST - same method as Sold/day (listings that vanished before
+    expiring, scan to scan, ignoring a mass cancel), so the two columns compare. None if unknown (gear)."""
+    mid = (m.last - 7 * 3600) // 86400 * 86400 + 7 * 3600   # midnight UTC-7
+    rows = m.rows.get(iid)
+    if rows:
+        sold, prev_q = 0, None
+        for ts, _, q, s in rows:
+            s = s or 0
+            if ts >= mid and not (prev_q and s >= 50 and s > 0.5 * prev_q):
+                sold += s
+            prev_q = q
+        return sold
+    return None   # gear: no reliable sold count (relists look like sales)
 
 
 def tc(m, iid):
