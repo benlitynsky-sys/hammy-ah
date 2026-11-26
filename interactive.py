@@ -67,6 +67,8 @@ document.querySelectorAll('.wrap > section').forEach(sec=>{
   t.style.setProperty('--c1',c1); t.style.setProperty('--c2',c2);
   t.innerHTML=`<span class="bg">${icon}</span><span class="ic">${icon}</span><span class="tt">${name}</span>${name==='Raid consumables'&&tag?`<span class="tg">${tag}</span>`:''}<span class="chev">&#9662;</span>`;
   sh.replaceWith(t); sec.appendChild(body); sec.classList.add('card');
+  // group labels (Drops, Quests, a cooldown's name...) stay on screen when the table is swiped sideways
+  body.querySelectorAll('tr.grp > td').forEach(td=>{const g=document.createElement('span');g.className='grl';while(td.firstChild)g.appendChild(td.firstChild);td.appendChild(g)});
   if(openSet.includes(name)){sec.classList.add('open');body.style.height='auto'}
   t.addEventListener('click',()=>{
     t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash');   // quick flash on press
@@ -134,6 +136,8 @@ section.card .g.lv td{white-space:nowrap;vertical-align:top;padding:3px 4px}sect
 section.card .g .mats{white-space:nowrap}
 section.card .sb .g td.nm{position:sticky;left:0;z-index:1;background:var(--bg);box-shadow:4px 0 6px -4px rgba(0,0,0,.8)}
 section.card .sb>*:first-child{margin-top:6px}
+section.card .sb tr.grp td .grl{position:sticky;left:6px;display:inline-block;max-width:calc(100vw - 48px);white-space:normal}
+section.card .sb h3,section.card .sb .cgn,section.card .sb .fn{position:sticky;left:0;max-width:calc(100vw - 32px);box-sizing:border-box}
 .tile::after{content:"";position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 .tile.flash::after{animation:flash .45s ease-out}
 @keyframes flash{0%{opacity:.55}100%{opacity:0}}
