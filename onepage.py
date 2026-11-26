@@ -829,6 +829,50 @@ def sec_recipe_guides(m):
     return out
 
 
+UTIL_GROUPS = ("PvP tricks", "Getting around", "Camp, leveling & handy tools", "Just for fun")
+
+
+def sec_utility(m):
+    """Cool utility items: PvP tricks, movement, camp/leveling tools, fun - classic and Forever. utility_items.json
+    (hand-picked; ability text from Blizzard item data). Price = cheapest on AH 113 now, else when it was last seen."""
+    try:
+        items = json.load(open(os.path.join(HERE, "utility_items.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        return ""
+    rows = ""
+    for g in UTIL_GROUPS:
+        lst = [x for x in items if x["group"] == g]
+        if not lst:
+            continue
+        rows += f'<tr class="grp"><td colspan="5"><b>{R.esc(g)}</b> <span class="mut">{len(lst)}</span></td></tr>'
+        for x in lst:
+            iid = x["id"]
+            now, qty = m.ah(iid)
+            gear = not now
+            if gear:
+                now, qty = m.gear_now(iid)
+            hist = m.series(iid, gear=gear) if (m.rows.get(iid) or m.gear.get(iid)) else []
+            hist = [(t, p) for t, p in hist if t >= m.last - 7 * 86400 and p]
+            usual = statistics.median(p for _, p in hist) if hist else None
+            if x["bop"]:
+                price = '<td class="r mut" colspan="2">binds on pickup - earn it yourself</td>'
+            elif now:
+                price = f'<td class="r">{sm(now)}</td><td class="r">{qty}</td>'
+            elif hist:
+                price = f'<td class="r mut">not listed <span title="last seen">({ago(hist[-1][0], m.last)})</span></td><td class="r">0</td>'
+            else:
+                price = '<td class="r mut">not seen yet</td><td class="r">0</td>'
+            rows += (f'<tr><td class="nm" data-iid="{iid}">{R.esc(x["name"])}</td>{price}'
+                     f'<td class="r">{sm(usual) if usual and not x["bop"] else "-"}</td>'
+                     f'<td class="mats" style="white-space:normal;min-width:260px">{R.esc(x["what"])}</td></tr>')
+    return ('<section><div class="sh"><h2>Cool utility items</h2><span class="tag">gadgets, PvP tricks, travel and camp tools - '
+            'classic and new in Forever</span></div>'
+            '<div class="mut cgn">Hand-picked: items with fun or powerful Use effects, or high PvP value. Ability text is from '
+            'Blizzard&rsquo;s Forever item data. Tidal Charm and Orb of Deception are not in Forever&rsquo;s item list.</div>'
+            '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
+            f'<th class="r">Usual (7d)</th><th>What it does</th></tr></thead><tbody>{rows}</tbody></table></section>')
+
+
 def sec_crafts(m, shown=()):
     """Top 10 crafts per profession by profit per craft (buying every mat at today's cheapest), cooldown recipes left out."""
     cd = set()
@@ -1262,7 +1306,7 @@ def build():
                    'and Artisan (from 200 at a trainer; 225 for First Aid from a book, 300 from a quest). Forever reworked some '
                    'recipes - check recipe colors at your trainer.</div>' + k300 if k300 else '')
                 + sec_campfire(m).replace('<span class="no">6</span>', '') + '</section>')
-        interactive.make(m, title, body + kits, market[:-4] + " Interactive.html")   # kits tile at the bottom of the web page
+        interactive.make(m, title, body + kits + sec_utility(m), market[:-4] + " Interactive.html")   # kits tile at the bottom of the web page
     except Exception as e:
         print(f"interactive page failed: {e}")
     # profession routes: its own page
