@@ -1,0 +1,695 @@
+[
+{
+"id": 2820,
+"name": "Nifty Stopwatch",
+"group": "PvP tricks",
+"what": "Use: Increases run speed by 40% for 10 sec. (6 Min Cooldown)",
+"bop": true
+},
+{
+"id": 4984,
+"name": "Skull of Impending Doom",
+"group": "PvP tricks",
+"what": "Use: Increase your run speed by 60% for 10 sec, but deals 100 to 500 damage and drains 100 to 500 mana every 2 seconds. (5 Min Cooldown)",
+"bop": true
+},
+{
+"id": 10726,
+"name": "Gnomish Mind Control Cap",
+"group": "PvP tricks",
+"what": "Use: Engage in mental combat with a humanoid target to try and control their mind. If all works well, you will control the mind of the target for 20 sec ..... (30 Min Cooldown)",
+"bop": false
+},
+{
+"id": 10720,
+"name": "Gnomish Net-o-Matic Projector",
+"group": "PvP tricks",
+"what": "Use: Captures the target in a net for 10 sec. The net has a lot of hooks however and sometimes gets caught in the user's clothing when fired...... (10 Min Cooldown)",
+"bop": false
+},
+{
+"id": 10588,
+"name": "Goblin Rocket Helmet",
+"group": "PvP tricks",
+"what": "Use: Charge an enemy, knocking it silly for 30 seconds. Also knocks you down, stunning you for a short period of time. Any damage caused will revive the target. (20 Min Cooldown)",
+"bop": false
+},
+{
+"id": 10645,
+"name": "Gnomish Death Ray",
+"group": "PvP tricks",
+"what": "Charges with your own health, then fires a big burst at your target.",
+"bop": true
+},
+{
+"id": 10725,
+"name": "Gnomish Battle Chicken",
+"group": "PvP tricks",
+"what": "Use: Creates a Battle Chicken that will fight for you for 1.5 min or until it is destroyed. (30 Min Cooldown)",
+"bop": true
+},
+{
+"id": 16022,
+"name": "Arcanite Dragonling",
+"group": "PvP tricks",
+"what": "Use: Activates your Arcanite Dragonling to fight for you for 1 min. (1 Hr Cooldown)",
+"bop": false
+},
+{
+"id": 10576,
+"name": "Mithril Mechanical Dragonling",
+"group": "PvP tricks",
+"what": "Use: Activates your Mithril Mechanical Dragonling to fight for you for 1 min. (1 Hr Cooldown)",
+"bop": false
+},
+{
+"id": 10721,
+"name": "Gnomish Harm Prevention Belt",
+"group": "PvP tricks",
+"what": "Use: A shield of force protects you from the next 500 damage done over the next 10 min. WARNING: Force Field may overload when struck temporarily removing the wearer from this dimension. (1 Hr Cooldown)",
+"bop": false
+},
+{
+"id": 18634,
+"name": "Gyrofreeze Ice Reflector",
+"group": "PvP tricks",
+"what": "Use: Reflects Frost spells back at their caster for 5 sec. (5 Min Cooldown)",
+"bop": false
+},
+{
+"id": 4386,
+"name": "Ice Deflector",
+"group": "PvP tricks",
+"what": "Use: Absorbs 600 frost damage. Lasts 1 min. (15 Min Cooldown)",
+"bop": false
+},
+{
+"id": 10716,
+"name": "Gnomish Shrink Ray",
+"group": "PvP tricks",
+"what": "Use: Shrinks the target reducing their attack power by 250. Thats what it usually does anyway..... (5 Min Cooldown)",
+"bop": false
+},
+{
+"id": 4388,
+"name": "Discombobulator Ray",
+"group": "PvP tricks",
+"what": "Use: Transforms the target into a Leper Gnome, reducing its melee and spell damage by 40 and its movement rate by 20% for 12 sec. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 10587,
+"name": "Goblin Bomb Dispenser",
+"group": "PvP tricks",
+"what": "Use: Creates a mobile bomb that charges the nearest enemy and explodes for 315 to 385 fire damage. (10 Min Cooldown)",
+"bop": true
+},
+{
+"id": 10577,
+"name": "Goblin Mortar",
+"group": "PvP tricks",
+"what": "Use: Inflicts 393 to 531 Fire damage and stuns the targets in a 5 yard radius for 3 sec. (10 Min Cooldown)",
+"bop": false
+},
+{
+"id": 10727,
+"name": "Goblin Dragon Gun",
+"group": "PvP tricks",
+"what": "Use: Deals 66 to 74 Fire damage for 10 sec to all targets in a cone in front of the Engineer. Deals 2 times as much damage to Beasts. That is unless it explodes..... (5 Min Cooldown)",
+"bop": true
+},
+{
+"id": 4395,
+"name": "Goblin Land Mine",
+"group": "PvP tricks",
+"what": "Use: Places the Goblin Land Mine on the ground. It will explode for 394 to 506 Fire damage the next time a hostile creature passes near it. The mine has a duration of 1 min. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 15993,
+"name": "Thorium Grenade",
+"group": "PvP tricks",
+"what": "Use: Inflicts 300 to 500 Fire damage and stuns targets for 3 sec in a 3 yard radius. Any damage will break the effect. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 4390,
+"name": "Iron Grenade",
+"group": "PvP tricks",
+"what": "Use: Inflicts 132 to 218 Fire damage and stuns targets for 3 sec in a 3 yard radius. Any damage will break the effect. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 10646,
+"name": "Goblin Sapper Charge",
+"group": "PvP tricks",
+"what": "Use: Explodes when triggered dealing 450 to 750 Fire damage to all enemies nearby and 375 to 625 damage to you. (5 Min Cooldown)",
+"bop": false
+},
+{
+"id": 18641,
+"name": "Dense Dynamite",
+"group": "PvP tricks",
+"what": "Use: Inflicts 340 to 460 Fire damage in a 5 yard radius. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 16040,
+"name": "Arcane Bomb",
+"group": "PvP tricks",
+"what": "Use: Burns 675 to 1,125 mana from those in the blast radius and does 50% of the mana drained in damage to the target. Also Silences targets in the blast for 5 sec. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 10562,
+"name": "Hi-Explosive Bomb",
+"group": "PvP tricks",
+"what": "Use: Inflicts 255 to 345 Fire damage and stuns targets in a 3 yard radius for 3 sec. Any damage will break the effect. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 4852,
+"name": "Flash Bomb",
+"group": "PvP tricks",
+"what": "Use: Causes all Beasts in a 5 yard radius to run away for 10 sec. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 5634,
+"name": "Free Action Potion",
+"group": "PvP tricks",
+"what": "Use: Makes you immune to Stun and Movement Impairing effects for the next 30 sec. Does not remove effects already on the imbiber. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 20008,
+"name": "Living Action Potion",
+"group": "PvP tricks",
+"what": "Use: Makes you immune to Stun and Movement Impairing effects for the next 5 sec. Also removes existing Stun and Movement Impairing effects. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 3387,
+"name": "Limited Invulnerability Potion",
+"group": "PvP tricks",
+"what": "Use: Imbiber is immune to physical attacks for the next 6 sec. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 2459,
+"name": "Swiftness Potion",
+"group": "PvP tricks",
+"what": "Use: Increases run speed by 50% for 15 sec. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 9030,
+"name": "Restorative Potion",
+"group": "PvP tricks",
+"what": "Use: Removes 1 magic, curse, poison or disease effect on you every 5 seconds for 30 seconds. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 9036,
+"name": "Magic Resistance Potion",
+"group": "PvP tricks",
+"what": "Use: Increases your resistance to all schools of magic by 50 for 3 min. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 13455,
+"name": "Greater Stoneshield Potion",
+"group": "PvP tricks",
+"what": "Use: Increases armor by 2,000 for 2 min. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 13442,
+"name": "Mighty Rage Potion",
+"group": "PvP tricks",
+"what": "Use: Increases Rage by 45 to 75 and increases Strength by 60 for 20 sec. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 9088,
+"name": "Gift of Arthas",
+"group": "PvP tricks",
+"what": "Use: Increases resistance to shadow by 10. If an enemy strikes the imbiber, the attacker has a 30% chance of being inflicted with disease that increases their damage taken by 8 for 3 min. Lasts for 30 min. (3 Sec Cooldown)",
+"bop": false
+},
+{
+"id": 8956,
+"name": "Oil of Immolation",
+"group": "PvP tricks",
+"what": "Use: Does 50 fire damage to any enemies within a 5 yard radius around the caster every 3 seconds for 15 sec (3 Sec Cooldown)",
+"bop": false
+},
+{
+"id": 12662,
+"name": "Demonic Rune",
+"group": "PvP tricks",
+"what": "Use: Restores 900 to 1,500 mana at the cost of 600 to 1,000 life. (2 Min Cooldown)",
+"bop": true
+},
+{
+"id": 20520,
+"name": "Dark Rune",
+"group": "PvP tricks",
+"what": "Use: Restores 900 to 1,500 mana at the cost of 600 to 1,000 life. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 274917,
+"name": "Brittle Trap",
+"group": "PvP tricks",
+"what": "Use: Renders a target unable to move for 10 sec. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260818,
+"name": "EZ-Thro Mana Bomb",
+"group": "PvP tricks",
+"what": "Use: Burns 675 to 1,125 mana from those in the blast radius and deals 50% of the mana drained in damage to the target. Also Silences targets in the blast for 5 sec. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260817,
+"name": "EZ-Thro Dark Bomb",
+"group": "PvP tricks",
+"what": "Use: Inflicts 225 to 675 Fire damage and stuns targets in a 5 yd radius for 4 sec. Any damage will break the effect. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260809,
+"name": "Tru-Trigger Frag Bomb",
+"group": "PvP tricks",
+"what": "Use: Inflicts 149 to 201 Fire damage and stuns targets in an 8 yd radius for 2 sec. Any damage will break the effect. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260816,
+"name": "EZ-Thro Thorium Grenade",
+"group": "PvP tricks",
+"what": "Use: Inflicts 300 to 500 Fire damage and stuns targets for 3 sec in a 3 yd radius. Any damage will break the effect. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260800,
+"name": "Shafety Sheep",
+"group": "PvP tricks",
+"what": "Use: Summons an Explosive Sheep which will charge at a nearby enemy and explode for 135 to 165 damage. Lasts for 3 min or until it explodes. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260829,
+"name": "EZ-Thro Magnetic Displacer",
+"group": "PvP tricks",
+"what": "Use: Disrupt a magnetic field between you and your nearby enemy target, knocking you both away. Can only affect targets up to 2 levels higher than you. Some targets cannot be displaced. Targets can only be affected by this effect once every 2 min. (3 Min Cooldown)",
+"bop": false
+},
+{
+"id": 250327,
+"name": "Potion of Predatory Senses",
+"group": "PvP tricks",
+"what": "Use: Drink to slightly increase your stealth detection. While you are not moving for 3 sec, nearby moving stealthed enemies may reveal a heat trail. Lasts for 1.5 min. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260827,
+"name": "Stealthman 52",
+"group": "PvP tricks",
+"what": "Use: Cloaks the user in a stealth field for up to 1 min. Cannot be used in combat. The field lasts for up to 6 sec after moving. (5 Min Cooldown)",
+"bop": false
+},
+{
+"id": 237023,
+"name": "Pop-Up Shrub",
+"group": "PvP tricks",
+"what": "Use: Deploy an emergency hiding spot. Most enemies will be less likely to notice you while you stand near it. Observant foes may not be so easily fooled. Cannot be cast in combat.",
+"bop": false
+},
+{
+"id": 273586,
+"name": "Enchant Cloak - Stealth",
+"group": "PvP tricks",
+"what": "Use: Permanently enchant a cloak to give an increase to your stealth as if you were 1 level higher.",
+"bop": false
+},
+{
+"id": 12784,
+"name": "Arcanite Reaper",
+"group": "PvP tricks",
+"what": "Crafted BoE two-hand axe - a classic warrior PvP weapon.",
+"bop": false
+},
+{
+"id": 12640,
+"name": "Lionheart Helm",
+"group": "PvP tricks",
+"what": "Crafted BoE plate helm with crit and hit - best-in-slot for many melee.",
+"bop": false
+},
+{
+"id": 273610,
+"name": "Enchant 2H Weapon - Grand Inquisitor",
+"group": "PvP tricks",
+"what": "Use: Permanently enchant a two-handed melee weapon so that often when attacking in melee it heals for 350 to 450 and increases Strength by 200 for 20 sec.",
+"bop": false
+},
+{
+"id": 273608,
+"name": "Enchant 2H Weapon - Grand Arcanist",
+"group": "PvP tricks",
+"what": "Use: Permanently enchant a two-handed melee weapon so that often when striking with a spell it restores 350 to 450 mana and increases Spell Power by 140 for 20 sec.",
+"bop": false
+},
+{
+"id": 289297,
+"name": "Anathema",
+"group": "PvP tricks",
+"what": "Epic priest staff - swap it into Benediction (healing form) and back.",
+"bop": false
+},
+{
+"id": 289296,
+"name": "Benediction",
+"group": "PvP tricks",
+"what": "Epic priest staff - holy healing form; swap it into Anathema (shadow form).",
+"bop": false
+},
+{
+"id": 7189,
+"name": "Goblin Rocket Boots",
+"group": "Getting around",
+"what": "Use: These dangerous looking boots significantly increase your run speed for 20 sec. They are prone to explode however, so use with caution. (5 Min Cooldown)",
+"bop": false
+},
+{
+"id": 10724,
+"name": "Gnomish Rocket Boots",
+"group": "Getting around",
+"what": "Use: These boots significantly increase your run speed for 20 sec. WARNING: Their power supply and gyros do not always function as intended. (30 Min Cooldown)",
+"bop": false
+},
+{
+"id": 4397,
+"name": "Gnomish Cloaking Device",
+"group": "Getting around",
+"what": "Use: Gives invisibility for 10 sec. (1 Hr Cooldown)",
+"bop": false
+},
+{
+"id": 260828,
+"name": "SAF-T Nitro Boosts",
+"group": "Getting around",
+"what": "Use: Activate a set of jets to increase your movement speed by up to 160%, for up to 8 sec. (3 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260830,
+"name": "SAF-T Teleport",
+"group": "Getting around",
+"what": "Use: Teleport forward 20 yds. (3 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260825,
+"name": "Ultralight Goblin Glider",
+"group": "Getting around",
+"what": "Use: Glide downward through the air for 10 sec while controlling your direction of travel. (5 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260810,
+"name": "SAF-T Disposable Parachute",
+"group": "Getting around",
+"what": "Use: Reduces your fall speed for 10 sec. (30 Min Cooldown)",
+"bop": false
+},
+{
+"id": 260819,
+"name": "EZ-Thro Field Transporter: Gadgetzan",
+"group": "Getting around",
+"what": "Use: Safely transport yourself to Gadgetzan in Tanaris! Emphasis on Safe! Yup, nothing bad could ever happen while using this device! (4 Hr Cooldown)",
+"bop": false
+},
+{
+"id": 260820,
+"name": "SAF-T Emergency Ripper: Everlook",
+"group": "Getting around",
+"what": "Use: Rips the dimensional walls asunder and transports you to Everlook in Winterspring. There are technical problems that sometimes occur, but that's what Goblin Engineering is all about! (4 Hr Cooldown)",
+"bop": false
+},
+{
+"id": 260821,
+"name": "EZ and SAF Field Transporter: Mt. Hyjal",
+"group": "Getting around",
+"what": "Use: Rips the dimensional walls asunder and transports you to Kaylaena's Workshop on Mount Hyjal. Technical problems have a high chance to occur with this mad combination of goblin and gnomish engineering. (4 Hr Cooldown)",
+"bop": false
+},
+{
+"id": 260823,
+"name": "Dimensional Transporter - Mt. Hyjal",
+"group": "Getting around",
+"what": "Use: Rips the dimensional walls asunder and transports you to Kaylaena's Workshop on Mount Hyjal. Technical problems have a high chance to occur with this mad combination of goblin and gnomish engineering. (4 Hr Cooldown)",
+"bop": false
+},
+{
+"id": 289559,
+"name": "Enchant Boots - Speed",
+"group": "Getting around",
+"what": "Use: Permanently enchant boots to increase movement speed by 8%.",
+"bop": false
+},
+{
+"id": 273530,
+"name": "Enchant Boots - Minor Speed",
+"group": "Getting around",
+"what": "Use: Permanently enchant boots to increase movement speed by 4%.",
+"bop": false
+},
+{
+"id": 273543,
+"name": "Enchant Gloves - Riding Skill",
+"group": "Getting around",
+"what": "Use: Permanently enchant gloves to grant a minor movement bonus while mounted.",
+"bop": false
+},
+{
+"id": 269902,
+"name": "Hoof-Shaped Foot Pedal",
+"group": "Getting around",
+"what": "Use: Transform into a centaur for 20 min or until you enter combat. While in Desolace, your movement speed is also increased by 30% and this transformation persists through combat. (10 Min Cooldown)",
+"bop": false
+},
+{
+"id": 10506,
+"name": "Deepdive Helmet",
+"group": "Getting around",
+"what": "Equip: Water breathing lasts 100% longer than normal.",
+"bop": false
+},
+{
+"id": 7052,
+"name": "Azure Silk Belt",
+"group": "Getting around",
+"what": "Equip: Increases swim speed by 15%.",
+"bop": false
+},
+{
+"id": 6372,
+"name": "Swim Speed Potion",
+"group": "Getting around",
+"what": "Use: Increases swim speed by 100% for 20 sec. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 3823,
+"name": "Lesser Invisibility Potion",
+"group": "Getting around",
+"what": "Use: Gives the imbiber lesser invisibility for 15 sec. (10 Min Cooldown)",
+"bop": false
+},
+{
+"id": 211527,
+"name": "Cozy Sleeping Bag",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Unfurl a sleeping bag. Resting inside for at least one minute will provide a bonus to experience earned, stacking up to 3 times. (1 Hr Cooldown)",
+"bop": true
+},
+{
+"id": 279978,
+"name": "Camp Tent",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Builds a tent that allows you and others sitting nearby to increase Rested experience to 5% of a level. No effect if Rested experience already exceeds that value. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)",
+"bop": false
+},
+{
+"id": 289334,
+"name": "Elixir of Endless Experience",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Increases experience gained by 200% for 1 hour. (3 Sec Cooldown)",
+"bop": false
+},
+{
+"id": 260812,
+"name": "Loot-A-Rang",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Retrieves the loot from a nearby corpse. (3 Sec Cooldown)",
+"bop": false
+},
+{
+"id": 260807,
+"name": "Compact Critter Carrier",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Place a Compact Critter Carrier for 3 min that allows Hunters in your group to access their stabled pets. (30 Min Cooldown)",
+"bop": false
+},
+{
+"id": 211800,
+"name": "Scroll of Reintegration",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Brings a dead player back to life with 15% of their health and mana. Cannot be used when in combat. (1 Sec Cooldown)",
+"bop": false
+},
+{
+"id": 212160,
+"name": "Chronoboon Displacer",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Alters the fabric of time, suspending beneficial world effects from dragonslaying, Dire Maul, Zul'Gurub, and Felwood. (5 Min Cooldown)",
+"bop": false
+},
+{
+"id": 228227,
+"name": "Scroll of Overwhelming Power",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Grants the target a variety of world buff effects. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 210708,
+"name": "Elixir of Coalesced Regret",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Allows the imbiber to speak with the corpse of an individual with unfinished business in the mortal world. Also may cure indigestion. (3 Sec Cooldown)",
+"bop": false
+},
+{
+"id": 255715,
+"name": "Potent Anti-Venom",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Target is cured of poisons up to level 45. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 255722,
+"name": "Surgical Tourniquet",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Target is cured of bleeds up to level 65. Not usable in combat. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 255719,
+"name": "Powerful Poultice",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Target is cured of diseases up to level 65. Not usable in combat. (1 Min Cooldown)",
+"bop": false
+},
+{
+"id": 13462,
+"name": "Purification Potion",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Attempts to remove one Curse or Bane, one Disease and one Poison from the Imbiber. (2 Min Cooldown)",
+"bop": false
+},
+{
+"id": 274426,
+"name": "Enchant Gloves - Lotus Claw",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Permanently enchant a pair of gloves to give a small chance to acquire Death Lotus when gathering any herb in Hyjal.",
+"bop": false
+},
+{
+"id": 279272,
+"name": "SAF-T Ultra Precision Scope",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Attaches a permanent scope to a bow, gun, or crossbow that increases its critical strike chance by 2%.",
+"bop": false
+},
+{
+"id": 18587,
+"name": "Goblin Jumper Cables XL",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Jumper Cables will sometimes be able to shock a dead player back to life. Cannot be used when in combat. (30 Min Cooldown)",
+"bop": false
+},
+{
+"id": 7506,
+"name": "Gnomish Universal Remote",
+"group": "Camp, leveling & handy tools",
+"what": "Use: Allows control of a mechanical target for a short time. It may not always work and may just root the machine or make it very very angry. Gnomish engineering at its finest. (3 Min Cooldown)",
+"bop": false
+},
+{
+"id": 289081,
+"name": "Noggenfogger Elixir",
+"group": "Just for fun",
+"what": "Random: slow fall, turns you into a skeleton, or shrinks you.",
+"bop": false
+},
+{
+"id": 6657,
+"name": "Savory Deviate Delight",
+"group": "Just for fun",
+"what": "Turns you into a pirate or a ninja for an hour.",
+"bop": false
+},
+{
+"id": 289329,
+"name": "Elixir of Endless Growth",
+"group": "Just for fun",
+"what": "Use: Enlarges the imbiber by a significant amount for 10 min. This effect stacks up to 5 times. (3 Sec Cooldown)",
+"bop": false
+},
+{
+"id": 6662,
+"name": "Elixir of Giant Growth",
+"group": "Just for fun",
+"what": "Use: Your size is increased and your Strength goes up by 8 to match your new size. Lasts 2 min. (3 Sec Cooldown)",
+"bop": false
+},
+{
+"id": 18660,
+"name": "World Enlarger",
+"group": "Just for fun",
+"what": "Enlarges the entire world for 5 min or until you attack. (1 Hr Cooldown)",
+"bop": false
+},
+{
+"id": 269900,
+"name": "Centaur Banner Deployment Device",
+"group": "Just for fun",
+"what": "Deploy a banner representing your chosen faction in the Desolace centaur war for 5 min. (5 Min Cooldown)",
+"bop": false
+},
+{
+"id": 288336,
+"name": "Blue Firework",
+"group": "Just for fun",
+"what": "Use: Shoots a firework into the air that bursts into a thousand blue stars. (1 Sec Cooldown)",
+"bop": false
+},
+{
+"id": 4376,
+"name": "Flame Deflector",
+"group": "PvP tricks",
+"what": "Use: Absorbs 500 Fire damage. Lasts 1 min. (15 Min Cooldown)",
+"bop": false
+},
+{
+"id": 5996,
+"name": "Draught of Water Breathing",
+"group": "Getting around",
+"what": "Use: Allows the Imbiber to breathe water for 30 min. (3 Sec Cooldown)",
+"bop": false
+}
+]
