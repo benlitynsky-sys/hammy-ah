@@ -450,6 +450,51 @@ def sec_raid(m, cols, skip):
             f'</tbody></table>{note}</section>')
 
 
+GAP_RATIO, GAP_CHEAP_SHARE = 1.5, 0.3
+
+
+def gap_setups(m):
+    """Potential to be manipulated (Hammy's rule): right now a small cheap layer sits under a big wall priced 1.5x+
+    higher, so one buyer could clear the cheap ones and relist them just under the wall. Uses every live listing from
+    the latest scan (prev_all_113.json). Returns [dict] sorted by what the buyout + relist would make."""
+    from collections import defaultdict
+    try:
+        cur = json.load(open(os.path.join(HERE, "prev_all_113.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    book = defaultdict(lambda: defaultdict(int))
+    for v in cur.values():
+        if len(v) > 3 and v[3]:
+            book[v[0]][v[3]] += v[1]
+    out, tools = [], DURABLE_IDS(m)
+    for iid, lv in book.items():
+        lv = sorted(lv.items())
+        total = sum(q for _, q in lv)
+        if total < 20 or iid in tools or (m.items.get(iid) or {}).get("cls") in ("Armor", "Weapon") or one_time_buy(m, iid):
+            continue
+        r = sorted(x[1] for x in m.rows.get(iid, []) if x[1])
+        if len(r) < 12 or r[len(r) // 2] < MANIP_MIN:
+            continue
+        cum = cost = 0
+        best = None
+        for k in range(len(lv) - 1):
+            cum += lv[k][1]
+            cost += lv[k][0] * lv[k][1]
+            if cum > GAP_CHEAP_SHARE * total:
+                break
+            p, nxt = lv[k][0], lv[k + 1][0]
+            if nxt >= GAP_RATIO * p and nxt >= FLIP_MIN:
+                wall = sum(q for pp, q in lv[k + 1:] if pp <= 1.1 * nxt)
+                if wall >= max(2 * cum, 0.2 * total) and (not best or nxt / p > best["ratio"]):
+                    best = dict(iid=iid, cheap=cum, cost=cost, top=p, low=lv[0][0], wall_p=nxt, wall=wall, total=total,
+                                ratio=nxt / p, usual=r[len(r) // 2])
+        if best:
+            best["gain"] = best["cheap"] * (best["wall_p"] - 1) * (1 - R.CUT) - best["cost"]
+            if best["gain"] > 0:
+                out.append(best)
+    return sorted(out, key=lambda x: -x["gain"])
+
+
 def sec_flips(m, skip, cols):
     res = []
     for iid in m.rows:
@@ -514,6 +559,18 @@ def sec_flips(m, skip, cols):
                            ("high", "Priced high", "now in the top half of its usual daily range - sell here")):
         out += (f'<h3 class="cg">{title} <span class="mut cgn">{note}</span></h3>'
                 f'<table class="g">{head}<tbody>' + ("".join(lists[k]) or empty) + '</tbody></table>')
+    gs = gap_setups(m)
+    grow = "".join(
+        f'<tr><td class="nm" data-iid="{g["iid"]}">{R.esc(m.name(g["iid"]))}</td><td class="r">{sm(g["low"])}</td>'
+        f'<td class="r">{g["cheap"]:,} <span class="mut">up to {sm(g["top"])}</span></td><td class="r">{sm(g["cost"])}</td>'
+        f'<td class="r"><b>{sm(g["wall_p"])}</b> <span class="mut">({g["ratio"]:.1f}x)</span></td><td class="r">{g["wall"]:,}</td>'
+        f'<td class="r">{g["total"]:,}</td><td class="r">{sm(g["usual"])}</td><td class="r up">+{sm(g["gain"])}</td></tr>' for g in gs[:15])
+    out += ('<h3 class="cg">Potential to be manipulated <span class="mut cgn">a few cheap ones sit under a big wall priced 1.5x+ higher - '
+            'someone could buy the cheap ones and relist them just under the wall</span></h3>'
+            '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest</th><th class="r">Cheap ones</th><th class="r">Cost to buy them</th>'
+            '<th class="r">Next price up (gap)</th><th class="r">Listed there</th><th class="r">Total listed</th><th class="r">Usual</th>'
+            '<th class="r">Buy + relist makes</th></tr></thead><tbody>'
+            + (grow or '<tr><td colspan="9" class="mut">No big price gaps right now.</td></tr>') + '</tbody></table>')
     return ('<section><div class="sh"><span class="no">1</span><h2>AH Deviation Watchlist</h2>'
             '<span class="tag">1g+ each, keeps swinging up-down-up-down (7%+ swings, most paying 5%+ after the cut) at a steady base price - no fixed days</span></div>'
             + out + '</section>')
