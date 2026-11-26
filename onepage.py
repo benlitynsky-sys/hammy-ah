@@ -1372,7 +1372,9 @@ def sec_plays(m):
               + ("".join(hist) or '<tr><td colspan="7" class="mut">no trades logged yet</td></tr>') + '</tbody></table>')
     return ('<section><div class="sh"><h2>Hammy&#39;s Plays</h2><span class="tag">what Hammy is holding, priced from the latest '
             'scan, plus every buy and sale</span></div>'
-            '<h3 class="cg" style="text-align:center">Holdings</h3>' + hold_t
+            '<h3 class="cg" style="text-align:center">Holdings'
+            + (f'<span style="margin-left:10px">spent</span><span class="badge kitp">{sm(sum(h["qty"] * h["paid"] for h in hold))}</span>' if hold else '')
+            + '</h3>' + hold_t
             + f'<h3 class="cg" style="margin-top:18px;text-align:center">'
             + (f'<span>Realized profit</span><span class="badge kitp"'
                + ('' if total >= 0 else ' style="background:#da3633;box-shadow:inset 0 0 0 1px #f85149"')
