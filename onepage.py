@@ -806,14 +806,10 @@ def sec_recipe_guides(m):
                 continue
             rows += f'<tr class="grp"><td colspan="4"><b>{title}</b> <span class="mut">{len(lst)}</span></td></tr>'
             for rid, r in lst:
-                name = r["name"]
-                for p in RECIPE_PREFIX:
-                    if name.startswith(p):
-                        name = name[len(p):]
-                        break
-                oid = m.name_id.get(name.lower()) or (r.get("out") if r.get("out") in m.rows else None)
+                name = r["name"]   # the recipe itself ("Recipe: Caustic Smog Potion"), charted as the recipe item
                 now = m.ah(rid)[0] or m.gear_now(rid)[0]
-                nm = (f'<td class="nm" data-iid="{oid}">{R.esc(name)}</td>' if oid else f'<td class="nm">{R.esc(name)}</td>')
+                seen_ah = rid in m.rows or rid in m.gear
+                nm = (f'<td class="nm" data-iid="{rid}">{R.esc(name)}</td>' if seen_ah else f'<td class="nm">{R.esc(name)}</td>')
                 rows += (f'<tr>{nm}<td class="r">{r["skill"] or "-"}</td>'
                          f'<td class="r">{sm(now) if now else "-"}</td><td class="mats">{R.esc(r["where"])}</td></tr>')
         n = sum(len(v) for v in by[prof].values())
