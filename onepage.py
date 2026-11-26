@@ -1068,6 +1068,25 @@ def sec_cooldowns(m, cds, cols):
             '<tbody>' + "".join(rows) + '</tbody></table></section>')
 
 
+def kit_cost(m, r):
+    """(cost of one craft, [notes]) for the kit totals: every mat counts. A mat that's not on the AH or at a vendor
+    (rods are made by blacksmiths) is priced at its mats via any profession's recipe; still unknown = None."""
+    tot, notes = 0, []
+    for iid, x, q in r["reagents"]:
+        c, _ = m.cost(iid, r["prof"])
+        if c is None:
+            for r2 in m.by_out.get(iid, []):
+                c2 = m.recipe_cost(r2)
+                if c2 is not None and (c is None or c2 / (r2.get("qty") or 1) < c):
+                    c = c2 / (r2.get("qty") or 1)
+                    how = f"{x}: not on the AH - made by {r2['prof'].lower()} from " + ", ".join(f"{qq:g} {n2}" for _, n2, qq in r2["reagents"]) + f" (~{sm(c)})"
+            if c is None:
+                return None, []
+            notes.append(how)
+        tot += c * q
+    return tot, notes
+
+
 def sec_leveling(m, path="leveling.csv"):
     """Cheapest route per profession (leveling.csv = 1-150, leveling_300.csv = 150-300), one block each."""
     steps, order = defaultdict(lambda: defaultdict(list)), []
@@ -1084,17 +1103,17 @@ def sec_leveling(m, path="leveling.csv"):
             opts = []
             for nm in names:
                 for r in m.by_name.get((prof, nm.lower()), [])[:1]:
-                    c = m.recipe_cost(r)
-                    opts.append((c if c is not None else 1e15, nm, c, r))
+                    c, nts = kit_cost(m, r)
+                    opts.append((c if c is not None else 1e15, nm, c, r, nts))
             if not opts:
                 continue
-            _, nm, c, r = min(opts, key=lambda o: o[0])
+            _, nm, c, r, nts = min(opts, key=lambda o: o[0])
             if c is None:
                 unknown = True
             else:
                 total += c * n
-            mats = ", ".join(f"{q:g} {x}" for _, x, q in r["reagents"])
-            rows.append(f'<tr><td class="r">{lo}-{hi}</td><td><b>{R.esc(nm)}</b><div class="mut">{R.esc(mats)}</div></td>'
+            mats = R.esc(", ".join(f"{q:g} {x}" for _, x, q in r["reagents"])) + "".join(f"<br>{R.esc(t)}" for t in nts)
+            rows.append(f'<tr><td class="r">{lo}-{hi}</td><td><b>{R.esc(nm)}</b><div class="mut">{mats}</div></td>'
                         f'<td class="r">x{n}</td><td class="r">{sm(c * n) if c is not None else "-"}</td></tr>')
         blocks.append(f'<section><div class="sh"><h2>{R.esc(prof)}</h2><span class="tag">kit <b>{sm(total)}</b>'
                       f'{" + mats not on AH" if unknown else ""}</span></div>'
