@@ -421,16 +421,45 @@ def poll_once(cfg, ah, api=None, con=None, quiet=False):
     return True
 
 
+def save_sales(con, ts, vanished, cheapest_now):
+    """Record what actually sold: listings that vanished before expiring, priced at or under the item's new cheapest
+    listing (buyers take the cheapest first, so a pricier one that vanished was a cancel, not a sale).
+    sales(ts, item_id, hi, lo, qty): highest / lowest unit price sold this hour and how many."""
+    con.execute("CREATE TABLE IF NOT EXISTS sales (ts INTEGER, item_id INTEGER, hi INTEGER, lo INTEGER, qty INTEGER,"
+                " PRIMARY KEY (ts, item_id))")
+    by = defaultdict(list)
+    for iid, up, q in vanished:
+        cap = cheapest_now.get(iid)
+        if up and (cap is None or up <= cap):
+            by[iid].append((up, q))
+    rows = [(ts, iid, round(max(u for u, _ in v)), round(min(u for u, _ in v)), sum(q for _, q in v)) for iid, v in by.items()]
+    con.executemany("INSERT OR REPLACE INTO sales VALUES (?,?,?,?,?)", rows)
+    return len(rows)
+
+
 def save_gear(con, ts, auctions):
     """Snapshot the regular (non-stackable: weapons, armor, ...) feed: cheapest buyout per item id."""
     con.execute("CREATE TABLE IF NOT EXISTS gearsnap (ts INTEGER, item_id INTEGER, min_buyout INTEGER,"
                 " median_buyout INTEGER, auctions INTEGER, PRIMARY KEY (ts, item_id))")
     by_item = defaultdict(list)
+    cur = {}
     for a in auctions:
         iid = a.get("item", {}).get("id")
         up = unit_price(a)
         if iid is not None and up:
             by_item[iid].append(up)
+            if "id" in a:
+                cur[str(a["id"])] = (iid, 1, a.get("time_left", ""), round(up))
+    prev_path = os.path.join(HERE, "prev_gear_113.json")
+    try:
+        prev = json.load(open(prev_path, encoding="utf-8")) if os.path.exists(prev_path) else {}
+    except ValueError:
+        prev = {}
+    vanished = [(v[0], v[3], 1) for aid, v in prev.items() if aid not in cur and v[2] != "SHORT" and len(v) > 3]
+    if prev:
+        save_sales(con, ts, vanished, {iid: min(l) for iid, l in by_item.items()})
+    with open(prev_path, "w", encoding="utf-8") as f:
+        json.dump(cur, f)
     rows = []
     for iid, lst in by_item.items():
         lst.sort()
@@ -451,7 +480,7 @@ def save_all_commodities(con, ah, ts, auctions, floor_units):
         q = a.get("quantity", 1) or 1
         by_item[iid].append((up, q))
         if "id" in a:
-            cur[str(a["id"])] = (iid, q, a.get("time_left", ""))
+            cur[str(a["id"])] = (iid, q, a.get("time_left", ""), round(up))
     prev_path = os.path.join(HERE, f"prev_all_{ah}.json")
     prev = {}
     if os.path.exists(prev_path):
@@ -461,9 +490,15 @@ def save_all_commodities(con, ah, ts, auctions, floor_units):
         except ValueError:
             prev = {}
     sold = defaultdict(int)
-    for aid, (iid, q, tl) in prev.items():
+    vanished = []
+    for aid, v in prev.items():
+        iid, q, tl = v[0], v[1], v[2]
         if aid not in cur and tl != "SHORT":
             sold[iid] += q
+            if len(v) > 3:
+                vanished.append((iid, v[3], q))
+    if vanished:
+        save_sales(con, ts, vanished, {iid: min(u for u, _ in lst) for iid, lst in by_item.items()})
     with open(prev_path, "w", encoding="utf-8") as f:
         json.dump(cur, f)
     rows = []
