@@ -763,7 +763,8 @@ def craft_row(m, x):
 
 RECIPE_PREFIX = ("Recipe: ", "Pattern: ", "Plans: ", "Schematic: ", "Formula: ", "Manual: ")
 RG_GROUPS = (("drop", "Boss & mob drops"), ("world", "World drops - random, easiest to buy on the AH"), ("quest", "Quest rewards"),
-             ("far", "Faraway vendors"), ("rep", "Reputation vendors"), ("alliance", "Alliance-only - buy on the AH"))
+             ("far", "Faraway vendors"), ("rep", "Reputation vendors"), ("alliance", "Alliance-only - buy on the AH"),
+             ("forever", "New in Forever"))
 
 
 def sec_recipe_guides(m):
@@ -784,11 +785,23 @@ def sec_recipe_guides(m):
         if k == "drop" and r["where"].startswith("world drop"):
             k = "world"
         by[r["prof"]][k].append((int(rid), r))
+    try:   # recipes new in Forever (not in the classic database) - Blizzard item data: skill, binds on pickup, output
+        fr = json.load(open(os.path.join(HERE, "forever_recipes.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        fr = {}
+    seen = set()
+    for rid, r in sorted(fr.items(), key=lambda x: int(x[0])):
+        if r["prof"] in (None, "Cooking") or rid in src or (r["prof"], r["name"]) in seen:
+            continue
+        seen.add((r["prof"], r["name"]))
+        by[r["prof"]]["forever"].append((int(rid), dict(r, where=(
+            "binds on pickup - learn it yourself; source not documented yet" if r.get("bop")
+            else "tradeable - check the AH; source not documented yet"))))
     out = ""
     for prof in sorted(by):
         rows = ""
         for k, title in RG_GROUPS:
-            lst = sorted(by[prof].get(k, []), key=lambda x: (x[1]["skill"], x[1]["name"]))
+            lst = sorted(by[prof].get(k, []), key=lambda x: (x[1]["skill"] or 0, x[1]["name"]))
             if not lst:
                 continue
             rows += f'<tr class="grp"><td colspan="4"><b>{title}</b> <span class="mut">{len(lst)}</span></td></tr>'
@@ -798,7 +811,7 @@ def sec_recipe_guides(m):
                     if name.startswith(p):
                         name = name[len(p):]
                         break
-                oid = m.name_id.get(name.lower())
+                oid = m.name_id.get(name.lower()) or (r.get("out") if r.get("out") in m.rows else None)
                 now = m.ah(rid)[0] or m.gear_now(rid)[0]
                 nm = (f'<td class="nm" data-iid="{oid}">{R.esc(name)}</td>' if oid else f'<td class="nm">{R.esc(name)}</td>')
                 rows += (f'<tr>{nm}<td class="r">{r["skill"] or "-"}</td>'
@@ -812,7 +825,7 @@ def sec_recipe_guides(m):
                '<div class="mut cgn">Drops, quests, vendors outside the Horde cities and starting zones, reputation and '
                'Alliance-only recipes. Anything a trainer teaches or a home vendor sells is left out. Recipe on AH = cheapest '
                'copy of the recipe itself listed right now. Source: CMaNGOS classic database + Questie NPC zones; '
-               'Forever-only recipes are not in it.</div>') + out
+               'New in Forever = recipes added by Forever (Blizzard item data), listed even when none are on the AH.</div>') + out
     return out
 
 
@@ -827,7 +840,7 @@ def sec_crafts(m, shown=()):
         oid = r.get("item_id")
         if not oid or r["name"].lower() in cd or r["name"].lower().startswith("transmute") or m.name(oid).lower() in cd:
             continue
-        if oid in shown or one_time_buy(m, oid) or m.manipulated(oid):   # anything already in a section above is left out
+        if one_time_buy(m, oid):   # manipulated items and items listed in other sections stay in (with their badge)
             continue
         now, qty = m.ah(oid)
         gear = False
@@ -877,7 +890,7 @@ def sec_crafts(m, shown=()):
         out += f'<h3 class="cg">{R.esc(prof)} <span class="mut cgn">top {len(top)} by profit per craft</span></h3>{head}<tbody>{rows}</tbody></table>'
     out = out or '<div class="mut">nothing profitable right now</div>'
     return ('<section><div class="sh"><span class="no">7</span><h2>Top crafts</h2>'
-            f'<span class="tag">top {TOP_CRAFTS} per profession by profit per craft, buying all mats - no cooldowns, nothing already listed above. Profit uses the highest price it actually sold for in its latest hour of sales (~ = no sale seen yet, cheapest listing used). Gear must be listed 3+ and steadily on the AH</span></div>'
+            f'<span class="tag">top {TOP_CRAFTS} per profession by profit per craft, buying all mats - no cooldowns. Manipulated items stay in with their badge. Profit uses the highest price it actually sold for in its latest hour of sales (~ = no sale seen yet, cheapest listing used). Gear must be listed 3+ and steadily on the AH</span></div>'
             + out + sec_recipe_guides(m) + '</section>')
 
 
@@ -1232,7 +1245,7 @@ def build():
     n = iter(range(1, 99))
     body = re.sub(r'<span class="no">\d+</span>', lambda _: f'<span class="no">{next(n)}</span>', body)   # number in page order
     body = re.sub(r'(<td class="nm[^"]*" data-iid="(\d+)">.*?)(</td>)',   # "Manipulated" badge on bought-out items
-                  lambda x: x.group(1) + (' <span class="badge manip">Manipulated</span>' if m.manipulated(int(x.group(2))) else '')
+                  lambda x: x.group(1) + (' <span class="badge manip">Manipulated</span>' if 'badge manip' not in x.group(1) and manip_flag(m, int(x.group(2))) == "Manipulated" else '')
                   + price_badge(m, int(x.group(2))) + x.group(3), body)   # price badges on every item in every section
     body = re.sub(r'<div class="fn">(?:(?!</?div).)*</div>', '', body, flags=re.S)   # no explanation notes under sections
     body = re.sub(r'<td class="(nm[^"]*)"([^>]*>(?:(?!</td>).)*?class="badge )',   # name cells with a badge may wrap so the badge isn't cut off
