@@ -1,0 +1,85 @@
+profession,from,to,crafts,recipe
+Alchemy,150,185,35,Greater Discolored Healing Potion
+Alchemy,185,210,27,Elixir of Agility
+Alchemy,210,215,5,Elixir of Greater Defense
+Alchemy,215,230,16,Superior Discolored Healing Potion
+Alchemy,230,250,22,Draught of Detect Undead
+Alchemy,250,265,16,Elixir of Greater Agility
+Alchemy,265,285,22,Superior Mana Potion
+Alchemy,285,300,18,Major Discolored Healing Potion
+Enchanting,150,151,1,Runed Golden Rod
+Enchanting,151,160,10,Enchant Bracer - Lesser Strength
+Enchanting,160,180,22,Enchant Bracer - Spirit
+Enchanting,180,200,22,Enchant Bracer - Strength
+Enchanting,200,201,1,Runed Truesilver Rod
+Enchanting,201,225,27,Enchant Cloak - Greater Defense
+Enchanting,225,235,10,Enchant Gloves - Agility
+Enchanting,235,245,10,Enchant Chest - Greater Stamina
+Enchanting,245,250,5,Enchant Bracer - Greater Strength
+Enchanting,250,270,22,Lesser Mana Oil
+Enchanting,270,290,22,Enchant Boots - Greater Stamina
+Enchanting,290,291,1,Runed Arcanite Rod
+Enchanting,291,300,10,Enchant Cloak - Superior Defense
+Cooking,150,175,27,Hot Lion Chops
+Cooking,150,175,27,Curiously Tasty Omelet
+Cooking,175,200,27,Roast Raptor
+Cooking,175,200,27,Spider Sausage
+Cooking,200,225,27,Heavy Crocolisk Stew
+Cooking,200,225,27,Mystery Stew
+Cooking,225,250,27,Monster Omelet
+Cooking,225,250,27,Tender Wolf Steak
+Cooking,250,275,27,Grilled Squid
+Cooking,250,275,27,Nightfin Soup
+Cooking,275,300,27,Spotted Yellowtail
+Cooking,275,300,27,Smoked Desert Dumplings
+Blacksmithing,150,160,10,Green Iron Leggings
+Blacksmithing,160,190,32,Green Iron Bracers
+Blacksmithing,190,200,10,Golden Scale Bracers
+Blacksmithing,200,210,10,Solid Grinding Stone
+Blacksmithing,210,215,5,Heavy Mithril Gauntlet
+Blacksmithing,215,235,22,Heavy Mithril Breastplate
+Blacksmithing,235,250,16,Mithril Coif
+Blacksmithing,250,260,10,Dense Sharpening Stone
+Blacksmithing,260,270,12,Thorium Belt
+Blacksmithing,270,300,32,Thorium Bracers
+Blacksmithing,270,300,32,Imperial Plate Bracers
+Tailoring,150,160,10,Azure Silk Hood
+Tailoring,160,170,10,Silk Headband
+Tailoring,170,175,5,Formal White Shirt
+Tailoring,175,185,10,Bolt of Mageweave
+Tailoring,185,205,22,Crimson Silk Vest
+Tailoring,205,215,11,Crimson Silk Pantaloons
+Tailoring,215,220,5,Black Mageweave Leggings
+Tailoring,220,230,11,Black Mageweave Gloves
+Tailoring,230,250,22,Black Mageweave Headband
+Tailoring,250,260,10,Bolt of Runecloth
+Tailoring,260,275,16,Runecloth Belt
+Tailoring,275,280,5,Runecloth Bag
+Tailoring,280,300,22,Runecloth Gloves
+Leatherworking,150,165,16,Heavy Armor Kit
+Leatherworking,150,165,16,Cured Heavy Hide
+Leatherworking,165,190,27,Barbaric Shoulders
+Leatherworking,190,200,10,Guardian Gloves
+Leatherworking,200,205,5,Thick Armor Kit
+Leatherworking,205,220,16,Nightscape Headband
+Leatherworking,220,250,32,Nightscape Pants
+Leatherworking,250,260,10,Wicked Leather Bracers
+Leatherworking,260,280,22,Rugged Armor Kit
+Leatherworking,280,300,22,Wicked Leather Headband
+Engineering,150,160,10,Bronze Framework
+Engineering,160,175,16,Explosive Sheep
+Engineering,175,176,1,Gyromatic Micro-Adjustor
+Engineering,176,195,22,Solid Blasting Powder
+Engineering,195,200,5,Big Iron Bomb
+Engineering,200,215,16,Gyrochronatom
+Engineering,215,235,22,Mithril Tube
+Engineering,235,245,10,Unstable Trigger
+Engineering,245,260,16,Mithril Casing
+Engineering,260,285,27,Thorium Widget
+Engineering,285,300,16,Thorium Tube
+First Aid,150,180,32,Silk Bandage
+First Aid,180,210,32,Heavy Silk Bandage
+First Aid,210,240,32,Mageweave Bandage
+First Aid,240,260,22,Heavy Mageweave Bandage
+First Aid,260,290,32,Runecloth Bandage
+First Aid,290,300,10,Heavy Runecloth Bandage
