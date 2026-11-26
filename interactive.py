@@ -137,7 +137,7 @@ section.card .g .mats{white-space:nowrap}
 section.card .sb .g td.nm{position:sticky;left:0;z-index:1;background:var(--bg);box-shadow:4px 0 6px -4px rgba(0,0,0,.8)}
 section.card .sb>*:first-child{margin-top:6px}
 section.card .sb tr.grp td .grl{position:sticky;left:6px;display:inline-block;max-width:calc(100vw - 48px);white-space:normal}
-section.card .sb h3,section.card .sb .cgn,section.card .sb .fn{position:sticky;left:0;max-width:calc(100vw - 32px);box-sizing:border-box}
+section.card .sb h3,section.card .sb .cgn,section.card .sb .fn,section.card .sb .sh{position:sticky;left:0;max-width:calc(100vw - 32px);box-sizing:border-box}
 .tile::after{content:"";position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 .tile.flash::after{animation:flash .45s ease-out}
 @keyframes flash{0%{opacity:.55}100%{opacity:0}}
