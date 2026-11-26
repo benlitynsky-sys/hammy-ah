@@ -1173,16 +1173,17 @@ def kit_cost(m, r):
     return tot, notes
 
 
-def sec_leveling(m, path="leveling.csv"):
-    """Cheapest route per profession (leveling.csv = 1-150, leveling_300.csv = 150-300), one block each."""
+def kit_blocks(m, path="leveling.csv", mirror=False, label=""):
+    """{profession: kit block html} in file order. mirror=True flips it for the right-hand side of the web page:
+    columns run Cost | Crafts | Recipe | Skill, everything right-aligned, price badge to the LEFT of the title."""
     steps, order = defaultdict(lambda: defaultdict(list)), []
     if not os.path.exists(os.path.join(HERE, path)):
-        return ""
+        return {}
     for r in csv.DictReader(open(os.path.join(HERE, path), encoding="utf-8")):
         if r["profession"] not in order:
             order.append(r["profession"])
         steps[r["profession"]][(int(r["from"]), int(r["to"]), int(r["crafts"]))].append(r["recipe"])
-    blocks = []
+    blocks = {}
     for prof in order:
         rows, total, unknown = [], 0, False
         for (lo, hi, n), names in sorted(steps[prof].items()):
@@ -1199,12 +1200,25 @@ def sec_leveling(m, path="leveling.csv"):
             else:
                 total += c * n
             mats = R.esc(", ".join(f"{q:g} {x}" for _, x, q in r["reagents"])) + "".join(f"<br>{R.esc(t)}" for t in nts)
-            rows.append(f'<tr><td class="r">{lo}-{hi}</td><td><b>{R.esc(nm)}</b><div class="mut">{mats}</div></td>'
-                        f'<td class="r">x{n}</td><td class="r">{sm(c * n) if c is not None else "-"}</td></tr>')
-        blocks.append(f'<section><div class="sh"><h2>{R.esc(prof)} Kit <span class="badge kitp">{sm(total)}</span>'
-                      f'{" <span class=mut>+ mats not on AH</span>" if unknown else ""}</h2></div>'
-                      '<table class="g lv"><thead><tr><th class="r">Skill</th><th>Recipe / each needs</th>'
-                      '<th class="r">Crafts</th><th class="r">Cost</th></tr></thead><tbody>' + "".join(rows) + '</tbody></table></section>')
+            cells = [f'<td class="r">{lo}-{hi}</td>', f'<td{" class=r" if mirror else ""}><b>{R.esc(nm)}</b><div class="mut">{mats}</div></td>',
+                     f'<td class="r">x{n}</td>', f'<td class="r">{sm(c * n) if c is not None else "-"}</td>']
+            rows.append("<tr>" + "".join(cells[::-1] if mirror else cells) + "</tr>")
+        badge = f'<span class="badge kitp">{sm(total)}</span>'
+        more = " <span class=mut>+ mats not on AH</span>" if unknown else ""
+        heads = ['<th class="r">Skill</th>', f'<th{" class=r" if mirror else ""}>Recipe / each needs</th>', '<th class="r">Crafts</th>', '<th class="r">Cost</th>']
+        title = (f'{more}{badge.replace("margin-left:6px", "")} {R.esc(prof)} Kit' if mirror else f'{R.esc(prof)} Kit {badge}{more}')
+        top = f'<div class="kitlbl">{label}</div>' if label else ""
+        blocks[prof] = (f'<section{" class=mir" if mirror else ""}>{top}<div class="sh"><h2>{title}</h2></div>'
+                        f'<table class="g lv{" mir" if mirror else ""}"><thead><tr>' + "".join(heads[::-1] if mirror else heads)
+                        + '</tr></thead><tbody>' + "".join(rows) + '</tbody></table></section>')
+    return blocks
+
+
+def sec_leveling(m, path="leveling.csv"):
+    """Cheapest route per profession (leveling.csv = 1-150, leveling_300.csv = 150-300), one block each."""
+    blocks = list(kit_blocks(m, path).values())
+    if not blocks:
+        return ""
     half = (len(blocks) + 1) // 2
     return (f'<div class="cols"><div class="col">{"".join(blocks[:half])}</div><div class="col">{"".join(blocks[half:])}</div></div>'
             '<div class="fn">Cost = buying every material at today&rsquo;s cheapest price. Where a range has several good recipes '
@@ -1440,13 +1454,20 @@ def build():
     try:   # web-page version: hover an item for its hour-by-hour 7-day chart
         import interactive
         strip = lambda h: re.sub(r'<div class="fn">(?:(?!</?div).)*</div>', '', h, flags=re.S)
-        k300 = strip(sec_leveling(m, "leveling_300.csv"))
+        lo_k, hi_k = kit_blocks(m, label="1-150"), kit_blocks(m, "leveling_300.csv", mirror=True, label="150-300")
+        pairs = "".join(f'<div class="kitpair"><div class="kl">{lo_k.get(p, "")}</div><div class="kr">{hi_k.get(p, "")}</div></div>'
+                        for p in list(lo_k) + [p for p in hi_k if p not in lo_k])
         kits = ('<section><div class="sh"><h2>1-150, 150-300 Profession Kits</h2><span class="tag">cheapest route at current prices'
                 ' &middot; campfire drops</span></div>'
-                '<h3 class="cg">1-150</h3>' + strip(sec_leveling(m))
-                + ('<h3 class="cg" style="margin-top:22px">150-300</h3><div class="mut cgn">Needs Expert (from 125 at a trainer) '
-                   'and Artisan (from 200 at a trainer; 225 for First Aid from a book, 300 from a quest). Forever reworked some '
-                   'recipes - check recipe colors at your trainer.</div>' + k300 if k300 else '')
+                '<div class="mut cgn">Left: 1-150 &middot; right: 150-300 (needs Expert from 125 at a trainer and Artisan from 200; '
+                'First Aid 225 from a book, 300 from a quest). Forever reworked some recipes - check recipe colors at your trainer.</div>'
+                '<style>.kitpair{display:flex;align-items:stretch;margin-top:14px}.kitpair>div{flex:1;min-width:0}'
+                '.kl{padding-right:12px}.kr{padding-left:12px;border-left:2px solid #2a3038;text-align:right}'
+                '.kitlbl{font-size:11px;font-weight:700;letter-spacing:.06em;color:#39c5cf}'
+                '.mir .badge.kitp{margin-left:0;margin-right:6px}.mir .sh{justify-content:flex-end}.mir .sh h2{text-align:right}'
+                '.lv.mir th:nth-child(1){width:13%}.lv.mir th:nth-child(2){width:11%}.lv.mir th:nth-child(3){width:auto}.lv.mir th:nth-child(4){width:15%}'
+                '@media(max-width:760px){.kitpair{flex-direction:column}.kl{padding-right:0}.kr{padding-left:0;border-left:0;'
+                'border-top:2px solid #2a3038;margin-top:10px;padding-top:6px}}</style>' + pairs
                 + sec_campfire(m).replace('<span class="no">6</span>', '') + '</section>')
         interactive.make(m, title, body + kits + dsl_section(m) + sec_utility(m), market[:-4] + " Interactive.html")
         try:   # raid-prep pick for the Discord post
