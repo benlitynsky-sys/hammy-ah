@@ -22,7 +22,7 @@ import time
 import requests
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-TABLES = ("snap", "allsnap", "gearsnap")
+TABLES = ("snap", "allsnap", "gearsnap", "sales")
 TAG = "archive"
 NOTES = ("Permanent hourly price history for WoW Forever US PvP, Horde AH 113. One file per month (local time, UTC-7). "
          "Each .sqlite.gz is a gzipped SQLite database: allsnap = every stackable good (ts, item_id, floor, min_unit, qty, "
