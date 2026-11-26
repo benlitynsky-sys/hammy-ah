@@ -394,11 +394,19 @@ def sec_movers(m):
 
 
 def sec_raid(m, cols, skip):
-    cons, mats, unlisted = [], defaultdict(set), []
+    cons, mats, unlisted, grp = [], defaultdict(set), [], {}
     for r in csv.DictReader(open(os.path.join(HERE, "raid_consumes.csv"), encoding="utf-8")):
         iid = m.name_id.get(r["item"].lower())
-        rec = m.by_out.get(iid, []) if iid else []
-        if not rec:
+        if iid:
+            grp.setdefault(iid, r["group"])
+        if not iid or iid in {c for _, c in cons}:
+            continue
+        rec = m.by_out.get(iid, [])
+        if not rec:   # can't be crafted (Winterfall Firewater, Dark Rune...) - still a raid consumable
+            if m.ah(iid)[0]:
+                cons.append((0, iid))
+            else:
+                unlisted.append(r["item"])
             continue
         for rc in rec:   # every material in every recipe for it, plus what crafted materials are made from
             for rid, _, _ in rc["reagents"]:
@@ -407,8 +415,6 @@ def sec_raid(m, cols, skip):
                     for sid, _, _ in sub["reagents"]:
                         mats[sid].add(rid)
         rec = min(rec, key=lambda x: m.recipe_cost(x) or 1e18)
-        if iid in skip:
-            continue
         price = m.ah(iid)[0]
         if price:
             cost = m.recipe_cost(rec)
@@ -419,7 +425,9 @@ def sec_raid(m, cols, skip):
     # every AH-bought material (vendor-sold vials, spices, thread left out), even ones shown in other sections
     mat_ids = [i for i in mats if i not in {c for _, c in cons} and m.ah(i)[0] and not m.vendor(i)]
     turnover = lambda i: sold_day(m, i) or 0                                   # most sold per day first
-    cons = sorted((i for _, i in cons), key=turnover, reverse=True)[:TOP_RAID]
+    cons = sorted((i for _, i in cons), key=turnover, reverse=True)   # all of them - the full high-end raid list
+    GROUPS = ["Flasks", "Elixirs", "Potions", "Food", "Weapon buffs", "Explosives", "Scrolls", "Other"]
+    by_g = {g: [i for i in cons if grp.get(i) == g] for g in GROUPS}
     mat_ids = sorted(mat_ids, key=turnover, reverse=True)
     last = cols[-1]
 
@@ -428,13 +436,14 @@ def sec_raid(m, cols, skip):
                 + "".join(f'<tr><td class="nm" data-iid="{i}">{R.esc(m.name(i))}</td><td class="r now">{sm(m.ah(i)[0])}</td>{lc(m, i)}{vc(m, i)}'
                           f'{hilo_cells(m, i, cols)}</tr>' for i in ids))
     days = (R.RAID_DAY - date.today()).days
-    note = (f'<div class="fn">Top {TOP_RAID} consumables and every material that goes into them (and into their crafted parts; '
+    note = (f'<div class="fn">Every high-end raid consumable listed right now (flasks, elixirs, potions, food, oils, stones, explosives, scrolls) and every material that goes into them (and into their crafted parts; '
             f'vendor-sold items left out), both ranked by units sold per day (7-day average). '
             f'No listings yet: {R.esc(", ".join(unlisted))}.</div>')
     return (f'<section><div class="sh"><span class="no">5</span><h2>Raid consumables</h2>'
             f'<span class="tag">{R.esc(R.RAIDS)} - Dec 9, {days} days</span></div>'
             f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("Listed/day (7d avg)", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, last)}<tbody>'
-            f'{rows("Consumables - most sold first", cons)}{rows("Materials used in raid consumes - most sold first", mat_ids)}'
+            + "".join(rows(f"{g} - most sold first", ids) for g, ids in by_g.items() if ids)
+            + f'{rows("Materials used in raid consumes - most sold first", mat_ids)}'
             f'</tbody></table>{note}</section>')
 
 
