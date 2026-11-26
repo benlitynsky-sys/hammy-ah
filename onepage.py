@@ -400,13 +400,13 @@ def sec_raid(m, cols, skip):
         rec = m.by_out.get(iid, []) if iid else []
         if not rec:
             continue
+        for rc in rec:   # every material in every recipe for it, plus what crafted materials are made from
+            for rid, _, _ in rc["reagents"]:
+                mats[rid].add(iid)
+                for sub in m.by_out.get(rid, []):
+                    for sid, _, _ in sub["reagents"]:
+                        mats[sid].add(rid)
         rec = min(rec, key=lambda x: m.recipe_cost(x) or 1e18)
-        for rid, _, _ in rec["reagents"]:
-            mats[rid].add(iid)
-            c, how = m.cost(rid, rec["prof"])
-            if isinstance(how, tuple):
-                for sid, _, _ in how[1]["reagents"]:
-                    mats[sid].add(rid)
         if iid in skip:
             continue
         price = m.ah(iid)[0]
@@ -416,10 +416,11 @@ def sec_raid(m, cols, skip):
             cons.append((profit, iid))
         else:
             unlisted.append(r["item"])
-    mat_ids = [i for i in mats if i not in skip and i not in {c for _, c in cons} and m.ah(i)[0] and m.ah(i)[0] >= RAID_MAT_MIN]
+    # every AH-bought material (vendor-sold vials, spices, thread left out), even ones shown in other sections
+    mat_ids = [i for i in mats if i not in {c for _, c in cons} and m.ah(i)[0] and not m.vendor(i)]
     turnover = lambda i: sold_day(m, i) or 0                                   # most sold per day first
     cons = sorted((i for _, i in cons), key=turnover, reverse=True)[:TOP_RAID]
-    mat_ids = sorted(mat_ids, key=turnover, reverse=True)[:TOP_RAID]
+    mat_ids = sorted(mat_ids, key=turnover, reverse=True)
     last = cols[-1]
 
     def rows(title, ids):
@@ -427,7 +428,8 @@ def sec_raid(m, cols, skip):
                 + "".join(f'<tr><td class="nm" data-iid="{i}">{R.esc(m.name(i))}</td><td class="r now">{sm(m.ah(i)[0])}</td>{lc(m, i)}{vc(m, i)}'
                           f'{hilo_cells(m, i, cols)}</tr>' for i in ids))
     days = (R.RAID_DAY - date.today()).days
-    note = (f'<div class="fn">Top {TOP_RAID} of each: both ranked by units sold per day (7-day average). '
+    note = (f'<div class="fn">Top {TOP_RAID} consumables and every material that goes into them (and into their crafted parts; '
+            f'vendor-sold items left out), both ranked by units sold per day (7-day average). '
             f'No listings yet: {R.esc(", ".join(unlisted))}.</div>')
     return (f'<section><div class="sh"><span class="no">5</span><h2>Raid consumables</h2>'
             f'<span class="tag">{R.esc(R.RAIDS)} - Dec 9, {days} days</span></div>'
@@ -540,7 +542,7 @@ CRASH_DROP, CRASH_BACK, CRASH_CALM, CRASH_HOURS, CRASH_PILE = 0.5, 0.75, 0.75, 2
 def crash_scoop(m, iid):
     """Crash-and-scoop: someone dumps a pile at a silly low price, other sellers' auto-undercut posts just under it,
     and the dumper buys all the cheap stock back. Shows as one or two hours at half its weekly usual or less (right
-    after a normal hour) while a real pile is listed (100+, at least half the normal count - not one stray cheap
+    after a normal hour, and well under anything it normally sells for) while a real pile is listed (100+, at least half the normal count - not one stray cheap
     listing), back to 75%+ of usual within 3 hours. Stays flagged until the price has stayed at 75%+ of usual for
     24 hours straight at some point since the crash. Returns (crash time, crash price, usual) or None."""
     if not hasattr(m, "_crash"):
@@ -557,8 +559,13 @@ def crash_scoop(m, iid):
     if usual < MANIP_MIN or uq < CRASH_PILE or iid in DURABLE_IDS(m):
         return None
     for j in range(1, len(r) - 1):
-        if (r[j][1] <= CRASH_DROP * usual and r[j - 1][1] >= 0.8 * usual and r[j][2] >= max(CRASH_PILE, uq / 2)
-                and any(x[1] >= CRASH_BACK * usual for x in r[j + 1:j + 4])):
+        if r[j][0] - r[0][0] < 2 * 86400:   # needs 2+ days of history first, so "usual" means something
+            continue
+        before = sorted(x[1] for x in r[max(0, j - 6):j])
+        level = before[len(before) // 2]     # its own price in the 6 hours just before - a slow slide isn't a crash
+        low = sorted(x[1] for x in r[:j])[j // 10]   # its normal low (10th percentile so far) - must go well under it
+        if (r[j][1] <= CRASH_DROP * min(usual, level) and r[j][1] < 0.8 * low and r[j - 1][1] >= 0.8 * usual and r[j][2] >= max(CRASH_PILE, uq / 2)
+                and any(x[1] >= CRASH_BACK * level for x in r[j + 1:j + 4])):
             res = (r[j][0], r[j][1], usual)   # keep the latest crash
     if res:
         start = None   # any 24h stretch after the crash with no hour under 75% of usual clears it
