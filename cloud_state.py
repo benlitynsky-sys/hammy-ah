@@ -7,7 +7,8 @@ import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FILES = ["ah_113.sqlite", "prev_all_113.json", "discord_state.json", "holdings.json", "alerts.log",
-         "stack_obs.json", "stackable_cache.json", "binding_cache.json", "prev_gear_113.json", "trades.json"]
+         "stack_obs.json", "stackable_cache.json", "binding_cache.json", "prev_gear_113.json", "trades.json",
+         "tooltip_cache.json"]
 ZIP = os.path.join(HERE, "state.zip")
 
 if __name__ == "__main__":
