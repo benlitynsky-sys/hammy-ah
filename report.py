@@ -198,7 +198,8 @@ class Market:
         v = self.vendor(iid)
         if v:
             opts.append((v, "vendor"))
-        if prof and depth < 3 and iid not in seen:
+        if prof and depth < 3 and iid not in seen and not (p and iid in self.cooldown_ids()):
+            # a cooldown craft (Mooncloth, transmutes...) can't be made on demand - if it's on the AH, that's the real cost
             for r in self.by_out.get(iid, []):
                 if r["prof"] != prof:
                     continue
@@ -206,6 +207,20 @@ class Market:
                 if c is not None:
                     opts.append((c / (r.get("qty") or 1), ("craft", r)))
         return min(opts, key=lambda o: o[0]) if opts else (None, None)
+
+    def cooldown_ids(self):
+        if not hasattr(self, "_cd_ids"):
+            self._cd_ids = set()
+            try:
+                import csv
+                for r in csv.DictReader(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "recipes.csv"), encoding="utf-8")):
+                    if float(r.get("cooldown_hours") or 0) > 0:
+                        i = self.name_id.get(r["output"].strip().lower())
+                        if i:
+                            self._cd_ids.add(i)
+            except (OSError, KeyError, ValueError):
+                pass
+        return self._cd_ids
 
     def recipe_cost(self, r, depth=0, seen=()):
         tot = 0
