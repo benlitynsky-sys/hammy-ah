@@ -761,6 +761,61 @@ def craft_row(m, x):
             f'<td class="mats">{R.esc(x["mats"])}</td></tr>')
 
 
+RECIPE_PREFIX = ("Recipe: ", "Pattern: ", "Plans: ", "Schematic: ", "Formula: ", "Manual: ")
+RG_GROUPS = (("drop", "Boss & mob drops"), ("world", "World drops - random, easiest to buy on the AH"), ("quest", "Quest rewards"),
+             ("far", "Faraway vendors"), ("rep", "Reputation vendors"), ("alliance", "Alliance-only - buy on the AH"))
+
+
+def sec_recipe_guides(m):
+    """Hard-to-get recipes for every crafting profession (cooking has its own in the Cooking section), Horde view:
+    drops, quests, vendors outside the home cities/zones, reputation, Alliance-only. Data: recipe_sources.json
+    (CMaNGOS classic DB + Questie NPC zones)."""
+    try:
+        src = json.load(open(os.path.join(HERE, "recipe_sources.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        return ""
+    by = defaultdict(lambda: defaultdict(list))
+    for rid, r in src.items():
+        if r["prof"] == "Cooking":
+            continue
+        k = r["kind"]
+        if k == "city" or (k == "far" and all(any(p in part for p in EASY_PLACES) for part in r["where"].split("; "))):
+            continue   # a home-city / starting-zone vendor sells it - not hard to get
+        if k == "drop" and r["where"].startswith("world drop"):
+            k = "world"
+        by[r["prof"]][k].append((int(rid), r))
+    out = ""
+    for prof in sorted(by):
+        rows = ""
+        for k, title in RG_GROUPS:
+            lst = sorted(by[prof].get(k, []), key=lambda x: (x[1]["skill"], x[1]["name"]))
+            if not lst:
+                continue
+            rows += f'<tr class="grp"><td colspan="4"><b>{title}</b> <span class="mut">{len(lst)}</span></td></tr>'
+            for rid, r in lst:
+                name = r["name"]
+                for p in RECIPE_PREFIX:
+                    if name.startswith(p):
+                        name = name[len(p):]
+                        break
+                oid = m.name_id.get(name.lower())
+                now = m.ah(rid)[0] or m.gear_now(rid)[0]
+                nm = (f'<td class="nm" data-iid="{oid}">{R.esc(name)}</td>' if oid else f'<td class="nm">{R.esc(name)}</td>')
+                rows += (f'<tr>{nm}<td class="r">{r["skill"] or "-"}</td>'
+                         f'<td class="r">{sm(now) if now else "-"}</td><td class="mats">{R.esc(r["where"])}</td></tr>')
+        n = sum(len(v) for v in by[prof].values())
+        out += (f'<h3 class="cg">Hard-to-get {R.esc(prof)} recipes (Horde) <span class="mut cgn">{n}</span></h3>'
+                '<table class="g"><thead><tr><th>Recipe</th><th class="r">Skill</th><th class="r">Recipe on AH</th>'
+                f'<th>Where to get it</th></tr></thead><tbody>{rows}</tbody></table>')
+    if out:
+        out = ('<h3 class="cg" style="margin-top:22px">Hard-to-get recipes by profession</h3>'
+               '<div class="mut cgn">Drops, quests, vendors outside the Horde cities and starting zones, reputation and '
+               'Alliance-only recipes. Anything a trainer teaches or a home vendor sells is left out. Recipe on AH = cheapest '
+               'copy of the recipe itself listed right now. Source: CMaNGOS classic database + Questie NPC zones; '
+               'Forever-only recipes are not in it.</div>') + out
+    return out
+
+
 def sec_crafts(m, shown=()):
     """Top 10 crafts per profession by profit per craft (buying every mat at today's cheapest), cooldown recipes left out."""
     cd = set()
@@ -823,7 +878,7 @@ def sec_crafts(m, shown=()):
     out = out or '<div class="mut">nothing profitable right now</div>'
     return ('<section><div class="sh"><span class="no">7</span><h2>Top crafts</h2>'
             f'<span class="tag">top {TOP_CRAFTS} per profession by profit per craft, buying all mats - no cooldowns, nothing already listed above. Profit uses the highest price it actually sold for in its latest hour of sales (~ = no sale seen yet, cheapest listing used). Gear must be listed 3+ and steadily on the AH</span></div>'
-            + out + '</section>')
+            + out + sec_recipe_guides(m) + '</section>')
 
 
 WOOD_NOTE = {"Thick Logs": "cooking supply vendors (Xen'to Orgrimmar, Ronald Burch Undercity, Aza'bek Barrens) about 20g; vendor buys back at 5g",
@@ -956,10 +1011,12 @@ def sec_cooldowns(m, cds, cols):
             '<tbody>' + "".join(rows) + '</tbody></table></section>')
 
 
-def sec_leveling(m):
-    """Cheapest 1-150 route per profession, one block each (goes in its own PDF)."""
+def sec_leveling(m, path="leveling.csv"):
+    """Cheapest route per profession (leveling.csv = 1-150, leveling_300.csv = 150-300), one block each."""
     steps, order = defaultdict(lambda: defaultdict(list)), []
-    for r in csv.DictReader(open(os.path.join(HERE, "leveling.csv"), encoding="utf-8")):
+    if not os.path.exists(os.path.join(HERE, path)):
+        return ""
+    for r in csv.DictReader(open(os.path.join(HERE, path), encoding="utf-8")):
         if r["profession"] not in order:
             order.append(r["profession"])
         steps[r["profession"]][(int(r["from"]), int(r["to"]), int(r["crafts"]))].append(r["recipe"])
@@ -1183,9 +1240,15 @@ def build():
     market = render(title, body)
     try:   # web-page version: hover an item for its hour-by-hour 7-day chart
         import interactive
-        kits = re.sub(r'<div class="fn">(?:(?!</?div).)*</div>', '', sec_leveling(m), flags=re.S)
-        kits = ('<section><div class="sh"><h2>1-150 Profession Kits</h2><span class="tag">cheapest route at current prices'
-                ' &middot; campfire drops</span></div>' + kits + sec_campfire(m).replace('<span class="no">6</span>', '') + '</section>')
+        strip = lambda h: re.sub(r'<div class="fn">(?:(?!</?div).)*</div>', '', h, flags=re.S)
+        k300 = strip(sec_leveling(m, "leveling_300.csv"))
+        kits = ('<section><div class="sh"><h2>1-150, 150-300 Profession Kits</h2><span class="tag">cheapest route at current prices'
+                ' &middot; campfire drops</span></div>'
+                '<h3 class="cg">1-150</h3>' + strip(sec_leveling(m))
+                + ('<h3 class="cg" style="margin-top:22px">150-300</h3><div class="mut cgn">Needs Expert (from 125 at a trainer) '
+                   'and Artisan (from 200 at a trainer; 225 for First Aid from a book, 300 from a quest). Forever reworked some '
+                   'recipes - check recipe colors at your trainer.</div>' + k300 if k300 else '')
+                + sec_campfire(m).replace('<span class="no">6</span>', '') + '</section>')
         interactive.make(m, title, body + kits, market[:-4] + " Interactive.html")   # kits tile at the bottom of the web page
     except Exception as e:
         print(f"interactive page failed: {e}")
