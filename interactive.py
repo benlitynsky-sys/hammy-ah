@@ -373,7 +373,7 @@ def make(m, title, body, path):
         print("recipe button data skipped:", e)
     lookup = ('<section><div class="sh"><h2>Likely all you&rsquo;ll use this for</h2><span class="tag">search any item on the Horde PvP ruleset AH for its full price history</span></div>'
               '<div class="lk"><input id="lkq" type="search" placeholder="Type an item name, e.g. Black Lotus" autocomplete="off">'
-              '<div class="mut" style="font-size:9px;margin-top:2px">every item seen on the Horde AH, plus every tradeable weapon, armor piece and recipe never listed &middot; <span id="lkst">loads when you tap the box</span></div>'
+              '<div class="mut" style="font-size:9px;margin-top:2px">every item ever listed on the Horde PvP ruleset AH, plus every tradeable weapon, armor piece and recipe (even ones that have never been listed) &middot; <span id="lkst">loads when you tap the box</span></div>'
               '<div id="lkres"></div><div id="lkchart"></div></div></section>')
     body = body.replace("</header>", "</header>" + lookup, 1)   # search tile at the top
     write_lookup(m, os.path.join(os.path.dirname(path), "lookup.json"))
