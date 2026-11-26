@@ -1115,8 +1115,8 @@ def sec_leveling(m, path="leveling.csv"):
             mats = R.esc(", ".join(f"{q:g} {x}" for _, x, q in r["reagents"])) + "".join(f"<br>{R.esc(t)}" for t in nts)
             rows.append(f'<tr><td class="r">{lo}-{hi}</td><td><b>{R.esc(nm)}</b><div class="mut">{mats}</div></td>'
                         f'<td class="r">x{n}</td><td class="r">{sm(c * n) if c is not None else "-"}</td></tr>')
-        blocks.append(f'<section><div class="sh"><h2>{R.esc(prof)}</h2><span class="tag">kit <b>{sm(total)}</b>'
-                      f'{" + mats not on AH" if unknown else ""}</span></div>'
+        blocks.append(f'<section><div class="sh"><h2>{R.esc(prof)} Kit <span class="badge kitp">{sm(total)}</span>'
+                      f'{" <span class=mut>+ mats not on AH</span>" if unknown else ""}</h2></div>'
                       '<table class="g lv"><thead><tr><th class="r">Skill</th><th>Recipe / each needs</th>'
                       '<th class="r">Crafts</th><th class="r">Cost</th></tr></thead><tbody>' + "".join(rows) + '</tbody></table></section>')
     half = (len(blocks) + 1) // 2
@@ -1162,7 +1162,7 @@ table.g{width:100%;border-collapse:collapse}
 .g .first{border-left:1px solid var(--rule)}
 .g .ar{font-size:.8em;margin-left:1px}
 .badge{border-radius:3px;padding:0 3px;font-weight:700;white-space:nowrap}
-.badge.cert{background:#1f6feb;color:#fff}.badge.pot{background:#0d2d5e;color:#79c0ff;box-shadow:inset 0 0 0 1px #388bfd}.badge.buy{background:#238636;color:#fff}.badge.sell{background:#da3633;color:#fff}.badge.mup{background:#db6d28;color:#fff}.badge.mdn{background:#d29922;color:#1b1300}.badge.tgt{background:#2ea043;color:#fff}.legend{margin:0 0 8px;padding:5px 8px;border:1px solid #2a3038;border-radius:6px;line-height:1.9}.badge.wait{background:#1f6feb;color:#fff}.row-wait td{background:#0f1d33}.badge.dip{background:#3a3220;color:#e3b341}.badge.nope{background:#2a3038;color:#9aa3ad}.badge.manip{background:#8957e5;color:#fff}.sub{font-size:1em;margin:8px 0 3px;color:var(--ink)}.badge.watch{background:#3d2a5c;color:#d2b8ff}
+.badge.cert{background:#1f6feb;color:#fff}.badge.pot{background:#0d2d5e;color:#79c0ff;box-shadow:inset 0 0 0 1px #388bfd}.badge.buy{background:#238636;color:#fff}.badge.sell{background:#da3633;color:#fff}.badge.mup{background:#db6d28;color:#fff}.badge.mdn{background:#d29922;color:#1b1300}.badge.tgt{background:#2ea043;color:#fff}.legend{margin:0 0 8px;padding:5px 8px;border:1px solid #2a3038;border-radius:6px;line-height:1.9}.badge.wait{background:#1f6feb;color:#fff}.row-wait td{background:#0f1d33}.badge.dip{background:#3a3220;color:#e3b341}.badge.nope{background:#2a3038;color:#9aa3ad}.badge.manip{background:#8957e5;color:#fff}.badge.kitp{display:inline-block;background:#238636;color:#fff;border-radius:4px;padding:1px 9px;margin-left:6px;font-size:.9em;vertical-align:1px;box-shadow:inset 0 0 0 1px #2ea043}.sub{font-size:1em;margin:8px 0 3px;color:var(--ink)}.badge.watch{background:#3d2a5c;color:#d2b8ff}
 .row-cert td{background:#0f1d33}.row-pot td{background:#2a2410}
 .g th.dh{text-align:center;border-left:1px solid var(--rule);border-bottom:none;color:var(--ink);text-transform:none;letter-spacing:0}
 .g .in{padding-left:9px;color:var(--ink2)}
