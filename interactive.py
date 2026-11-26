@@ -9,13 +9,20 @@ import report as R
 
 JS = r"""
 const D = JSON.parse(document.getElementById('series').textContent);
+const RC = JSON.parse((document.getElementById('rcinfo')||{}).textContent||'{}');
+function rcBtn(iid){const r=RC[String(iid).replace(/^lk/,'')]; if(!r)return '';
+  const row=(k,v)=>v?`<div><span class="mut">${k}</span> ${v}</div>`:'';
+  return `<div class="rcw"><button type="button" class="rcb">${r.w}</button><div class="rct"><b>${r.n}</b>`+
+    row('Profession',r.prof+(r.sk?' ('+r.sk+')':''))+row('Where',r.src)+row('On AH',r.ah)+(r.bop?'<div class="mut">Binds on pickup - you must get it yourself</div>':'')+`</div></div>`}
+function rcWire(el){const w=el.querySelector('.rcw'); if(!w)return;
+  w.querySelector('.rcb').addEventListener('click',e=>{e.stopPropagation(); w.classList.toggle('open')})}
 const pop = document.getElementById('pop');
 let pinned = null;
 function money(c){c=Math.round(c);const g=Math.floor(c/10000),s=Math.floor(c%10000/100),k=c%100;
   return g?`${g}g ${String(s).padStart(2,'0')}s`:s?`${s}s ${String(k).padStart(2,'0')}c`:`${k}c`}
 function fmt(t){return new Date(t*1000).toLocaleString('en-US', {timeZone:'America/Phoenix',weekday:'short',hour:'numeric',minute:'2-digit',hour12:true})+' PST'}
 function draw(iid, name, el=pop){
-  const d = D[iid]; if(!d || !d.p.length){el.innerHTML=`<b>${name}</b><div class="mut">no hourly data yet</div>`;return}
+  const d = D[iid]; if(!d || !d.p.length){el.innerHTML=`${rcBtn(iid)}<div class="ph${RC[String(iid).replace(/^lk/,'')]?' hasrc':''}"><b>${name}</b></div><div class="mut">no hourly data yet</div>`;rcWire(el);return}
   const W=560,H=210,L=52,Rt=12,T=12,B=30, t0=d.t0, t1=d.t[d.t.length-1];
   const lo=Math.min(...d.p), hi=Math.max(...d.p), pad=(hi-lo)*.08||hi*.05;
   const y0=lo-pad, y1=hi+pad, X=t=>L+(t-t0)/(Math.max(1,t1-t0))*(W-L-Rt), Y=p=>T+(1-(p-y0)/(y1-y0))*(H-T-B);
@@ -25,12 +32,13 @@ function draw(iid, name, el=pop){
   const nd=Math.ceil((t1-t0)/86400), st=Math.max(1,Math.ceil(nd/7)); let di=0;
   for(let t=dd/1000;t<t1;t+=86400,di++){if(di%st)continue; days+=`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" class="dl"/><text x="${X(t)+3}" y="${H-B+13}" class="ax">${new Date(t*1000).toLocaleDateString('en-US', nd>10?{timeZone:'America/Phoenix',month:'numeric',day:'numeric'}:{timeZone:'America/Phoenix',weekday:'short',month:'numeric',day:'numeric'})}</text>`}
   const med=d.med, path=d.t.map((t,i)=>`${i&&d.t[i-1]<t-43200?'M':i?'L':'M'}${X(t).toFixed(1)},${Y(d.p[i]).toFixed(1)}`).join('');
-  el.innerHTML=`<div class="ph"><b>${name}</b><span>now <b>${money(d.now||d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>
+  el.innerHTML=`${rcBtn(iid)}<div class="ph${RC[String(iid).replace(/^lk/,'')]?' hasrc':''}"><b>${name}</b><span>now <b>${money(d.now||d.p[d.p.length-1])}</b> &middot; usual ${money(med)} &middot; low <span class="dn">${money(lo)}</span> &middot; high <span class="up">${money(hi)}</span></span></div>
   <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${grid}${days}
    <line x1="${L}" x2="${W-Rt}" y1="${Y(med)}" y2="${Y(med)}" class="md"/><text x="${W-Rt}" y="${Y(med)-3}" class="ax" text-anchor="end">usual</text>
    <path d="${path}" class="ln"/><g id="hv" style="display:none"><line id="hx" y1="${T}" y2="${H-B}" class="hx"/><circle id="hc" r="4" class="hc"/></g>
    <rect x="${L}" y="${T}" width="${W-L-Rt}" height="${H-T-B}" fill="transparent" id="hit"/></svg>
   <div class="tip" id="tip">move along the line to read each hour${el!==pop?'':pinned?' &middot; click the name again or press Esc to close':' &middot; click the name to pin'}</div>`;
+  rcWire(el);
   const hit=el.querySelector('#hit'), hv=el.querySelector('#hv'), tip=el.querySelector('#tip'), svg=el.querySelector('svg');
   hit.addEventListener('mousemove',e=>{const r=svg.getBoundingClientRect(), x=(e.clientX-r.left)*W/r.width;
     let i=0,b=1e18; d.t.forEach((t,j)=>{const q=Math.abs(X(t)-x); if(q<b){b=q;i=j}});
@@ -56,6 +64,12 @@ document.addEventListener('click',e=>{if(pinned&&!pop.contains(e.target)&&!e.tar
 const ART={'Flip list':['🔄','#2f81f7','#0b2a5e'],'Top daily movers':['📈','#2ea043','#0b3318'],
   'Potential manipulation':['🕵️','#a371f7','#2a1556'],'Cooldowns':['⏳','#e3b341','#4a3205'],
   'Raid consumables':['🐉','#f85149','#4a0d0c'],'Cooking':['🍖','#f0883e','#4a2208'],'Top crafts':['⚒️','#8b949e','#1c2128'],'1-150, 150-300 Profession Kits':['🧰','#39c5cf','#0b3a3e'],"Likely all you’ll use this for":['🔍','#58a6ff','#102a4c'],'Cool utility items':['🧨','#d2a8ff','#3a1d5c'],'Durotar Supply and Logistics':['📦','#e3b341','#4a3205']};
+// button order (search stays first)
+const ORDER=['Raid consumables','Durotar Supply and Logistics','Top crafts','Cooldowns','1-150, 150-300 Profession Kits','Cooking',
+  'Top daily movers','Flip list','Potential manipulation','Cool utility items'];
+(()=>{const secs=[...document.querySelectorAll('.wrap > section')], nm=s=>((s.querySelector(':scope > .sh h2')||{}).textContent||'').trim();
+  let at=secs.find(s=>nm(s).startsWith('Likely all')); if(!at)return;
+  ORDER.forEach(n=>{const s=secs.find(x=>nm(x)===n); if(s){at.after(s); at=s}})})();
 let openSet=[]; try{openSet=JSON.parse(localStorage.getItem('open')||'[]')}catch(e){}
 document.querySelectorAll('.wrap > section').forEach(sec=>{
   const sh=sec.querySelector(':scope > .sh'); if(!sh)return;
@@ -149,6 +163,16 @@ body{padding:18px}
 .wrap{max-width:1500px;margin:0 auto}
 [data-iid]{cursor:pointer;text-decoration:underline dotted #7d8692;text-underline-offset:2px}
 [data-iid]:hover{color:#58a6ff}
+#lkchart{position:relative}.ph.hasrc{padding-right:84px}
+.rcw{position:absolute;top:8px;right:10px;z-index:3}
+.rcb{font:700 11px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.03em;color:#0b1a2e;cursor:pointer;padding:5px 11px;border-radius:5px;
+ border:1px solid #2f81f7;background:linear-gradient(180deg,#8cc4ff 0%,#58a6ff 55%,#3b8ae6 100%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 0 rgba(0,0,0,.25),0 2px 4px rgba(0,0,0,.45);text-shadow:0 1px 0 rgba(255,255,255,.35)}
+.rcb:active{transform:translateY(1px);box-shadow:inset 0 2px 4px rgba(0,0,0,.4)}
+.rct{position:absolute;right:0;top:calc(100% + 6px);width:290px;max-width:calc(100vw - 40px);background:#0f1d33;border:1px solid #58a6ff;
+ border-radius:6px;padding:8px 10px;font:12px/1.45 "Segoe UI",system-ui,sans-serif;color:#e6e9ee;box-shadow:0 8px 24px rgba(0,0,0,.6);
+ opacity:0;transform:translateY(-8px);max-height:0;overflow:hidden;pointer-events:none;transition:opacity .2s ease,transform .25s ease,max-height .3s ease}
+.rct div{margin-top:3px}.rcw:hover .rct,.rcw.open .rct{opacity:1;transform:translateY(0);max-height:420px;pointer-events:auto}
 #pop{position:fixed;display:none;z-index:9;background:#161b22;border:1px solid #3a424d;color:#e6e9ee;border-radius:8px;
  box-shadow:0 8px 28px rgba(0,0,0,.6);padding:10px 12px;font:12px/1.4 "Segoe UI",system-ui,sans-serif;max-width:calc(100vw - 16px)}
 #pop svg,#lkchart svg{display:block;max-width:100%;height:auto;margin-top:6px}
@@ -232,6 +256,67 @@ def write_lookup(m, path):
     return path
 
 
+RECIPE_WORDS = ("Recipe", "Formula", "Pattern", "Plans", "Schematic", "Manual")
+
+
+def recipe_info(m):
+    """{crafted item id: recipe button data} - which recipe/formula teaches it, where to get it, its AH price.
+    Classic recipes: recipe_sources.json; Forever recipes: forever_recipes.json (+ DSL camp vendor list)."""
+    import csv
+    here = os.path.dirname(os.path.abspath(__file__))
+    ld = lambda n: json.load(open(os.path.join(here, n), encoding="utf-8"))
+    out = {}
+
+    def split(name):
+        for w in RECIPE_WORDS:
+            if name.startswith(w + ": "):
+                return w, name[len(w) + 2:]
+        return "Recipe", name
+
+    def ah(rid):
+        now = m.ah(rid)[0] or m.gear_now(rid)[0]
+        if now:
+            return f"{R.money(now) if hasattr(R, 'money') else now} listed now"
+        hist = m.series(rid) or m.series(rid, gear=True)
+        if hist:
+            h = max(0, round((m.last - hist[-1][0]) / 3600))
+            return f"last seen {h // 24}d ago" if h >= 48 else f"last seen {h}h ago"
+        return "not seen on AH 113 yet"
+
+    try:
+        dslv = {r["recipe"].lower(): r for r in csv.DictReader(open(os.path.join(here, "dsl_vendor.csv"), encoding="utf-8"), delimiter="|")}
+    except OSError:
+        dslv = {}
+    KIND = {"drop": "Drops from: ", "quest": "Quest reward: ", "far": "Vendor: ", "city": "Vendor: ", "rep": "Reputation vendor: ",
+            "alliance": "Alliance only - buy it on the AH. "}
+    for rid, r in ld("recipe_sources.json").items():
+        w, nm = split(r["name"])
+        oid = m.name_id.get(nm.lower())
+        if oid and oid not in out:
+            out[oid] = dict(w=w, n=R.esc(r["name"]), prof=r["prof"], sk=r.get("skill"),
+                            src=R.esc(KIND.get(r["kind"], "") + r["where"]), ah=ah(int(rid)), bop=False)
+    for rid, r in ld("forever_recipes.json").items():
+        w, nm = split(r["name"])
+        oid = r.get("out") or m.name_id.get(nm.lower())
+        if not oid or oid in out:
+            continue
+        v = dslv.get(nm.lower())
+        src = (f"Durotar Supply and Logistics camp (The Barrens, outside the Crossroads west gate): {v['standing']}, "
+               f"{v['favor']} Merchant&rsquo;s Favor") if v else "New in Forever - source not documented yet"
+        out[oid] = dict(w=w, n=R.esc(r["name"]), prof=r["prof"], sk=r.get("skill"), src=src, ah=ah(int(rid)), bop=bool(r.get("bop")))
+    for oid, rs in m.by_out.items():   # any other craft taught by a recipe item we know by name
+        if oid in out:
+            continue
+        nm = m.name(oid)
+        for w in RECIPE_WORDS:
+            rid = m.name_id.get(f"{w.lower()}: {nm.lower()}")
+            if rid:
+                out[oid] = dict(w=w, n=R.esc(f"{w}: {nm}"), prof=rs[0]["prof"], sk=None,
+                                src="Where it comes from isn&rsquo;t in our database yet", ah=ah(rid), bop=False)
+                break
+    return out
+
+
 def make(m, title, body, path):
     """Write the interactive web page for this report body next to the PDF."""
     data = {}
@@ -257,6 +342,12 @@ def make(m, title, body, path):
         data[iid] = {"t0": t[0] * 3600, "t": [hours[t[i]][-1][2] for i in keep],
                      "p": [ps[i] for i in keep[:-1]] + [now],
                      "q": [hours[t[i]][-1][1] for i in keep], "med": med, "now": now}
+    rc = {}
+    try:
+        info = recipe_info(m)
+        rc = {i: info[i] for i in iids if i in info}
+    except Exception as e:   # never break the page over the recipe button
+        print("recipe button data skipped:", e)
     lookup = ('<section><div class="sh"><h2>Likely all you&rsquo;ll use this for</h2><span class="tag">search any item on AH 113 for its full price history</span></div>'
               '<div class="lk"><input id="lkq" type="search" placeholder="Type an item name, e.g. Black Lotus" autocomplete="off">'
               '<div class="mut" style="font-size:9px;margin-top:2px">every item seen on the Horde AH, plus every tradeable weapon, armor piece and recipe never listed &middot; <span id="lkst">loads when you tap the box</span></div>'
@@ -269,6 +360,7 @@ def make(m, title, body, path):
             f'<p class="hint">Tap a section to open it. Hover over (or tap) any item name for its full hour-by-hour price history; click to pin it open.</p>'
             f'{body}</div><div id="pop"></div>'
             f'<script type="application/json" id="series">{json.dumps(data, separators=(",", ":"))}</script>'
+            f'<script type="application/json" id="rcinfo">{json.dumps(rc, separators=(",", ":")).replace("</", "<"+chr(92)+"/")}</script>'
             f'<script>{JS}</script></body></html>')
     open(path, "w", encoding="utf-8").write(page)
     return path
