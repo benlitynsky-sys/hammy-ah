@@ -748,6 +748,20 @@ def ago(ts, now):
     return "this hour" if h == 0 else f"{h}h ago" if h < 48 else f"{h // 24}d ago"
 
 
+_CS = None
+
+
+def craft_skill():
+    """{recipe id: profession skill needed to learn it} - craft_skill.json (Forever + classic recipe items, trainers)."""
+    global _CS
+    if _CS is None:
+        try:
+            _CS = json.load(open(os.path.join(HERE, "craft_skill.json"), encoding="utf-8"))
+        except (OSError, ValueError):
+            _CS = {}
+    return _CS
+
+
 def craft_row(m, x):
     makes = f' <span class="mut">x{x["makes"]:g}</span>' if x["makes"] > 1 else ''
     if x["ls"]:
@@ -755,7 +769,8 @@ def craft_row(m, x):
     else:
         sold = f'<td class="r mut" title="no sale seen yet - using the cheapest listing">~{sm(x["price"])}</td>'
     vol = ('<td class="r mut" title="gear: Blizzard gives no sold count">gear</td>' + vnc(x["oid"])) if x["gear"] else vc(m, x["oid"])
-    return (f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{makes}</td>{sold}'
+    sk = f'<td class="r">{x["skill"]}</td>' if x.get("skill") else '<td class="r mut">-</td>'
+    return (f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{makes}</td>{sk}{sold}'
             f'<td class="r">{sm(x["now"])}</td><td class="r">{x["qty"]}</td>{vol}'
             f'<td class="r">{sm(x["cost"])}</td><td class="r"><b class="up">{sm(x["profit"])}</b></td>'
             f'<td class="mats">{R.esc(x["mats"])}</td></tr>')
@@ -823,6 +838,15 @@ def sec_recipe_guides(m):
                'copy of the recipe itself listed right now. Source: CMaNGOS classic database + Questie NPC zones; '
                'New in Forever = recipes added by Forever (Blizzard item data), listed even when none are on the AH.</div>') + out
     return out
+
+
+def dsl_section(m):
+    try:
+        import dsl
+        return dsl.sec_dsl(m, sm)
+    except Exception as e:   # the guide must never break the hourly report
+        print("DSL guide skipped:", e)
+        return ""
 
 
 UTIL_GROUPS = ("PvP tricks", "Getting around", "Camp, leveling & handy tools", "Just for fun")
@@ -911,7 +935,7 @@ def sec_crafts(m, shown=()):
         if profit <= 0:
             continue
         mats = ", ".join(f'{q:g} {n}' for _, n, q in r["reagents"])
-        cand.append(dict(oid=oid, prof=r["prof"], makes=r.get("qty") or 1, now=now, qty=qty, cost=cost, profit=profit, mats=mats, gear=gear, price=price, ls=ls))
+        cand.append(dict(skill=craft_skill().get(str(r["id"])), oid=oid, prof=r["prof"], makes=r.get("qty") or 1, now=now, qty=qty, cost=cost, profit=profit, mats=mats, gear=gear, price=price, ls=ls))
     best = {}
     for x in cand:   # one line per item, its most profitable recipe
         if x["oid"] not in best or best[x["oid"]]["profit"] < x["profit"]:
@@ -921,7 +945,7 @@ def sec_crafts(m, shown=()):
         byprof[x["prof"]].append(x)
     for v in byprof.values():
         v.sort(key=lambda x: -x["profit"])
-    head = ('<table class="g"><thead><tr><th>Makes</th><th class="r">Last sold (highest)</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
+    head = ('<table class="g"><thead><tr><th>Makes</th><th class="r" title="profession skill needed to learn the recipe">Skill needed</th><th class="r">Last sold (highest)</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
             '<th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>')
     out = ""
     for prof in sorted(byprof, key=lambda p: -byprof[p][0]["profit"]):   # profession with the best craft first
@@ -1321,7 +1345,7 @@ def build():
                    'and Artisan (from 200 at a trainer; 225 for First Aid from a book, 300 from a quest). Forever reworked some '
                    'recipes - check recipe colors at your trainer.</div>' + k300 if k300 else '')
                 + sec_campfire(m).replace('<span class="no">6</span>', '') + '</section>')
-        interactive.make(m, title, body + kits + sec_utility(m), market[:-4] + " Interactive.html")   # kits tile at the bottom of the web page
+        interactive.make(m, title, body + kits + dsl_section(m) + sec_utility(m), market[:-4] + " Interactive.html")   # kits tile at the bottom of the web page
     except Exception as e:
         print(f"interactive page failed: {e}")
     # profession routes: its own page
