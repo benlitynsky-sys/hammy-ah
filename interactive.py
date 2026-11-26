@@ -100,7 +100,7 @@ function loadLK(){ if(!LKP) LKP=fetch('lookup.json?v='+Date.now()).then(r=>r.jso
     LK.list=Object.entries(j.n).map(([id,n])=>[id,n,n.toLowerCase()]); const st=document.getElementById('lkst'); if(st)st.textContent=LK.list.length.toLocaleString()+' items ('+Object.keys(j.s).length.toLocaleString()+' seen listed)';});
   return LKP }
 function lkShow(id,name){
-  if(!LK.s[id]){document.getElementById('lkchart').innerHTML='<div class="sub"><b>'+name+'</b></div><div class="mut">Not listed on AH 113 since we started tracking it (gear from Nov 23, 2026). It can be sold on the AH - nobody has posted one yet.</div>';
+  if(!LK.s[id]){document.getElementById('lkchart').innerHTML='<div class="sub"><b>'+name+'</b></div><div class="mut">Not listed on the Horde PvP ruleset AH since we started tracking it (gear from Nov 23, 2026). It can be sold on the AH - nobody has posted one yet.</div>';
     document.getElementById('lkres').innerHTML=''; document.getElementById('lkq').value=name; return}
   const s=LK.s[id], h0=LK.h0, t=s.h.map(x=>(h0+x)*3600), last=t[t.length-1];
   const wk=s.p.filter((p,i)=>t[i]>=last-7*86400).sort((a,b)=>a-b);
@@ -281,7 +281,7 @@ def recipe_info(m):
         if hist:
             h = max(0, round((m.last - hist[-1][0]) / 3600))
             return f"last seen {h // 24}d ago" if h >= 48 else f"last seen {h}h ago"
-        return "not seen on AH 113 yet"
+        return "not seen on the Horde PvP ruleset AH yet"
 
     try:
         dslv = {r["recipe"].lower(): r for r in csv.DictReader(open(os.path.join(here, "dsl_vendor.csv"), encoding="utf-8"), delimiter="|")}
@@ -371,7 +371,7 @@ def make(m, title, body, path):
         rc = {i: info[i] for i in iids if i in info}
     except Exception as e:   # never break the page over the recipe button
         print("recipe button data skipped:", e)
-    lookup = ('<section><div class="sh"><h2>Likely all you&rsquo;ll use this for</h2><span class="tag">search any item on AH 113 for its full price history</span></div>'
+    lookup = ('<section><div class="sh"><h2>Likely all you&rsquo;ll use this for</h2><span class="tag">search any item on the Horde PvP ruleset AH for its full price history</span></div>'
               '<div class="lk"><input id="lkq" type="search" placeholder="Type an item name, e.g. Black Lotus" autocomplete="off">'
               '<div class="mut" style="font-size:9px;margin-top:2px">every item seen on the Horde AH, plus every tradeable weapon, armor piece and recipe never listed &middot; <span id="lkst">loads when you tap the box</span></div>'
               '<div id="lkres"></div><div id="lkchart"></div></div></section>')
