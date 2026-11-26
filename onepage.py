@@ -569,7 +569,7 @@ def sec_manip(m):
     if not rows:
         rows = '<tr><td colspan="8" class="mut">nothing looks bought out right now</td></tr>'
     return ('<section><div class="sh"><span class="no">3</span><h2>Potential manipulation</h2>'
-            '<span class="tag">cheap stock vanishing while the price climbs (all AH 113 goods worth 5s+)</span></div>'
+            '<span class="tag">cheap stock vanishing while the price climbs (all Horde PvP ruleset goods worth 5s+)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">Usual</th><th class="r">vs usual</th>'
             '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>'
