@@ -521,27 +521,15 @@ TOP_MANIP = 20
 
 
 def manip_flag(m, iid):
-    """'Manipulated' (fresh buyout, see Market.manipulated), 'Potential manipulation' (80%+ over its 3-day usual with
-    listings down 40%+) or None - the same test the Potential manipulation section uses."""
+    """'Manipulated' or None. Two patterns count (Hammy's rules):
+    - buyout + relist: the cheap stock is bought out, then MORE stock is posted at a much higher price (see relisted);
+    - crash & scoop on a high-volume mat (see crash_scoop).
+    Stock cleared and the price rising while listings STAY low is demand, not manipulation - no badge."""
     r = m.rows.get(iid)
     if not r or r[-1][0] < m.last - 2 * 3600:
         return None
-    hist = [x for x in r if x[0] >= m.last - 3 * 86400 and x[1]]
-    if len(hist) < 12:
-        return None
-    ps, qs = sorted(x[1] for x in hist), sorted(x[2] for x in hist)
-    usual, uq = ps[len(ps) // 2], qs[len(qs) // 2]
-    now, q = r[-1][1], r[-1][2]
-    if crash_scoop(m, iid):
+    if crash_scoop(m, iid) or relisted(m, iid):
         return "Manipulated"
-    if usual < MANIP_MIN or uq < 50 or iid in DURABLE_IDS(m):
-        return None
-    if now < 1.80 * usual:
-        return None
-    if m.manipulated(iid) or bought_out(r, usual, m.last):
-        return "Manipulated"
-    if q >= 20 and q < 0.6 * uq:
-        return "Potential manipulation"
     return None
 
 
@@ -592,6 +580,39 @@ def crash_scoop(m, iid):
     return res
 
 
+def relisted(m, iid):
+    """Buyout + relist in the last 2 days: the price sat near its weekly usual (under 1.3x) with 20+ listed, half or
+    more of the listings went in one hour (bought out), then within 6 hours the stock went back UP (1.5x the low point
+    after the buyout and 20+ more) while the price was 1.8x usual or more - the buyer reposting at their price. Stays
+    flagged while it's still 1.5x usual or more. Returns (buyout time, relist time, relist price, relist qty, usual) or None."""
+    if not hasattr(m, "_relist"):
+        m._relist = {}
+    if iid in m._relist:
+        return m._relist[iid]
+    m._relist[iid] = res = None
+    r = [x for x in m.rows.get(iid) or [] if x[1]]
+    if len(r) < 12 or iid in DURABLE_IDS(m):
+        return None
+    ps = sorted(x[1] for x in r)
+    usual = ps[len(ps) // 2]
+    if usual < MANIP_MIN or r[-1][1] < 1.5 * usual:
+        return None
+    w = [x for x in r if x[0] >= m.last - 2 * 86400]
+    for j in range(1, len(w)):
+        prev, cur = w[j - 1], w[j]
+        if not (prev[1] <= 1.3 * usual and prev[2] >= 20 and cur[2] <= 0.5 * prev[2]):
+            continue
+        after = [x for x in w[j:] if x[0] <= cur[0] + 6 * 3600]
+        lo = cur[2]
+        for x in after:
+            lo = min(lo, x[2])
+            if x[1] >= 1.8 * usual and x[2] >= max(1.5 * lo, lo + 20):
+                res = (cur[0], x[0], x[1], x[2], usual)
+                break
+    m._relist[iid] = res
+    return res
+
+
 def bought_out(r, usual, last):
     """A buyout in the last 2 days: the price sat near usual, half or more of the listings vanished in one hour, and
     within 3 hours the price was 1.8x usual or more (whether or not the buyer has relisted lots since)."""
@@ -605,8 +626,8 @@ def bought_out(r, usual, last):
 
 
 def sec_manip(m):
-    """Potential manipulation: cheap stock vanishing while the price climbs. Manipulated = over 2x usual with listings
-    under 40% of normal (someone bought it out). Watch = early signs: 30%+ over usual with listings under 60% of normal."""
+    """AH Manipulation: buyout + relist (relisted) and crash & scoop (crash_scoop). A price rising while stock stays
+    low is demand and is left out."""
     res = []
     for iid, r in m.rows.items():
         if not r or r[-1][0] < m.last - 2 * 3600:
@@ -624,11 +645,13 @@ def sec_manip(m):
             when = R.pacific(cr[0], fmt="%a {h}:%M %p")
             why = (f'crash &amp; scoop: dumped to {sm(cr[1])} {when} ({round(cr[1] / cr[2] * 100)}% of usual) so '
                    f'auto-posts undercut it, then the cheap stock was bought up - flagged until it sits near usual for 24h')
-        elif manip_flag(m, iid):   # 80%+ over usual with stock down 40%+
-            why = "bought out" if (m.manipulated(iid) or manip_flag(m, iid) == "Manipulated") else "cheap stock vanishing - watch"
+        elif relisted(m, iid):
+            rl = relisted(m, iid)
+            why = (f'bought out {R.pacific(rl[0], fmt="%a {h}:%M %p")}, then relisted: stock back up to {rl[3]:,} at '
+                   f'{sm(rl[2])} ({rl[2] / rl[4]:.1f}x usual) by {R.pacific(rl[1], fmt="{h}:%M %p")}')
         else:
             continue
-        res.append(dict(iid=iid, now=now, usual=usual, q=q, uq=uq, man=manip_flag(m, iid) == "Manipulated", why=why))
+        res.append(dict(iid=iid, now=now, usual=usual, q=q, uq=uq, man=True, why=why))
     res.sort(key=lambda x: (-x["man"], -abs(x["now"] / x["usual"] - 1)))
     rows = "".join(
         f'<tr><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}</td>'
@@ -639,14 +662,16 @@ def sec_manip(m):
         f'<td class="mut" style="font-size:11px">{x["why"]}</td></tr>'
         for x in res[:TOP_MANIP])
     if not rows:
-        rows = '<tr><td colspan="9" class="mut">nothing looks bought out right now</td></tr>'
+        rows = '<tr><td colspan="9" class="mut">nothing looks manipulated right now</td></tr>'
     return ('<section><div class="sh"><span class="no">3</span><h2>AH Manipulation</h2>'
-            '<span class="tag">cheap stock vanishing while the price climbs, or price crashes used to scoop up auto-undercut stock (all Horde PvP ruleset goods worth 5s+)</span></div>'
+            '<span class="tag">bought out then relisted higher, or fake price crashes used to scoop up auto-undercut stock (Horde PvP ruleset)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">Usual</th><th class="r">vs usual</th>'
             '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th>What happened</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>'
-            '<div class="fn"><span class="badge manip">Manipulated</span> over 2x usual with under 40% of the usual listings - '
-            'sell into it, don&rsquo;t buy, it usually falls back once people relist. Also given to a <b>crash &amp; scoop</b>: someone '
+            '<div class="fn"><span class="badge manip">Manipulated</span> <b>buyout + relist</b>: the cheap stock is bought out, then '
+            '<b>more</b> stock is posted at 1.8x usual or more within a few hours - the buyer reposting at their price. Sell into it, '
+            'don&rsquo;t buy; it stays flagged while it&rsquo;s still 1.5x usual or more. Not flagged: stock clears and the price rises '
+            'while listings <b>stay low</b> - that&rsquo;s real demand. Also given to a <b>crash &amp; scoop</b>: someone '
             'posts a pile of a high-volume mat (1,000+ usually listed, like Runecloth) at a silly low price, sellers&rsquo; auto-undercut posts follow it down, and they buy all the cheap stock - '
             'if you see a sudden crash on one of these, don&rsquo;t post into it. The badge stays until the price has been back near '
             'usual for 24 hours straight.</div></section>')
@@ -1440,8 +1465,8 @@ LEGEND = ('<div class="legend"><b>Badges</b> (price now vs its weekly usual): '
           '<span class="badge mdn">Moving down</span> 10-20% under &middot; '
           '<span class="badge mup">Moving up</span> 10-20% over &middot; '
           '<span class="badge sell">Sell</span> 20%+ over &middot; no badge = near usual<br>'
-          '<span class="badge manip">Manipulated</span> not a normal swing: someone bought out the cheap stock - the price is real now but '
-          'artificial; sell into it, don&rsquo;t buy (or a crash &amp; scoop: a fake price crash to buy up undercut stock - don&rsquo;t post into a sudden crash) &middot; '
+          '<span class="badge manip">Manipulated</span> bought out then relisted higher with more stock (a price rising while stock stays low is demand, not this) - '
+          'sell into it, don&rsquo;t buy (or a crash &amp; scoop: a fake price crash to buy up undercut stock - don&rsquo;t post into a sudden crash) &middot; '
           '<span class="badge cert">Certified flip</span> up &amp; down 3+ times this week</div>')
 
 
@@ -1470,7 +1495,7 @@ def stock_pick(m):
         now = m.ah(iid)[0]
         cs = clean(m, iid)
         sold = sold_day(m, iid) or 0
-        if not now or len(cs) < 48 or sold < PICK_MIN_SOLD or now < 2000 or manip_flag(m, iid) or m.manipulated(iid):
+        if not now or len(cs) < 48 or sold < PICK_MIN_SOLD or now < 2000 or manip_flag(m, iid):
             continue
         wk = [p for t, p in cs if t >= m.last - 7 * 86400]
         usual = statistics.median(wk)
