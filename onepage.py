@@ -24,6 +24,10 @@ PRICE_BADGES = [(1.20, "sell", "Sell"), (1.10, "mup", "Moving up"), (0.80, "buy"
 POT_DIP = 0.85         # Potential flip only when the price is at least 15% under its weekly usual
 FLIP_MIN = 4000          # 40s
 FLIP_SWING = 0.07        # a leg must be 7%+ to count (what a flip needs to beat the 5% cut)
+FLIP_MIN_LEGS = 4        # up-down-up-down over the week (no fixed days)
+FLIP_RECENT_H = 48       # and it turned within the last 2 days
+FLIP_PAY_SHARE = 2 / 3   # 2 of every 3 up-swings pay 5%+ after the cut
+FLIP_DRIFT = 1.25        # swing lows stay within 25% of each other (steady base)
 RAID_MAT_MIN = 500       # leave out materials under 5s (vials, spices, cheap fish)
 TOP_FLIPS = 20
 # One-time-buy items (tools) never go on the lists - their price only rises on stock buyouts:
@@ -242,6 +246,38 @@ def zig_legs(v, th):
     return n
 
 
+def zig_pivots(v, th):
+    """Turning points of the price, ignoring moves under th: [(index, price, +1 high / -1 low)], oldest first.
+    Each listed pivot is confirmed (the price has since moved th the other way); the last one is the open extreme."""
+    if not v:
+        return []
+    out, trend, ext, ei = [], 0, v[0], 0
+    lo_i = hi_i = 0
+    for i, p in enumerate(v[1:], 1):
+        if trend == 0:
+            if p < v[lo_i]:
+                lo_i = i
+            if p > v[hi_i]:
+                hi_i = i
+            if p >= v[lo_i] * (1 + th):
+                out.append((lo_i, v[lo_i], -1)); trend, ext, ei = 1, p, i
+            elif p <= v[hi_i] * (1 - th):
+                out.append((hi_i, v[hi_i], 1)); trend, ext, ei = -1, p, i
+        elif trend == 1:
+            if p > ext:
+                ext, ei = p, i
+            elif p <= ext * (1 - th):
+                out.append((ei, ext, 1)); trend, ext, ei = -1, p, i
+        else:
+            if p < ext:
+                ext, ei = p, i
+            elif p >= ext * (1 + th):
+                out.append((ei, ext, -1)); trend, ext, ei = 1, p, i
+    if trend:
+        out.append((ei, ext, trend))
+    return out
+
+
 # --------------------------------------------------------------------------- cooldown items
 
 ALWAYS_CD = {"Cured Rugged Hide"}   # always shown in Cooldowns, even at a loss
@@ -409,18 +445,25 @@ def sec_flips(m, skip, cols):
         v = [p for _, p in s]
         if len(v) < 15 or statistics.median(v) < FLIP_MIN:
             continue
-        # smooth each day over 3-hour windows so a lone one-hour blip can't pass as a swing
-        # full days only (12+ scans); a real up-and-down every day
-        days = [[statistics.median(d[max(0, i - 1):i + 2]) for i in range(len(d))] for d in by_day(s).values() if len(d) >= 12]
-        if len(days) < 2 or not all(zig_legs(d, FLIP_SWING) >= 2 for d in days):
+        # smooth over 3-hour windows so a lone one-hour blip can't pass as a swing, then look at the whole week as one
+        # line (not day by day): it has to keep going up-down-up-down, each swing 7%+, at a steady base price
+        ts = [t for t, _ in s]
+        sv = [statistics.median(v[max(0, i - 1):i + 2]) for i in range(len(v))]
+        pv = zig_pivots(sv, FLIP_SWING)
+        if len(pv) < FLIP_MIN_LEGS + 1:   # 4+ legs = up, down, up, down
             continue
-        day_lo, day_hi = [min(d) for d in days], [max(d) for d in days]
-        if not all(h * (1 - R.CUT) >= l * 1.05 for l, h in zip(day_lo, day_hi)):   # every day pays 5%+ after the cut, not one spike day
+        if ts[pv[-2][0]] < m.last - FLIP_RECENT_H * 3600:   # still swinging: a turn in the last 2 days
             continue
-        mids = [statistics.median(d) for d in days]
-        if max(mids) > 1.25 * min(mids):   # price drifting up or down day to day = a trend, not a flip
+        real = pv[1:]   # the first point is just where tracking starts, not a real turn
+        lows, highs = [p for _, p, k in real if k < 0], [p for _, p, k in real if k > 0]
+        if not lows or not highs:
             continue
-        lo, hi = statistics.median(day_lo), statistics.median(day_hi)   # a typical day, so one spike can't inflate it
+        ups = [(a[1], b[1]) for a, b in zip(real, real[1:]) if a[2] < 0]   # each low -> the high after it
+        if not ups or sum(h * (1 - R.CUT) >= l * 1.05 for l, h in ups) < FLIP_PAY_SHARE * len(ups):   # most swings pay 5%+ after the cut
+            continue
+        if max(lows) > FLIP_DRIFT * min(lows):   # the lows creeping up or sliding down = a trend, not a flip
+            continue
+        lo, hi = statistics.median(lows), statistics.median(highs)   # a typical swing, so one spike can't inflate it
         profit = hi * (1 - R.CUT) - lo
         if profit <= 0:
             continue
@@ -428,7 +471,7 @@ def sec_flips(m, skip, cols):
         if profit * stack < FLIP_STACK_MIN:
             continue
         now, qty = m.ah(iid)
-        res.append(dict(iid=iid, lo=lo, hi=hi, profit=profit, now=now, qty=qty, n=len(days), usual=statistics.median(v),
+        res.append(dict(iid=iid, lo=lo, hi=hi, profit=profit, now=now, qty=qty, n=len(pv) - 1, usual=statistics.median(v),
                         stack=stack, per_stack=profit * stack))
     for x in res:
         x["rank"], x["status"], x["streaks"] = flip_status(m, x["iid"], cols)
@@ -444,8 +487,10 @@ def sec_flips(m, skip, cols):
         pos = (x["now"] - x["lo"]) / max(1, x["hi"] - x["lo"]) if x["now"] else 0.5
         zone = "up" if pos <= 0.3 else "dn" if pos >= 0.7 else ""
         badge = x["badge"]
+        mf = manip_flag(m, x["iid"])
+        mb = f' <span class="badge manip">{mf}</span>' if mf else ''
         lists["low" if pos < 0.5 else "high"].append(
-            f'<tr class="row-{badge}"><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}{f' <span class="badge {badge}">{x["status"]}</span>' if badge else ''}</td><td class="r now {zone}">{sm(x["now"])}</td>'
+            f'<tr class="row-{badge}"><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}{f' <span class="badge {badge}">{x["status"]}</span>' if badge else ''}{mb}</td><td class="r now {zone}">{sm(x["now"])}</td>'
             f'<td class="r"><b>{R.chg(m.change_24h(x["iid"]))}</b></td><td class="r">{x["qty"]}</td>{vc(m, x["iid"])}'
             f'{hilo_cells(m, x["iid"], cols)}</tr>')
     empty = f'<tr><td colspan="{6 + 2 * len(cols)}" class="mut">Nothing right now.</td></tr>'
@@ -455,12 +500,31 @@ def sec_flips(m, skip, cols):
         out += (f'<h3 class="cg">{title} <span class="mut cgn">{note}</span></h3>'
                 f'<table class="g">{head}<tbody>' + ("".join(lists[k]) or empty) + '</tbody></table>')
     return ('<section><div class="sh"><span class="no">1</span><h2>Flip list</h2>'
-            '<span class="tag">40s+ each, 1g+ per stack, a real up &amp; down every day at a steady price</span></div>'
+            '<span class="tag">40s+ each, 1g+ per stack, keeps swinging up-down-up-down (7%+ swings, most paying 5%+ after the cut) at a steady base price - no fixed days</span></div>'
             + out + '</section>')
 
 
 MANIP_MIN = 500   # 5s usual price - ignore trash
 TOP_MANIP = 20
+
+
+def manip_flag(m, iid):
+    """'Manipulated' (fresh buyout, see Market.manipulated), 'Potential manipulation' (80%+ over its 3-day usual with
+    listings down 40%+) or None - the same test the Potential manipulation section uses."""
+    r = m.rows.get(iid)
+    if not r or r[-1][0] < m.last - 2 * 3600:
+        return None
+    hist = [x for x in r if x[0] >= m.last - 3 * 86400 and x[1]]
+    if len(hist) < 12:
+        return None
+    ps, qs = sorted(x[1] for x in hist), sorted(x[2] for x in hist)
+    usual, uq = ps[len(ps) // 2], qs[len(qs) // 2]
+    now, q = r[-1][1], r[-1][2]
+    if usual < MANIP_MIN or uq < 50 or q < 20 or iid in DURABLE_IDS(m):
+        return None
+    if now >= 1.80 * usual and q < 0.6 * uq:
+        return "Manipulated" if m.manipulated(iid) else "Potential manipulation"
+    return None
 
 
 def sec_manip(m):
@@ -478,7 +542,7 @@ def sec_manip(m):
         now, q = r[-1][1], r[-1][2]
         if usual < MANIP_MIN or uq < 50 or q < 20 or iid in DURABLE_IDS(m):
             continue
-        if now >= 1.80 * usual and q < 0.6 * uq:   # 80%+ over usual with stock down 40%+
+        if manip_flag(m, iid):   # 80%+ over usual with stock down 40%+
             res.append(dict(iid=iid, now=now, usual=usual, q=q, uq=uq, man=m.manipulated(iid)))
     res.sort(key=lambda x: (-x["man"], -x["now"] / x["usual"]))
     rows = "".join(
