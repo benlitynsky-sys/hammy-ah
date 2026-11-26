@@ -2,7 +2,7 @@
 """onepage.py - one-page Horde AH market report (WoW Forever, US, PvP ruleset, AH 113 only).
 
 Sections: 1 Raid consumables + their materials (daily high/low, last 7 days)
-          2 Flip list (items 40s+ that go up AND down every day, best flip profit first)
+          2 Flip list (items 1g+ that go up AND down every day, best flip profit first)
           3 Profession cooldowns (outputs, inputs, daily high/low)
           4 Cheapest 1-150 route per profession
 Writes output/Hammys <Morning|Mid Day|Evening> Market Report.pdf (by the time it's built), auto-shrinking until it fits on one letter page."""
@@ -23,7 +23,7 @@ HERE = R.HERE
 DAYS = 14   # day-by-day columns shown (data for these is kept in the working file; older days live in the archive)
 PRICE_BADGES = [(1.20, "sell", "Sell"), (1.10, "mup", "Moving up"), (0.80, "buy", "Buy"), (0.90, "mdn", "Moving down")]
 POT_DIP = 0.85         # Potential flip only when the price is at least 15% under its weekly usual
-FLIP_MIN = 4000          # 40s
+FLIP_MIN = 10000         # 1g each
 FLIP_SWING = 0.07        # a leg must be 7%+ to count (what a flip needs to beat the 5% cut)
 FLIP_MIN_LEGS = 4        # up-down-up-down over the week (no fixed days)
 FLIP_RECENT_H = 48       # and it turned within the last 2 days
@@ -512,7 +512,7 @@ def sec_flips(m, skip, cols):
         out += (f'<h3 class="cg">{title} <span class="mut cgn">{note}</span></h3>'
                 f'<table class="g">{head}<tbody>' + ("".join(lists[k]) or empty) + '</tbody></table>')
     return ('<section><div class="sh"><span class="no">1</span><h2>AH Deviation Watchlist</h2>'
-            '<span class="tag">40s+ each, 1g+ per stack, keeps swinging up-down-up-down (7%+ swings, most paying 5%+ after the cut) at a steady base price - no fixed days</span></div>'
+            '<span class="tag">1g+ each, keeps swinging up-down-up-down (7%+ swings, most paying 5%+ after the cut) at a steady base price - no fixed days</span></div>'
             + out + '</section>')
 
 
