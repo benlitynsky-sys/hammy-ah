@@ -83,9 +83,11 @@ document.querySelectorAll('.wrap > section').forEach(sec=>{
 // Item Lookup: search every named AH 113 item and draw its full price history (data loads on first use)
 let LK=null, LKP=null;
 function loadLK(){ if(!LKP) LKP=fetch('lookup.json?v='+Date.now()).then(r=>r.json()).then(j=>{LK=j;
-    LK.list=Object.entries(j.n).map(([id,n])=>[id,n,n.toLowerCase()]); const st=document.getElementById('lkst'); if(st)st.textContent=LK.list.length.toLocaleString()+' items';});
+    LK.list=Object.entries(j.n).map(([id,n])=>[id,n,n.toLowerCase()]); const st=document.getElementById('lkst'); if(st)st.textContent=LK.list.length.toLocaleString()+' items ('+Object.keys(j.s).length.toLocaleString()+' seen listed)';});
   return LKP }
 function lkShow(id,name){
+  if(!LK.s[id]){document.getElementById('lkchart').innerHTML='<div class="sub"><b>'+name+'</b></div><div class="mut">Not listed on AH 113 since we started tracking it (gear from Nov 23, 2026). It can be sold on the AH - nobody has posted one yet.</div>';
+    document.getElementById('lkres').innerHTML=''; document.getElementById('lkq').value=name; return}
   const s=LK.s[id], h0=LK.h0, t=s.h.map(x=>(h0+x)*3600), last=t[t.length-1];
   const wk=s.p.filter((p,i)=>t[i]>=last-7*86400).sort((a,b)=>a-b);
   D['lk'+id]={t0:t[0],t,p:s.p,q:s.q,med:wk[Math.floor(wk.length/2)]||s.p[0],now:s.p[s.p.length-1]};
@@ -217,6 +219,12 @@ def write_lookup(m, path):
     series.update(gear)
     h0 = min(min(v) for v in series.values())
     out = {"h0": h0, "n": {i: m.name(i) for i in series}, "g": sorted(gear), "s": {}}
+    try:   # every tradeable weapon / armor / recipe in the game, so items nobody has listed yet still turn up
+        for k, n in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "catalog.json"), encoding="utf-8")).items():
+            if int(k) not in series:
+                out["n"][int(k)] = n
+    except (OSError, ValueError):
+        pass
     for i, hrs in series.items():
         hs = sorted(hrs)
         out["s"][i] = {"h": [h - h0 for h in hs], "p": [int(hrs[h][0]) for h in hs], "q": [int(hrs[h][1] or 0) for h in hs]}
@@ -251,7 +259,7 @@ def make(m, title, body, path):
                      "q": [hours[t[i]][-1][1] for i in keep], "med": med, "now": now}
     lookup = ('<section><div class="sh"><h2>Likely all you&rsquo;ll use this for</h2><span class="tag">search any item on AH 113 for its full price history</span></div>'
               '<div class="lk"><input id="lkq" type="search" placeholder="Type an item name, e.g. Black Lotus" autocomplete="off">'
-              '<div class="mut" style="font-size:9px;margin-top:2px">every named item on the Horde AH &middot; <span id="lkst">loads when you tap the box</span></div>'
+              '<div class="mut" style="font-size:9px;margin-top:2px">every item seen on the Horde AH, plus every tradeable weapon, armor piece and recipe never listed &middot; <span id="lkst">loads when you tap the box</span></div>'
               '<div id="lkres"></div><div id="lkchart"></div></div></section>')
     body = body.replace("</header>", "</header>" + lookup, 1)   # search tile at the top
     write_lookup(m, os.path.join(os.path.dirname(path), "lookup.json"))
