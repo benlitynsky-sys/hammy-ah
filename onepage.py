@@ -334,6 +334,24 @@ def listed_day(m, iid, hours=168):
     return sum(new) / len(new) * 24
 
 
+def sold_today(m, iid):
+    """Best estimate of units sold since midnight PST: listings that vanished at or under the item's next cheapest
+    price (a buyer takes the cheapest first, so pricier ones that vanished were cancels). None if unknown."""
+    if not hasattr(m, "_today"):
+        mid = (m.last - 7 * 3600) // 86400 * 86400 + 7 * 3600   # midnight UTC-7
+        try:
+            m._today = dict(m.con.execute("SELECT item_id, SUM(qty) FROM sales WHERE ts >= ? GROUP BY item_id", (mid,)))
+            m._today_ok = bool(m.con.execute("SELECT 1 FROM sales WHERE ts >= ? LIMIT 1", (mid,)).fetchone())
+        except Exception:
+            m._today, m._today_ok = {}, False
+    return m._today.get(iid, 0) if m._today_ok else None
+
+
+def tc(m, iid):
+    v = sold_today(m, iid) if iid else None
+    return '<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>'
+
+
 def lc(m, iid):
     v = listed_day(m, iid)
     return '<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>'
@@ -364,9 +382,9 @@ def vnc(iid):
 
 
 def vc(m, iid):
-    """Sold/day (7d avg) cell plus the Vendor cell to its right."""
+    """Sold/day (7d avg) cell, Sold today cell, then the Vendor cell."""
     v = sold_day(m, iid)
-    return ('<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>') + vnc(iid)
+    return ('<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>') + tc(m, iid) + vnc(iid)
 
 
 TOP_MOVERS = 20
@@ -392,7 +410,7 @@ def sec_movers(m):
     return ('<section><div class="sh"><span class="no">2</span><h2>AH Most Active</h2>'
             '<span class="tag">most gold traded in the last 24 hours (estimated)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">24h</th><th class="r">Sold (24h)</th>'
-            '<th class="r">Gold traded (24h)</th><th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Listed/day (7d avg)</th></tr></thead>'
+            '<th class="r">Gold traded (24h)</th><th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th><th class="r">Listed/day (7d avg)</th></tr></thead>'
             f'<tbody>{rows}</tbody></table></section>')
 
 
@@ -444,7 +462,7 @@ def sec_raid(m, cols, skip):
             f'No listings yet: {R.esc(", ".join(unlisted))}.</div>')
     return (f'<section><div class="sh"><span class="no">5</span><h2>Raid consumables</h2>'
             f'<span class="tag">{R.esc(R.RAIDS)} - Dec 9, {days} days</span></div>'
-            f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("Listed/day (7d avg)", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, last)}<tbody>'
+            f'<table class="g">{thead([("Item", "nm"), ("Now", "r"), ("Listed/day (7d avg)", "r"), ("Sold/day (7d avg)", "r"), ("Sold today", "r"), ("Vendor", "r")], cols, last)}<tbody>'
             + "".join(rows(f"{g} - most sold first", ids) for g, ids in by_g.items() if ids)
             + f'{rows("Materials used in raid consumes - most sold first", mat_ids)}'
             f'</tbody></table>{note}</section>')
@@ -563,7 +581,7 @@ def sec_flips(m, skip, cols):
         if not x["badge"]:
             x["status"] = ""
     res.sort(key=lambda x: (-x["rank"], -x["per_stack"]))
-    head = thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, cols[-1])
+    head = thead([("Item", "nm"), ("Now", "r"), ("24h", "r"), ("Listed", "r"), ("Sold/day (7d avg)", "r"), ("Sold today", "r"), ("Vendor", "r")], cols, cols[-1])
     lists = {"low": [], "high": []}
     for x in res[:TOP_FLIPS]:
         pos = (x["now"] - x["lo"]) / max(1, x["hi"] - x["lo"]) if x["now"] else 0.5
@@ -575,7 +593,7 @@ def sec_flips(m, skip, cols):
             f'<tr class="row-{badge}"><td class="nm" data-iid="{x["iid"]}">{R.esc(m.name(x["iid"]))}{f' <span class="badge {badge}">{x["status"]}</span>' if badge else ''}{mb}</td><td class="r now {zone}">{sm(x["now"])}</td>'
             f'<td class="r"><b>{R.chg(m.change_24h(x["iid"]))}</b></td><td class="r">{x["qty"]}</td>{vc(m, x["iid"])}'
             f'{hilo_cells(m, x["iid"], cols)}</tr>')
-    empty = f'<tr><td colspan="{6 + 2 * len(cols)}" class="mut">Nothing right now.</td></tr>'
+    empty = f'<tr><td colspan="{7 + 2 * len(cols)}" class="mut">Nothing right now.</td></tr>'
     out = ""
     for k, title, note in (("low", "Priced low", "now in the bottom half of its usual daily range - buy here"),
                            ("high", "Priced high", "now in the top half of its usual daily range - sell here")):
@@ -587,14 +605,14 @@ def sec_flips(m, skip, cols):
         f'<td class="r">{g["cheap"]:,} <span class="mut">up to {sm(g["top"])}</span></td><td class="r">{sm(g["cost"])}</td>'
         f'<td class="r"><b>{sm(g["wall_p"])}</b> <span class="mut">({g["ratio"]:.1f}x)</span></td><td class="r">{g["wall"]:,}</td>'
         f'<td class="r">{g["total"]:,}</td>{lc(m, g["iid"])}'
-        + (f'<td class="r">{sold_day(m, g["iid"]):,.0f}</td>' if sold_day(m, g["iid"]) is not None else '<td class="r mut">-</td>')
+        + (f'<td class="r">{sold_day(m, g["iid"]):,.0f}</td>' if sold_day(m, g["iid"]) is not None else '<td class="r mut">-</td>') + tc(m, g["iid"])
         + f'<td class="r">{sm(g["usual"])}</td><td class="r">{sm(g["relist"])}</td><td class="r up">+{sm(g["gain"])}</td></tr>' for g in gs[:15])
     out += ('<h3 class="cg">Potential to be manipulated <span class="mut cgn">a few cheap ones sit under a big wall priced 1.5x+ higher - '
             'someone could buy the cheap ones and relist them just under the highest price it has actually sold at (after the 5% cut)</span></h3>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest</th><th class="r">Cheap ones</th><th class="r">Cost to buy them</th>'
-            '<th class="r">Next price up (gap)</th><th class="r">Listed there</th><th class="r">Total listed</th><th class="r">Listed/day (7d avg)</th><th class="r">Sold/day (7d avg)</th><th class="r">Usual</th>'
+            '<th class="r">Next price up (gap)</th><th class="r">Listed there</th><th class="r">Total listed</th><th class="r">Listed/day (7d avg)</th><th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Usual</th>'
             '<th class="r">Relist at (top sale)</th><th class="r">Buy + relist makes</th></tr></thead><tbody>'
-            + (grow or '<tr><td colspan="12" class="mut">No big price gaps right now.</td></tr>') + '</tbody></table>')
+            + (grow or '<tr><td colspan="13" class="mut">No big price gaps right now.</td></tr>') + '</tbody></table>')
     return ('<section><div class="sh"><span class="no">1</span><h2>AH Deviation Watchlist</h2>'
             '<span class="tag">1g+ each, keeps swinging up-down-up-down (7%+ swings, most paying 5%+ after the cut) at a steady base price - no fixed days</span></div>'
             + out + '</section>')
@@ -757,7 +775,7 @@ def sec_manip(m):
     return ('<section><div class="sh"><span class="no">3</span><h2>AH Manipulation</h2>'
             '<span class="tag">bought out then relisted higher, or fake price crashes used to scoop up auto-undercut stock (Horde PvP ruleset)</span></div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Now</th><th class="r">Usual</th><th class="r">vs usual</th>'
-            '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th>What happened</th></tr></thead>'
+            '<th class="r">Listed (of usual)</th><th class="r">Stock</th><th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th><th>What happened</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>'
             '<div class="fn"><span class="badge manip">Manipulated</span> <b>buyout + relist</b>: the cheap stock is bought out, then '
             '<b>more</b> stock is posted at 1.8x usual or more within a few hours - the buyer reposting at their price. Sell into it, '
@@ -784,12 +802,12 @@ def sec_campfire(m):
         price = f'{sm(now)} <span class="mut">({qty})</span>' if now else '<span class="mut">not listed</span>'
         name = f'<span data-iid="{iid}">{R.esc(item)}</span>' if iid and now else R.esc(item)
         return (f'<td><b>{name}</b> <span class="mut">{R.esc(where)}</span></td><td class="r">{price}</td>'
-                + (vc(m, iid) if iid else '<td class="r mut">-</td>' * 2))
+                + (vc(m, iid) if iid else '<td class="r mut">-</td>' * 3))
     rows = "".join(f'<tr><td class="nm">{p}</td>{cell(mid)}{cell(end)}</tr>' for p, mid, end in CAMP)
     return ('<section><div class="sh"><span class="no">6</span><h2>Campfire drops</h2>'
             '<span class="tag">camp features from dungeons - price now (listed)</span></div>'
-            '<table class="g"><thead><tr><th>Profession</th><th>Mid-level drop (skill 140)</th><th class="r">Now</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th>'
-            '<th>End-game drop (skill 300)</th><th class="r">Now</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th></tr></thead><tbody>' + rows + '</tbody></table>'
+            '<table class="g"><thead><tr><th>Profession</th><th>Mid-level drop (skill 140)</th><th class="r">Now</th><th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th>'
+            '<th>End-game drop (skill 300)</th><th class="r">Now</th><th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th></tr></thead><tbody>' + rows + '</tbody></table>'
             '<div class="fn">Placed at a campfire for an hourly group buff. Tradeable, so you can buy one instead of farming the boss. '
             'Mid / end-game split is by dungeon level.</div></section>')
 
@@ -851,7 +869,7 @@ def sec_cook_guide(m):
         pf = f'<b class="up">{sm(x["farm"])}</b>' if x["farm"] and x["farm"] > 0 else '<span class="mut">-</span>'
         return (f'<tr>{nm}<td class="r">{x["skill"]}</td><td>{R.esc(x["eff"]) or "<span class=mut>-</span>"}</td>'
                 f'<td>{R.esc(x["learn"])}</td><td class="r">{pf}</td>'
-                + (vc(m, x["oid"]) if x["oid"] else '<td class="r mut">-</td>' * 2) + '</tr>')
+                + (vc(m, x["oid"]) if x["oid"] else '<td class="r mut">-</td>' * 3) + '</tr>')
 
     def grp(title, rows):
         return f'<tr class="grp"><td colspan="7"><b>{title}</b></td></tr>' + "".join(tr(x) for x in rows) if rows else ""
@@ -864,7 +882,7 @@ def sec_cook_guide(m):
             '(Stranglethorn), Duhng (Barrens), Ortak Lomgok (Mount Hyjal), Gorg (Riverglades). Profit each = farm your own meat/fish. '
             'Sources: wow.gg and method.gg (Nov 2026).</div>'
             '<table class="g"><thead><tr><th>Recipe</th><th class="r">Skill</th><th>Buff / use</th><th>Where to get it</th>'
-            '<th class="r">Profit each</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th></tr></thead><tbody>'
+            '<th class="r">Profit each</th><th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th></tr></thead><tbody>'
             + grp("Drops", groups["drop"])
             + grp("Quests", groups["quest"])
             + grp("Faraway vendors", groups["far"])
@@ -899,7 +917,7 @@ def sec_cooking(m):
                    f'<td class="mats">{R.esc(x["mats"])}</td></tr>' for x in res[:TOP_COOK])
     return ('<section><div class="sh"><span class="no">6</span><h2>Cooking</h2>'
             f'<span class="tag">top {TOP_COOK} recipes by profit each, after the 5% cut</span></div>'
-            '<table class="g"><thead><tr><th>Makes</th><th class="r">Sells</th><th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th>'
+            '<table class="g"><thead><tr><th>Makes</th><th class="r">Sells</th><th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th>'
             '<th class="r">Farm mats</th><th class="r">Buy mats</th><th>Mats (* = farm or buy, rest from a vendor)</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>'
             '<div class="fn">Farm mats = profit if you gather the * mats yourself and only pay the vendor for spices etc. '
@@ -959,7 +977,7 @@ def craft_row(m, x):
         sold = f'<td class="r">{sm(x["price"])} <span class="mut">{ago(x["ls"][0], m.last)}</span></td>'
     else:
         sold = f'<td class="r mut" title="no sale seen yet - using the cheapest listing">~{sm(x["price"])}</td>'
-    vol = ('<td class="r mut" title="gear: Blizzard gives no sold count">gear</td>' + vnc(x["oid"])) if x["gear"] else vc(m, x["oid"])
+    vol = ('<td class="r mut" title="gear: Blizzard gives no sold count">gear</td>' + tc(m, x["oid"]) + vnc(x["oid"])) if x["gear"] else vc(m, x["oid"])
     sk = f'<td class="r">{x["skill"]}</td>' if x.get("skill") else '<td class="r mut">-</td>'
     return (f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{makes}</td>{sk}{sold}'
             f'<td class="r">{sm(x["now"])}</td><td class="r">{x["qty"]}</td>{vol}'
@@ -1137,7 +1155,7 @@ def sec_crafts(m, shown=()):
     for v in byprof.values():
         v.sort(key=lambda x: -x["profit"])
     head = ('<table class="g"><thead><tr><th>Makes</th><th class="r" title="profession skill needed to learn the recipe">Skill needed</th><th class="r">Last sold (highest)</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
-            '<th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>')
+            '<th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>')
     out = ""
     for prof in sorted(byprof, key=lambda p: -byprof[p][0]["profit"]):   # profession with the best craft first
         top = byprof[prof][:TOP_CRAFTS]
@@ -1203,7 +1221,7 @@ def sec_camp_cooking(m):
                     f'<td class="mats mut">{WOOD_NOTE.get(n, "")}</td></tr>')
     return ('<h3 class="sub">Campfire craftables</h3>'
             '<table class="g"><thead><tr><th>Makes</th><th class="r">Cooking</th><th class="r">Now</th><th class="r">Usual</th>'
-            '<th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit each</th><th>Mats</th></tr></thead>'
+            '<th class="r">Listed</th><th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit each</th><th>Mats</th></tr></thead>'
             f'<tbody>{"".join(rows)}{"".join(wood)}</tbody></table>'
             '<div class="fn">Profit each = AH price after the 5% cut minus buying the mats at today&rsquo;s cheapest. '
             'Thick Logs cost about 20g at cooking supply vendors - more than a kit sells for - so only AH logs under ~15g pay. '
@@ -1275,7 +1293,7 @@ def sec_cooldowns(m, cds, cols):
                         f'{hilo_cells(m, iid, cols)}</tr>')
     return ('<section><div class="sh"><span class="no">4</span><h2>Cooldowns</h2>'
             '<span class="tag">1g+ profit, best per day first - flip badges use the same rules as the flip list</span></div>'
-            f'<table class="g">{thead([("Makes / uses", "nm"), ("Now", "r"), ("Listed/day (7d avg)", "r"), ("Sold/day (7d avg)", "r"), ("Vendor", "r")], cols, last)}'
+            f'<table class="g">{thead([("Makes / uses", "nm"), ("Now", "r"), ("Listed/day (7d avg)", "r"), ("Sold/day (7d avg)", "r"), ("Sold today", "r"), ("Vendor", "r")], cols, last)}'
             '<tbody>' + "".join(rows) + '</tbody></table></section>')
 
 
@@ -1324,13 +1342,13 @@ def sec_plays(m):
         rows.append(f'<tr><td class="nm" data-iid="{iid}">{R.esc(h["name"])}</td><td class="r">{q:,}</td><td class="r">{sm(paid)}</td>'
                     f'<td class="r now">{sm(now) if now else "-"}</td><td class="r">{sm(usual) if usual else "-"}</td>'
                     f'<td class="r">{sm(even)}</td>{lc(m, iid)}'
-                    + (f'<td class="r">{sold_day(m, iid):,.0f}</td>' if sold_day(m, iid) is not None else '<td class="r mut">-</td>')
+                    + (f'<td class="r">{sold_day(m, iid):,.0f}</td>' if sold_day(m, iid) is not None else '<td class="r mut">-</td>') + tc(m, iid)
                     + f'<td class="r">{f"<b class={chr(34)}{"up" if pl >= 0 else "dn"}{chr(34)}>{"+" if pl >= 0 else "-"}{sm(abs(pl))}</b>" if pl is not None else "-"}</td>'
                     f'<td class="r">{sm(tgt) if tgt else "-"}{" <span class=mut>(usual)</span>" if h.get("target") == "usual" else ""}'
                     f'{f" &middot; {sm(great)}" if great else ""}</td>'
                     f'<td class="r mut">{when(h.get("bought_ts") or bought.get(iid))}</td></tr>')
     hold_t = ('<table class="g"><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Paid each</th><th class="r">Cheapest now</th>'
-              '<th class="r">Usual (7d)</th><th class="r">Break-even</th><th class="r">Posted/day (7d avg)</th><th class="r">Sold/day (7d avg)</th><th class="r">If sold now</th><th class="r">Sell alerts at</th>'
+              '<th class="r">Usual (7d)</th><th class="r">Break-even</th><th class="r">Posted/day (7d avg)</th><th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">If sold now</th><th class="r">Sell alerts at</th>'
               '<th class="r">Bought</th></tr></thead><tbody>'
               + ("".join(rows) or '<tr><td colspan="11" class="mut">not holding anything right now</td></tr>') + '</tbody></table>')
     hist = []
