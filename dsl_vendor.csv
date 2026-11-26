@@ -1,0 +1,309 @@
+prof|recipe|standing|favor
+Alchemy|Mender's Potion|Neutral|45
+Alchemy|Spellblasting Potion|Neutral|45
+Alchemy|Frenzy Potion|Neutral|45
+Alchemy|Dragonfire Potion|Friendly|120
+Alchemy|Caustic Smog Potion|Honored|180
+Alchemy|Potion of Venomous Blood|Honored|180
+Alchemy|Major Mender's Potion|Honored|180
+Alchemy|Potion of Elemental Purging|Honored|180
+Alchemy|Major Spellblasting Potion|Honored|180
+Alchemy|Major Frenzy Potion|Honored|240
+Alchemy|Elixir of Lesser Spirit|Neutral|45
+Alchemy|Lesser Mageblood Elixir|Neutral|45
+Alchemy|Elixir of Lesser Intellect|Neutral|45
+Alchemy|Lesser Cleric's Elixir|Neutral|45
+Alchemy|Lesser Arcane Elixir|Neutral|45
+Alchemy|Elixir of Greater Spirit|Friendly|120
+Alchemy|Greater Mageblood Elixir|Friendly|120
+Alchemy|Greater Cleric's Elixir|Friendly|120
+Alchemy|Elixir of Greater Fortitude|Friendly|120
+Alchemy|Elixir of the Phalanx|Honored|180
+Alchemy|Elixir of Cunning|Honored|180
+Alchemy|Elixir of Ferocity|Honored|180
+Alchemy|Elixir of Sages|Honored|180
+Alchemy|Elixir of the Whale|Honored|180
+Alchemy|Elixir of the Owl|Honored|180
+Alchemy|Elixir of Nature Power|Honored|180
+Alchemy|Elixir of Wicked Regeneration|Honored|180
+Alchemy|Elixir of the Grizzly|Honored|240
+Blacksmithing|Guard's Chain Belt|Neutral|30
+Blacksmithing|Guard's Gloves|Neutral|30
+Blacksmithing|Guard's Boots|Neutral|30
+Blacksmithing|Guard's Silvered Chain Helm|Neutral|30
+Blacksmithing|Guard's Silvered Chain Shirt|Neutral|30
+Blacksmithing|Guard's Silvered Chain Leggings|Neutral|30
+Blacksmithing|Sentinel's Gauntlet|Friendly|60
+Blacksmithing|Sentinel's Pauldrons|Friendly|60
+Blacksmithing|Sentinel's Wristguards|Honored|90
+Blacksmithing|Sentinel's Sabatons|Honored|90
+Blacksmithing|Sentinel's Waistguard|Honored|90
+Blacksmithing|Veteran's Chain Belt|Neutral|30
+Blacksmithing|Veteran's Gloves|Neutral|30
+Blacksmithing|Veteran's Boots|Neutral|30
+Blacksmithing|Veteran's Silvered Chain Helm|Neutral|30
+Blacksmithing|Veteran's Silvered Chain Shirt|Neutral|30
+Blacksmithing|Veteran's Silvered Chain Leggings|Neutral|30
+Blacksmithing|Officer's Gauntlet|Friendly|60
+Blacksmithing|Officer's Pauldrons|Friendly|60
+Blacksmithing|Officer's Wristguards|Honored|90
+Blacksmithing|Officer's Sabatons|Honored|90
+Blacksmithing|Officer's Waistguard|Honored|90
+Blacksmithing|Thorium Cestus|Honored|90
+Blacksmithing|Legionite Glaive|Honored|120
+Blacksmithing|Acolyte's Chain Belt|Neutral|30
+Blacksmithing|Acolyte's Gloves|Neutral|30
+Blacksmithing|Acolyte's Boots|Neutral|30
+Blacksmithing|Acolyte's Silvered Chain Helm|Neutral|30
+Blacksmithing|Acolyte's Silvered Chain Shirt|Neutral|30
+Blacksmithing|Acolyte's Silvered Chain Leggings|Neutral|30
+Blacksmithing|Prefect's Gauntlet|Friendly|60
+Blacksmithing|Prefect's Pauldrons|Friendly|60
+Blacksmithing|Prefect's Wristguards|Honored|90
+Blacksmithing|Prefect's Sabatons|Honored|90
+Blacksmithing|Prefect's Waistguard|Honored|90
+Blacksmithing|Protector's Chain Belt|Neutral|30
+Blacksmithing|Protector's Gloves|Neutral|30
+Blacksmithing|Protector's Boots|Neutral|30
+Blacksmithing|Protector's Silvered Chain Helm|Neutral|30
+Blacksmithing|Protector's Silvered Chain Shirt|Neutral|30
+Blacksmithing|Protector's Silvered Chain Leggings|Neutral|30
+Blacksmithing|Warder's Gauntlet|Friendly|60
+Blacksmithing|Warder's Pauldrons|Friendly|60
+Blacksmithing|Warder's Wristguards|Honored|90
+Blacksmithing|Warder's Sabatons|Honored|90
+Blacksmithing|Warder's Waistguard|Honored|90
+Blacksmithing|Enriched Thorium Breastplate|Honored|120
+Blacksmithing|Enriched Thorium Helm|Honored|120
+Blacksmithing|Enriched Thorium Leggings|Honored|120
+Blacksmithing|Crusader's Chain Belt|Neutral|30
+Blacksmithing|Crusader's Gloves|Neutral|30
+Blacksmithing|Crusader's Boots|Neutral|30
+Blacksmithing|Crusader's Silvered Chain Helm|Neutral|30
+Blacksmithing|Crusader's Silvered Chain Shirt|Neutral|30
+Blacksmithing|Crusader's Silvered Chain Leggings|Neutral|30
+Blacksmithing|Justicar's Gauntlet|Friendly|60
+Blacksmithing|Justicar's Pauldrons|Friendly|60
+Blacksmithing|Justicar's Wristguards|Honored|90
+Blacksmithing|Justicar's Sabatons|Honored|90
+Blacksmithing|Justicar's Waistguard|Honored|90
+Blacksmithing|Thorium Greatmace|Honored|90
+Cooking|Venomous Smoothie|Neutral|30
+Cooking|Slimy Smoothie|Neutral|30
+Cooking|Mrrggl Smrrthle|Neutral|30
+Cooking|Calcified Smoothie|Friendly|60
+Cooking|Spicy Smoothie|Friendly|60
+Cooking|Wicked Smoothie|Honored|90
+Enchanting|Enchant Necklace - Agility|Friendly|120
+Enchanting|Enchant Necklace - Deflection|Friendly|120
+Enchanting|Enchant Necklace - Healing Power|Friendly|120
+Enchanting|Enchant Necklace - Spell Power|Friendly|120
+Enchanting|Enchant Necklace - Strength|Friendly|120
+Enchanting|Enchant Weapon - Insight|Neutral|45
+Enchanting|Enchant Weapon - Recovery|Neutral|45
+Enchanting|Enchant Weapon - Revelation|Neutral|45
+Enchanting|Enchant 2H Weapon - Mighty Healing Power|Honored|240
+Enchanting|Enchant 2H Weapon - Mighty Spell Power|Honored|240
+Enchanting|Enchant 2H Weapon - Spellblasting|Honored|240
+Enchanting|Enchant Chest - Absorption|Friendly|120
+Enchanting|Enchant Bracer - Greater Spellpower|Honored|240
+Enchanting|Enchant Bracer - Superior Deflection|Honored|240
+Enchanting|Enchant Bracer - Superior Intellect|Honored|240
+Enchanting|Enchant Cloak - Agility|Honored|240
+Enchanting|Enchant Gloves - Arcane Power|Honored|240
+Enchanting|Enchant Gloves - Holy Power|Honored|240
+Enchanting|Enchant Gloves - Natural Power|Honored|240
+Enchanting|Enchant Gloves - Superior Strength|Honored|240
+Enchanting|Enchant Off-Hand - Wisdom|Honored|240
+Enchanting|Mystic Mushroom|Neutral|45
+Enchanting|Polished Driftwood Icon|Neutral|45
+Enchanting|Tenets of the Silver Hand|Neutral|45
+Enchanting|Libram of Invocation|Friendly|120
+Enchanting|Talons of Wrath|Friendly|120
+Enchanting|Totem of Ancestral Protection|Friendly|120
+Enchanting|Idol of the Dream|Honored|240
+Enchanting|Libram of Holy Alacrity|Honored|240
+Enchanting|Totem of Thunder|Honored|240
+Enchanting|Glimmering Staff|Neutral|45
+Enchanting|Orb of Mystic Insight|Neutral|45
+Enchanting|Orb of Souls|Neutral|45
+Enchanting|Soulstaff|Neutral|45
+Enchanting|Dreamstaff|Friendly|120
+Enchanting|Radiant Staff|Friendly|120
+Enchanting|Truesilver Conduit|Friendly|120
+Enchanting|Twisting Essence Jar|Friendly|120
+Enchanting|Brilliant Wand|Honored|180
+Engineering|SAF-T Dynamite|Neutral|45
+Engineering|SAF-T Copper Bomb|Neutral|45
+Engineering|EZ-Thro Copper Bomb XL|Neutral|45
+Engineering|Satchel of Copper Bombs|Neutral|45
+Engineering|Satchel of Bronze Bombs|Friendly|180
+Engineering|Satchel of Iron Bombs|Honored|270
+Engineering|Satchel of Dark Iron Bombs|Honored|270
+Engineering|Clanking Cord|Friendly|180
+Engineering|Gizmo Girdle|Friendly|180
+Engineering|Whimsical Waistwrap|Friendly|180
+Engineering|Bent Goggles|Friendly|180
+Engineering|Dented Goggles|Friendly|180
+Engineering|Floppy Goggles|Friendly|180
+Engineering|Stuckbutton Goggles|Friendly|180
+Engineering|Emergency Field Cloak|Honored|270
+Engineering|SAF-T Disposable Parachute|Honored|270
+Engineering|Gnomish Poultryizer|Honored|360
+Engineering|Compact Critter Carrier|Honored|270
+Engineering|Stealthman 52|Honored|360
+Engineering|Ultralight Goblin Glider|Honored|360
+Engineering|Ultrasafe Rechargeable Battery|Honored|360
+Engineering|SAF-T Tabs|Neutral|45
+Engineering|EZ-Thro Wrap|Neutral|45
+Engineering|No Slip SAF-T Padding|Neutral|45
+Engineering|SAF-T Bell|Friendly|180
+Engineering|EZ-Thro Fireproof Fuse|Friendly|180
+Leatherworking|Brawler's Leather Belt|Neutral|30
+Leatherworking|Brawler's Leather Gloves|Neutral|30
+Leatherworking|Brawler's Leather Boots|Neutral|30
+Leatherworking|Brawler's Leather Hood|Neutral|30
+Leatherworking|Brawler's Leather Tunic|Neutral|30
+Leatherworking|Brawler's Leather Legguards|Neutral|30
+Leatherworking|Prowler's Leather Gloves|Friendly|60
+Leatherworking|Skulker's Leather Gloves|Friendly|60
+Leatherworking|Prowler's Leather Shoulders|Friendly|60
+Leatherworking|Skulker's Leather Shoulders|Friendly|60
+Leatherworking|Prowler's Leather Bracers|Honored|90
+Leatherworking|Skulker's Leather Bracers|Honored|90
+Leatherworking|Prowler's Leather Boots|Honored|90
+Leatherworking|Skulker's Leather Boots|Honored|90
+Leatherworking|Prowler's Leather Waistguard|Honored|90
+Leatherworking|Skulker's Leather Waistguard|Honored|90
+Leatherworking|Defender's Leather Belt|Neutral|30
+Leatherworking|Defender's Leather Gloves|Neutral|30
+Leatherworking|Defender's Leather Boots|Neutral|30
+Leatherworking|Defender's Leather Hood|Neutral|30
+Leatherworking|Defender's Leather Tunic|Neutral|30
+Leatherworking|Defender's Leather Kilt|Neutral|30
+Leatherworking|Warden's Leather Gloves|Friendly|60
+Leatherworking|Warden's Leather Shoulders|Friendly|60
+Leatherworking|Warden's Leather Bracers|Honored|90
+Leatherworking|Warden's Leather Boots|Honored|90
+Leatherworking|Warden's Leather Waistguard|Honored|90
+Leatherworking|Trapper's Leather Belt|Neutral|30
+Leatherworking|Trapper's Leather Gloves|Neutral|30
+Leatherworking|Trapper's Leather Boots|Neutral|30
+Leatherworking|Trapper's Leather Hood|Neutral|30
+Leatherworking|Trapper's Leather Tunic|Neutral|30
+Leatherworking|Trapper's Leather Legguards|Neutral|30
+Leatherworking|Stalker's Leather Gloves|Friendly|60
+Leatherworking|Stalker's Mail Shoulders|Friendly|60
+Leatherworking|Stalker's Mail Bracers|Honored|90
+Leatherworking|Stalker's Mail Sabatons|Honored|90
+Leatherworking|Stalker's Mail Belt|Honored|90
+Leatherworking|Totemic Leather Belt|Neutral|30
+Leatherworking|Totemic Leather Gloves|Neutral|30
+Leatherworking|Totemic Leather Boots|Neutral|30
+Leatherworking|Totemic Leather Hood|Neutral|30
+Leatherworking|Totemic Leather Tunic|Neutral|30
+Leatherworking|Totemic Leather Leggings|Neutral|30
+Leatherworking|Skirmisher's Leather Gloves|Friendly|60
+Leatherworking|Skirmisher's Mail Shoulders|Friendly|60
+Leatherworking|Skirmisher's Mail Bracers|Honored|90
+Leatherworking|Skirmisher's Mail Sabatons|Honored|90
+Leatherworking|Skirmisher's Mail Belt|Honored|90
+Leatherworking|Stormrider's Leather Belt|Neutral|30
+Leatherworking|Stormrider's Leather Gloves|Neutral|30
+Leatherworking|Stormrider's Leather Boots|Neutral|30
+Leatherworking|Stormrider's Leather Hood|Neutral|30
+Leatherworking|Stormrider's Leather Tunic|Neutral|30
+Leatherworking|Stormrider's Leather Kilt|Neutral|30
+Leatherworking|Skycaller's Leather Gloves|Friendly|60
+Leatherworking|Skycaller's Leather Shoulders|Friendly|60
+Leatherworking|Skycaller's Mail Shoulders|Friendly|60
+Leatherworking|Skycaller's Leather Bracers|Honored|90
+Leatherworking|Skycaller's Mail Bracers|Honored|90
+Leatherworking|Skycaller's Leather Boots|Honored|90
+Leatherworking|Skycaller's Mail Sabatons|Honored|90
+Leatherworking|Skycaller's Leather Waistguard|Honored|90
+Leatherworking|Skycaller's Mail Belt|Honored|90
+Leatherworking|Wisdom's Leather Belt|Neutral|30
+Leatherworking|Wisdom's Leather Gloves|Neutral|30
+Leatherworking|Wisdom's Leather Boots|Neutral|30
+Leatherworking|Wisdom's Leather Hood|Neutral|30
+Leatherworking|Wisdom's Leather Tunic|Neutral|30
+Leatherworking|Wisdom's Leather Leggings|Neutral|30
+Leatherworking|Mender's Leather Gloves|Friendly|60
+Leatherworking|Mender's Leather Shoulders|Friendly|60
+Leatherworking|Mender's Mail Shoulders|Friendly|60
+Leatherworking|Mender's Leather Bracers|Honored|90
+Leatherworking|Mender's Mail Bracers|Honored|90
+Leatherworking|Mender's Leather Boots|Honored|90
+Leatherworking|Mender's Mail Sabatons|Honored|90
+Leatherworking|Mender's Leather Waistguard|Honored|90
+Leatherworking|Mender's Mail Belt|Honored|90
+Leatherworking|Forceful Thick Armor Kit|Friendly|60
+Leatherworking|Mystic Rugged Armor Kit|Honored|90
+Tailoring|Flame Boots|Neutral|30
+Tailoring|Flame Gloves|Neutral|30
+Tailoring|Flame Sash|Neutral|30
+Tailoring|Flame Circlet|Neutral|30
+Tailoring|Flame Gown|Neutral|30
+Tailoring|Flame Leggings|Neutral|30
+Tailoring|Fiery Handwraps|Friendly|60
+Tailoring|Netherflame Shoulders|Friendly|60
+Tailoring|Netherflame Cuffs|Friendly|60
+Tailoring|Fiery Waistcord|Friendly|60
+Tailoring|Fiery Sandals|Honored|90
+Tailoring|Silky Boots|Neutral|30
+Tailoring|Silky Gloves|Neutral|30
+Tailoring|Silky Sash|Neutral|30
+Tailoring|Silky Circlet|Neutral|30
+Tailoring|Silky Gown|Neutral|30
+Tailoring|Silky Leggings|Neutral|30
+Tailoring|Frothing Handwraps|Friendly|60
+Tailoring|Netherfroth Shoulders|Friendly|60
+Tailoring|Netherfroth Cuffs|Friendly|60
+Tailoring|Frothing Waistcord|Friendly|60
+Tailoring|Frothing Sandals|Honored|90
+Tailoring|Pearly Boots|Neutral|30
+Tailoring|Pearly Gloves|Neutral|30
+Tailoring|Pearly Sash|Neutral|30
+Tailoring|Pearly Circlet|Neutral|30
+Tailoring|Pearly Gown|Neutral|30
+Tailoring|Pearly Leggings|Neutral|30
+Tailoring|Golden Handwraps|Friendly|60
+Tailoring|Nethershine Shoulders|Friendly|60
+Tailoring|Nethershine Cuffs|Friendly|60
+Tailoring|Golden Waistcord|Friendly|60
+Tailoring|Golden Sandals|Honored|90
+Tailoring|Shadow Boots|Neutral|30
+Tailoring|Shadow Gloves|Neutral|30
+Tailoring|Shadow Sash|Neutral|30
+Tailoring|Shadow Circlet|Neutral|30
+Tailoring|Shadow Gown|Neutral|30
+Tailoring|Shadow Leggings|Neutral|30
+Tailoring|Black Handwraps|Friendly|60
+Tailoring|Netherpearl Shoulders|Friendly|60
+Tailoring|Netherpearl Cuffs|Friendly|60
+Tailoring|Black Waistcord|Friendly|60
+Tailoring|Black Sandals|Honored|90
+Tailoring|Shining Boots|Neutral|30
+Tailoring|Shining Gloves|Neutral|30
+Tailoring|Shining Sash|Neutral|30
+Tailoring|Shining Circlet|Neutral|30
+Tailoring|Shining Gown|Neutral|30
+Tailoring|Shining Leggings|Neutral|30
+Tailoring|Radiant Handwraps|Friendly|60
+Tailoring|Netherlight Shoulders|Friendly|60
+Tailoring|Netherlight Cuffs|Friendly|60
+Tailoring|Radiant Waistcord|Friendly|60
+Tailoring|Radiant Sandals|Honored|90
+Tailoring|Pristine Boots|Neutral|30
+Tailoring|Pristine Gloves|Neutral|30
+Tailoring|Pristine Sash|Neutral|30
+Tailoring|Pristine Circlet|Neutral|30
+Tailoring|Pristine Gown|Neutral|30
+Tailoring|Pristine Leggings|Neutral|30
+Tailoring|Nethergeld Shoulders|Friendly|60
+Tailoring|Nethergeld Cuffs|Friendly|60
+Tailoring|Gilded Waistcord|Friendly|60
+Tailoring|Gilded Sandals|Honored|90
+Tailoring|Mageweave Reagent Bag|Friendly|60
+Tailoring|Runecloth Reagent Bag|Friendly|60
