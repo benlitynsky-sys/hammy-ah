@@ -182,6 +182,41 @@
   "bop": true
  },
  {
+  "id": 260829,
+  "name": "EZ-Thro Magnetic Displacer",
+  "group": "PvP and combat tricks",
+  "what": "Use: Disrupt a magnetic field between you and your nearby enemy target, knocking you both away. Can only affect targets up to 2 levels higher than you. Some targets cannot be displaced. Targets can only be affected by this effect once every 2 min. (3 Min Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
+  "id": 260818,
+  "name": "EZ-Thro Mana Bomb",
+  "group": "PvP and combat tricks",
+  "what": "Use: Burns 675 to 1,125 mana from those in the blast radius and deals 50% of the mana drained in damage to the target. Also Silences targets in the blast for 5 sec. (1 Min Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
+  "id": 260817,
+  "name": "EZ-Thro Dark Bomb",
+  "group": "PvP and combat tricks",
+  "what": "Use: Inflicts 225 to 675 Fire damage and stuns targets in a 5 yd radius for 4 sec. Any damage will break the effect. (1 Min Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
+  "id": 260800,
+  "name": "Shafety Sheep",
+  "group": "PvP and combat tricks",
+  "what": "Use: Summons an Explosive Sheep which will charge at a nearby enemy and explode for 135 to 165 damage. Lasts for 3 min or until it explodes. (1 Min Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
+  "id": 260802,
+  "name": "EZ-Thro Bronze Mortar",
+  "group": "PvP and combat tricks",
+  "what": "Use: Inflicts 85 to 115 Fire damage and stuns targets in a 5 yd radius for 2 sec. Any damage will break the effect. (10 Min Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
   "id": 259890,
   "name": "Deep-Sea Waders",
   "group": "Getting around",
@@ -208,6 +243,55 @@
   "group": "Getting around",
   "what": "Use: Perform a Propellerstorm, reducing your fall speed for 15 sec and dealing 100% weapon damage to nearby enemies when you land. (15 Min Cooldown)",
   "bop": true
+ },
+ {
+  "id": 260828,
+  "name": "SAF-T Nitro Boosts",
+  "group": "Getting around",
+  "what": "Use: Activate a set of jets to increase your movement speed by up to 160%, for up to 8 sec. (3 Min Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
+  "id": 260810,
+  "name": "SAF-T Disposable Parachute",
+  "group": "Getting around",
+  "what": "Use: Reduces your fall speed for 10 sec. (30 Min Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
+  "id": 260830,
+  "name": "SAF-T Teleport",
+  "group": "Getting around",
+  "what": "Use: Teleport forward 20 yds. (3 Min Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
+  "id": 260819,
+  "name": "EZ-Thro Field Transporter: Gadgetzan",
+  "group": "Getting around",
+  "what": "Use: Safely transport yourself to Gadgetzan in Tanaris! Emphasis on Safe! Yup, nothing bad could ever happen while using this device! (4 Hr Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
+  "id": 260820,
+  "name": "SAF-T Emergency Ripper: Everlook",
+  "group": "Getting around",
+  "what": "Use: Rips the dimensional walls asunder and transports you to Everlook in Winterspring. There are technical problems that sometimes occur, but that's what Goblin Engineering is all about! (4 Hr Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
+  "id": 260821,
+  "name": "EZ and SAF Field Transporter: Mt. Hyjal",
+  "group": "Getting around",
+  "what": "Use: Rips the dimensional walls asunder and transports you to Kaylaena's Workshop on Mount Hyjal. Technical problems have a high chance to occur with this mad combination of goblin and gnomish engineering. (4 Hr Cooldown) (crafted - buy it on the AH)",
+  "bop": false
+ },
+ {
+  "id": 269902,
+  "name": "Hoof-Shaped Foot Pedal",
+  "group": "Getting around",
+  "what": "Use: Transform into a centaur for 20 min or until you enter combat. While in Desolace, your movement speed is also increased by 30% and this transformation persists through combat. (10 Min Cooldown) (crafted - buy it on the AH)",
+  "bop": false
  },
  {
   "id": 288900,
@@ -319,6 +403,13 @@
   "name": "Blooming Heart",
   "group": "Fun and toys",
   "what": "Use: They love me... (3 Sec Cooldown)",
+  "bop": false
+ },
+ {
+  "id": 269900,
+  "name": "Centaur Banner Deployment Device",
+  "group": "Fun and toys",
+  "what": "Toy: Deploy a banner representing your chosen faction in the Desolace centaur war for 5 min. (5 Min Cooldown) (crafted - buy it on the AH)",
   "bop": false
  }
 ]
