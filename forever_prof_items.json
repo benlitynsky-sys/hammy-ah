@@ -1,0 +1,758 @@
+[
+ {
+  "id": 279990,
+  "name": "Alchemy Laboratory",
+  "prof": "Alchemy",
+  "skill": null,
+  "bop": false,
+  "use_req": "Alchemy (300)",
+  "what": "Use: Places an Alchemy Laboratory usable for recipes that require it, and provides all of the benefits of a Mana Well. Requires a Campfire nearby. May be placed over a Mana Well to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279970,
+  "name": "Fermenter",
+  "prof": "Alchemy",
+  "skill": null,
+  "bop": false,
+  "use_req": "Alchemy (140)",
+  "what": "Use: Places a fermenter that allows the creation of certain reagents, and provides all of the benefits of a Mana Well. Requires a Campfire nearby. May be placed over a Mana Well to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 274273,
+  "name": "Flask of Natural Accuracy",
+  "prof": "Alchemy",
+  "skill": 300,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Increases your Stamina by 30. While in Mount Hyjal, Hyjal Summit, and the Barrow Deeps, you also gain 2% Hit Chance. Lasts for 2 hrs. You can only have the effect of one flask at a time. This effect persists through death. (3 Sec Cooldown)"
+ },
+ {
+  "id": 274274,
+  "name": "Flask of Natural Aggression",
+  "prof": "Alchemy",
+  "skill": 300,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Increases your Stamina by 30. While in Mount Hyjal, Hyjal Summit, and the Barrow Deeps, you also gain 2% Critical Strike Chance. Lasts for 2 hrs. You can only have the effect of one flask at a time. This effect persists through death. (3 Sec Cooldown)"
+ },
+ {
+  "id": 274275,
+  "name": "Flask of Natural Precision",
+  "prof": "Alchemy",
+  "skill": 300,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Increases your Stamina by 30. While in Mount Hyjal, Hyjal Summit, and the Barrow Deeps, you also gain 2% reduced chance to be dodged or parried. Lasts for 2 hrs. You can only have the effect of one flask at a time. This effect persists through death. (3 Sec Cooldown)"
+ },
+ {
+  "id": 274276,
+  "name": "Flask of Natural Swiftness",
+  "prof": "Alchemy",
+  "skill": 300,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Increases your Stamina by 30. While in Mount Hyjal, Hyjal Summit, and the Barrow Deeps, you also gain 2% Haste. Lasts for 2 hrs. You can only have the effect of one flask at a time. This effect persists through death. (3 Sec Cooldown)"
+ },
+ {
+  "id": 279956,
+  "name": "Mana Well",
+  "prof": "Alchemy",
+  "skill": null,
+  "bop": false,
+  "use_req": "Alchemy (20)",
+  "what": "Use: Constructs a mana well that allows you and others sitting nearby to regenerate 29 Mana every 5 sec, mutually exclusive with Blessing of Wisdom. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279988,
+  "name": "Anvil",
+  "prof": "Blacksmithing",
+  "skill": null,
+  "bop": false,
+  "use_req": "Blacksmithing (140)",
+  "what": "Use: Places an anvil, and provides all of the benefits of a Sharpening Wheel. Requires a Campfire nearby. May be placed over a Sharpening Wheel to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 285281,
+  "name": "Arcanite Blacksmith Hammer",
+  "prof": "Blacksmithing",
+  "skill": 270,
+  "bop": true,
+  "use_req": "Blacksmithing (270)",
+  "what": "Chance on hit: Stun the target for 1 sec."
+ },
+ {
+  "id": 279955,
+  "name": "Master Forge",
+  "prof": "Blacksmithing",
+  "skill": null,
+  "bop": false,
+  "use_req": "Blacksmithing (300)",
+  "what": "Use: Places a Master Forge usable for recipes that require it, and provides all of the benefits of a Sharpening Wheel. Requires a Campfire nearby. May be placed over a Sharpening Wheel to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 285280,
+  "name": "Mithril Blacksmith Hammer",
+  "prof": "Blacksmithing",
+  "skill": 195,
+  "bop": true,
+  "use_req": "Blacksmithing (195)",
+  "what": "Chance on hit: Concuss the target, slowing movement speed by 20% for 6 sec."
+ },
+ {
+  "id": 279944,
+  "name": "Sharpening Wheel",
+  "prof": "Blacksmithing",
+  "skill": null,
+  "bop": false,
+  "use_req": "Blacksmithing (20)",
+  "what": "Use: Constructs a sharpening wheel that grants you and others sitting nearby 34 increased Strength, mutually exclusive with Strength of Earth Totem. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279981,
+  "name": "Basic Campfire Kit",
+  "prof": "Cooking",
+  "skill": null,
+  "bop": false,
+  "use_req": "Cooking (1)",
+  "what": "Use: Builds a basic campfire that allows cooking and the placement of up to 3 additional camp features. Players sitting or crafting nearby for 1 min will gain benefits from other camp features. (5 Min Cooldown)"
+ },
+ {
+  "id": 279957,
+  "name": "Cookie's Feast",
+  "prof": "Cooking",
+  "skill": null,
+  "bop": false,
+  "use_req": "Cooking (140)",
+  "what": "Use: Lay out Cookie's Feast that contains Stamina-boosting food. Requires a Cooking Fire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279974,
+  "name": "Expert Campfire Kit",
+  "prof": "Cooking",
+  "skill": null,
+  "bop": false,
+  "use_req": "Cooking (220)",
+  "what": "Use: Builds an expert campfire that allows cooking and the placement of up to 10 additional camp features. Players sitting or crafting nearby for 1 min will gain benefits from other camp features. (5 Min Cooldown)"
+ },
+ {
+  "id": 279982,
+  "name": "Iron Oven",
+  "prof": "Cooking",
+  "skill": null,
+  "bop": false,
+  "use_req": "Cooking (300)",
+  "what": "Use: Places an Iron Oven required for the most advanced cooking recipes. Requires a Cooking Fire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279961,
+  "name": "Journeyman Campfire Kit",
+  "prof": "Cooking",
+  "skill": null,
+  "bop": false,
+  "use_req": "Cooking (90)",
+  "what": "Use: Builds a journeyman campfire that allows cooking and the placement of up to 5 additional camp features. Players sitting or crafting nearby for 1 min will gain benefits from other camp features. (5 Min Cooldown)"
+ },
+ {
+  "id": 251525,
+  "name": "Savory Whimsyfin Delight",
+  "prof": "Cooking",
+  "skill": 85,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Eat me. (10 Sec Cooldown)"
+ },
+ {
+  "id": 279987,
+  "name": "Arcane Forge",
+  "prof": "Enchanting",
+  "skill": null,
+  "bop": false,
+  "use_req": "Enchanting (300)",
+  "what": "Use: Places an Arcane Forge usable for recipes that require it, and provides all the benefits of an Enchanted Lute. Requires a Campfire nearby. May be placed over an Enchanted Lute to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279985,
+  "name": "Arcane Salvager",
+  "prof": "Enchanting",
+  "skill": null,
+  "bop": false,
+  "use_req": "Enchanting (140)",
+  "what": "Use: Places an Arcane Salvager that enables more efficient disenchanting, and provides all the benefits of an Enchanted Lute. Requires a Campfire nearby. May be placed over an Enchanted Lute to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 249473,
+  "name": "Dormant Heart of the Mountain",
+  "prof": "Enchanting",
+  "skill": 265,
+  "bop": true,
+  "use_req": null,
+  "what": "Equip: Your casts of Greater Heal, Healing Touch, Healing Wave, or Holy Light in combat grant up to 40 increased healing and up to 13 increased damage for 15 sec."
+ },
+ {
+  "id": 279976,
+  "name": "Enchanted Lute",
+  "prof": "Enchanting",
+  "skill": null,
+  "bop": false,
+  "use_req": "Enchanting (20)",
+  "what": "Use: Summons an enchanted lute that allows you and others sitting nearby to gain 308 Armor, 13 increase to all stats, and 22 increase to all resistances, mutually exclusive with Mark of the Wild. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 249469,
+  "name": "Frozen Heart of the Mountain",
+  "prof": "Enchanting",
+  "skill": 265,
+  "bop": true,
+  "use_req": null,
+  "what": "Use: Increases Frost and Shadow spell damage done by up to 29 for 15 sec. This effect is doubled in Snowy areas. (5 Min Cooldown)"
+ },
+ {
+  "id": 279250,
+  "name": "Idol of Swiftness",
+  "prof": "Enchanting",
+  "skill": 300,
+  "bop": false,
+  "use_req": null,
+  "what": "Equip: Reduces the cooldown of your Swiftmend spell by 3 sec."
+ },
+ {
+  "id": 279251,
+  "name": "Idol of the Ursine Twins",
+  "prof": "Enchanting",
+  "skill": 300,
+  "bop": false,
+  "use_req": null,
+  "what": "Equip: Your Lacerate hits have a 10% chance to reset the cooldown on Primal Bite."
+ },
+ {
+  "id": 249442,
+  "name": "Libram of Invocation",
+  "prof": "Enchanting",
+  "skill": 210,
+  "bop": true,
+  "use_req": null,
+  "what": "Equip: Reduces the mana cost of your Seal spells by 5%."
+ },
+ {
+  "id": 249470,
+  "name": "Molten Heart of the Mountain",
+  "prof": "Enchanting",
+  "skill": 265,
+  "bop": true,
+  "use_req": null,
+  "what": "Use: Increases Attack Power by 55 for 15 sec. This effect is doubled in Volcanic areas. (5 Min Cooldown)"
+ },
+ {
+  "id": 249396,
+  "name": "Mystic Mushroom",
+  "prof": "Enchanting",
+  "skill": 130,
+  "bop": true,
+  "use_req": null,
+  "what": "Equip: Increases Spirit by 5%."
+ },
+ {
+  "id": 249398,
+  "name": "Polished Driftwood Icon",
+  "prof": "Enchanting",
+  "skill": 130,
+  "bop": true,
+  "use_req": null,
+  "what": "Equip: Allows 8% of your Mana regeneration to continue while casting."
+ },
+ {
+  "id": 249441,
+  "name": "Talons of Wrath",
+  "prof": "Enchanting",
+  "skill": 210,
+  "bop": true,
+  "use_req": null,
+  "what": "Equip: Causes Wrath to have a 50% chance to restore 35 Mana."
+ },
+ {
+  "id": 249397,
+  "name": "Tenets of the Silver Hand",
+  "prof": "Enchanting",
+  "skill": 130,
+  "bop": true,
+  "use_req": null,
+  "what": "Equip: Increases your damage against Undead by 1%."
+ },
+ {
+  "id": 249443,
+  "name": "Totem of Ancestral Protection",
+  "prof": "Enchanting",
+  "skill": 210,
+  "bop": true,
+  "use_req": null,
+  "what": "Equip: Reduces the cooldown of Grounding Totem by 1 sec."
+ },
+ {
+  "id": 279989,
+  "name": "Anarchist's Workbench",
+  "prof": "Engineering",
+  "skill": null,
+  "bop": false,
+  "use_req": "Engineering (300)",
+  "what": "Use: Places an Anarchist's Workbench usable for recipes that require it. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 280311,
+  "name": "Bent Goggles",
+  "prof": "Engineering",
+  "skill": 200,
+  "bop": true,
+  "use_req": "Engineering (200)",
+  "what": "Use: Allows you to look far into the distance."
+ },
+ {
+  "id": 260807,
+  "name": "Compact Critter Carrier",
+  "prof": "Engineering",
+  "skill": 225,
+  "bop": false,
+  "use_req": "Engineering (225)",
+  "what": "Use: Place a Compact Critter Carrier for 3 min that allows Hunters in your group to access their stabled pets. (30 Min Cooldown)"
+ },
+ {
+  "id": 280313,
+  "name": "Dented Goggles",
+  "prof": "Engineering",
+  "skill": 200,
+  "bop": true,
+  "use_req": "Engineering (200)",
+  "what": "Use: Allows you to look far into the distance."
+ },
+ {
+  "id": 260823,
+  "name": "Dimensional Transporter - Mt. Hyjal",
+  "prof": "Engineering",
+  "skill": 300,
+  "bop": false,
+  "use_req": "Engineering (300)",
+  "what": "Use: Rips the dimensional walls asunder and transports you to Kaylaena's Workshop on Mount Hyjal. Technical problems have a high chance to occur with this mad combination of goblin and gnomish engineering. (4 Hr Cooldown)"
+ },
+ {
+  "id": 260795,
+  "name": "EZ-Thro Copper Bomb XL",
+  "prof": "Engineering",
+  "skill": 130,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Inflicts 43 to 57 Fire damage and stuns targets in a 5 yd radius for 1 sec. Any damage will break the effect. (1 Min Cooldown)"
+ },
+ {
+  "id": 260803,
+  "name": "EZ-Thro Grenade",
+  "prof": "Engineering",
+  "skill": 200,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Inflicts 213 to 287 Fire damage in a 5 yd radius. (1 Min Cooldown)"
+ },
+ {
+  "id": 260816,
+  "name": "EZ-Thro Thorium Grenade",
+  "prof": "Engineering",
+  "skill": 285,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Inflicts 300 to 500 Fire damage and stuns targets for 3 sec in a 3 yd radius. Any damage will break the effect. (1 Min Cooldown)"
+ },
+ {
+  "id": 260806,
+  "name": "Emergency Field Cloak",
+  "prof": "Engineering",
+  "skill": 225,
+  "bop": true,
+  "use_req": null,
+  "what": "Use: Gives invisibility for 10 sec. (1 Hr Cooldown)"
+ },
+ {
+  "id": 280310,
+  "name": "Floppy Goggles",
+  "prof": "Engineering",
+  "skill": 200,
+  "bop": true,
+  "use_req": "Engineering (200)",
+  "what": "Use: Allows you to look far into the distance."
+ },
+ {
+  "id": 260824,
+  "name": "Gnomish Poultryizer",
+  "prof": "Engineering",
+  "skill": 300,
+  "bop": true,
+  "use_req": null,
+  "what": "Use: Turns the target into a chicken for 15 sec. Well, that is assuming the transmogrification polarity has not been reversed... (5 Min Cooldown)"
+ },
+ {
+  "id": 277132,
+  "name": "Harvester Override Signalcaster",
+  "prof": "Engineering",
+  "skill": 65,
+  "bop": true,
+  "use_req": "Engineering (65)",
+  "what": "Use: Override control of the target mechanical creature for up to 3 min. The target will attack slower while under your control. Ineffective on targets above level 18. (3 Min Cooldown)"
+ },
+ {
+  "id": 260812,
+  "name": "Loot-A-Rang",
+  "prof": "Engineering",
+  "skill": 275,
+  "bop": false,
+  "use_req": "Engineering (250)",
+  "what": "Use: Retrieves the loot from a nearby corpse. (3 Sec Cooldown)"
+ },
+ {
+  "id": 279950,
+  "name": "Reagent Bot",
+  "prof": "Engineering",
+  "skill": null,
+  "bop": false,
+  "use_req": "Engineering (20)",
+  "what": "Use: Summons a Reagent Bot that allows you and others nearby to purchase reagents. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279949,
+  "name": "Repair Bot",
+  "prof": "Engineering",
+  "skill": null,
+  "bop": false,
+  "use_req": "Engineering (140)",
+  "what": "Use: Summons a Repair Bot that allows you and others nearby to buy reagents and repair gear. Requires a Campfire nearby. May be placed over a Reagent Bot to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 260805,
+  "name": "SAF-T Bomb",
+  "prof": "Engineering",
+  "skill": 215,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Inflicts 149 to 201 Fire damage and stuns targets in a 5 yd radius for 3 sec. Any damage will break the effect. (1 Min Cooldown)"
+ },
+ {
+  "id": 260797,
+  "name": "SAF-T Bronze Bomb",
+  "prof": "Engineering",
+  "skill": 145,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Inflicts 73 to 97 Fire damage and stuns targets in a 3 yd radius for 2 sec. Any damage will break the effect. (1 Min Cooldown)"
+ },
+ {
+  "id": 260814,
+  "name": "SAF-T Clever Dynamite",
+  "prof": "Engineering",
+  "skill": 275,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Inflicts 340 to 460 Fire damage in a 5 yd radius. (1 Min Cooldown)"
+ },
+ {
+  "id": 260793,
+  "name": "SAF-T Copper Bomb",
+  "prof": "Engineering",
+  "skill": 55,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Inflicts 22 to 28 Fire damage and stuns targets in a 3 yd radius for 1 sec. Any damage will break the effect. (1 Min Cooldown)"
+ },
+ {
+  "id": 260792,
+  "name": "SAF-T Dynamite",
+  "prof": "Engineering",
+  "skill": 25,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Inflicts 26 to 34 Fire damage in a 5 yd radius. (1 Min Cooldown)"
+ },
+ {
+  "id": 260798,
+  "name": "SAF-T Jumbo Dynamite",
+  "prof": "Engineering",
+  "skill": 150,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Inflicts 128 to 172 Fire damage in a 5 yd radius. (1 Min Cooldown)"
+ },
+ {
+  "id": 285276,
+  "name": "Satchel of Bronze Bombs",
+  "prof": "Engineering",
+  "skill": 165,
+  "bop": true,
+  "use_req": "Engineering (165)",
+  "what": "Equip: Thrown attacks explode on impact, causing 2 to 19 Fire damage to nearby enemies."
+ },
+ {
+  "id": 285275,
+  "name": "Satchel of Copper Bombs",
+  "prof": "Engineering",
+  "skill": 85,
+  "bop": true,
+  "use_req": "Engineering (85)",
+  "what": "Equip: Thrown attacks explode on impact, causing 1 to 11 Fire damage to nearby enemies."
+ },
+ {
+  "id": 285278,
+  "name": "Satchel of Dark Iron Bombs",
+  "prof": "Engineering",
+  "skill": 285,
+  "bop": true,
+  "use_req": "Engineering (285)",
+  "what": "Equip: Thrown attacks explode on impact, causing 4 to 37 Fire damage to nearby enemies."
+ },
+ {
+  "id": 285277,
+  "name": "Satchel of Iron Bombs",
+  "prof": "Engineering",
+  "skill": 230,
+  "bop": true,
+  "use_req": "Engineering (230)",
+  "what": "Equip: Thrown attacks explode on impact, causing 3 to 30 Fire damage to nearby enemies."
+ },
+ {
+  "id": 260827,
+  "name": "Stealthman 52",
+  "prof": "Engineering",
+  "skill": 300,
+  "bop": false,
+  "use_req": "Engineering (250)",
+  "what": "Use: Cloaks the user in a stealth field for up to 1 min. Cannot be used in combat. The field lasts for up to 6 sec after moving. (5 Min Cooldown)"
+ },
+ {
+  "id": 280312,
+  "name": "Stuckbutton Goggles",
+  "prof": "Engineering",
+  "skill": 200,
+  "bop": true,
+  "use_req": "Engineering (200)",
+  "what": "Use: Allows you to look far into the distance."
+ },
+ {
+  "id": 260809,
+  "name": "Tru-Trigger Frag Bomb",
+  "prof": "Engineering",
+  "skill": 240,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Inflicts 149 to 201 Fire damage and stuns targets in an 8 yd radius for 2 sec. Any damage will break the effect. (1 Min Cooldown)"
+ },
+ {
+  "id": 260825,
+  "name": "Ultralight Goblin Glider",
+  "prof": "Engineering",
+  "skill": 300,
+  "bop": false,
+  "use_req": "Engineering (250)",
+  "what": "Use: Glide downward through the air for 10 sec while controlling your direction of travel. (5 Min Cooldown)"
+ },
+ {
+  "id": 260822,
+  "name": "Ultrasafe Rechargeable Battery",
+  "prof": "Engineering",
+  "skill": 300,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Restores 3 charges to a SAF-T or EZ-Thro brand device in your possession that does not involve explosions. It would be completely Unsafe with explosives. (1 Min Cooldown)"
+ },
+ {
+  "id": 279968,
+  "name": "First Aid Kit",
+  "prof": "First Aid",
+  "skill": null,
+  "bop": false,
+  "use_req": "First Aid (20)",
+  "what": "Use: Unpacks a first aid kit that allows you and others sitting nearby to gain 56 increased Stamina, mutually exclusive with Power Word: Fortitude. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279951,
+  "name": "Plague Doctor's Laboratory",
+  "prof": "First Aid",
+  "skill": null,
+  "bop": false,
+  "use_req": "First Aid (300)",
+  "what": "Use: Places a Plague Doctor's Laboratory that contains healing potions and poultices, and provides all of the benefits of a First Aid Kit. Requires a Campfire nearby. May be placed over a First Aid Kit to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279940,
+  "name": "Toxin Study",
+  "prof": "First Aid",
+  "skill": null,
+  "bop": false,
+  "use_req": "First Aid (140)",
+  "what": "Use: Places a Toxin Study that contains healing potions and anti-venom, and provides all of the benefits of a First Aid Kit. Requires a Campfire nearby. May be placed over a First Aid Kit to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279967,
+  "name": "Fish Bowl",
+  "prof": "Fishing",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Places a small fish bowl that allows you and others sitting nearby to gain 8% increased stats, mutually exclusive with Blessing of Kings. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279966,
+  "name": "Fishing Hut",
+  "prof": "Fishing",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Places a Fishing Hut that grants the ability to catch rare fish for 1 hour, provides Fishing Skill lures, and provides all of the benefits of a Fish Bowl. Requires a Campfire nearby. May be placed over a Fish Bowl to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279965,
+  "name": "Fishing Rack",
+  "prof": "Fishing",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Places a Fishing Rack that grants the ability to catch uncommon fish for 1 hour, provides Fishing Skill lures, and provides all of the benefits of a Fish Bowl. Requires a Campfire nearby. May be placed over a Fish Bowl to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279964,
+  "name": "Greenhouse",
+  "prof": "Herbalism",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Places a Greenhouse that will grow herbs over time from seeds planted, and provides all of the benefits of an Incense Candle. Requires a Campfire nearby. May be placed over an Incense Candle to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279962,
+  "name": "Incense Candle",
+  "prof": "Herbalism",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Ignites an incense candle that allows you and others sitting nearby to gain 25 increased Intellect, mutually exclusive with Arcane Intellect. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279947,
+  "name": "Seed Hybridizer",
+  "prof": "Herbalism",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Places a Seed Hybridizer that allows seeds to be multiplied or combined into rarer tiers, and provides all of the benefits of an Incense Candle. Requires a Campfire nearby. May be placed over an Incense Candle to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279978,
+  "name": "Camp Tent",
+  "prof": "Leatherworking",
+  "skill": null,
+  "bop": false,
+  "use_req": "Leatherworking (20)",
+  "what": "Use: Builds a tent that allows you and others sitting nearby to increase Rested experience to 5% of a level. No effect if Rested experience already exceeds that value. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279945,
+  "name": "Sewing Machine",
+  "prof": "Leatherworking",
+  "skill": null,
+  "bop": false,
+  "use_req": "Leatherworking (300)",
+  "what": "Use: Places a Sewing Machine usable for recipes that require it, and provides all of the benefits of a Camp Tent. Requires a Campfire nearby. May be placed over a Camp Tent to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279941,
+  "name": "Tanning Rack",
+  "prof": "Leatherworking",
+  "skill": null,
+  "bop": false,
+  "use_req": "Leatherworking (125)",
+  "what": "Use: Places a Tanning Rack that allows the creation of certain reagents, and provides all of the benefits of a Camp Tent. Requires a Campfire nearby. May be placed over a Camp Tent to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279960,
+  "name": "Lodestone",
+  "prof": "Mining",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Erects a lodestone that allows you and others sitting nearby to gain 90 increased melee Attack Power, mutually exclusive with Blessing of Might. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279952,
+  "name": "Molten Foundry",
+  "prof": "Mining",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Places a Molten Foundry usable for recipes that require it, and provides all the benefits of a Lodestone. Requires a Campfire nearby. May be placed over a Lodestone to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279948,
+  "name": "Rock Garden",
+  "prof": "Mining",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Places a Rock Garden that spawns a common mining node over time, and provides all the benefits of a Lodestone. Requires a Campfire nearby. May be placed over a Lodestone to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279979,
+  "name": "Camp Chair",
+  "prof": "Skinning",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Assembles a camp chair that allows you and others sitting nearby to gain 2% increased critical strike chance with all spells and attacks, mutually exclusive with Moonkin Aura. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279969,
+  "name": "Field Guide",
+  "prof": "Skinning",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Places a Field Guide that allows players to read it and gain Track Beasts, and provides all the benefits of a Camp Chair. Requires a Campfire nearby. May be placed over a Camp Chair to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279938,
+  "name": "Trapper's Workbench",
+  "prof": "Skinning",
+  "skill": null,
+  "bop": false,
+  "use_req": null,
+  "what": "Use: Places a Trapper's Workbench containing 1 trap, and provides all the benefits of a Camp Chair. Requires a Campfire nearby. May be placed over a Camp Chair to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279972,
+  "name": "Faction Banner",
+  "prof": "Tailoring",
+  "skill": null,
+  "bop": false,
+  "use_req": "Tailoring (20)",
+  "what": "Use: Unrolls a banner that allows you and other members of the Horde sitting nearby to gain 32 increased Spirit, mutually exclusive with Divine Spirit. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279973,
+  "name": "Faction Banner",
+  "prof": "Tailoring",
+  "skill": null,
+  "bop": false,
+  "use_req": "Tailoring (20)",
+  "what": "Use: Unrolls a banner that allows you and other members of the Alliance sitting nearby to gain 32 increased Spirit, mutually exclusive with Divine Spirit. Requires a Campfire nearby. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279959,
+  "name": "Loom",
+  "prof": "Tailoring",
+  "skill": null,
+  "bop": false,
+  "use_req": "Tailoring (300)",
+  "what": "Use: Places a Loom usable for recipes that require it, and provides all the benefits of a Faction Banner. Requires a Campfire nearby. May be placed over a Faction Banner to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ },
+ {
+  "id": 279943,
+  "name": "Spinning Wheel",
+  "prof": "Tailoring",
+  "skill": null,
+  "bop": false,
+  "use_req": "Tailoring (140)",
+  "what": "Use: Places a Spinning Wheel that allows the creation of certain reagents, and provides all the benefits of a Faction Banner. Requires a Campfire nearby. May be placed over a Faction Banner to replace it. All camping features share a cooldown of 1 hour. (1 Hr Cooldown)"
+ }
+]
