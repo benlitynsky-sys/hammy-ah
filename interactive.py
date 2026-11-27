@@ -340,6 +340,20 @@ def recipe_info(m):
                 out[oid] = dict(w=w, n=R.esc(f"{w}: {nm}"), prof=rs[0]["prof"], sk=None,
                                 src="Where it comes from isn&rsquo;t in our database yet", ah=ah(rid), bop=False)
                 break
+    try:
+        trainer = {int(k): v for k, v in ld("trainer_crafts.json").items()}   # crafted item id -> trainer skill
+    except (OSError, ValueError):
+        trainer = {}
+    for oid, rs in m.by_out.items():   # no recipe item: trainer-taught, or a Forever recipe we can't place yet
+        r = rs[0]
+        if oid in out or str(r.get("category") or "").upper() == "SEASON OF DISCOVERY" or oid >= 190000:
+            continue
+        if oid in trainer:
+            out[oid] = dict(w="Recipe", n=R.esc(r["name"]), prof=r["prof"], sk=trainer[oid] or None,
+                            src=f"Taught by any {R.esc(r['prof'])} trainer - no recipe to buy", ah="", bop=False)
+        else:
+            out[oid] = dict(w="Recipe", n=R.esc(r["name"]), prof=r["prof"], sk=None,
+                            src="Where to learn it isn&rsquo;t in our database yet", ah="", bop=False)
     cds = {}
     try:
         for r in csv.DictReader(open(os.path.join(here, "recipes.csv"), encoding="utf-8")):
