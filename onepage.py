@@ -1409,7 +1409,7 @@ def kit_blocks(m, path="leveling.csv", mirror=False, label=""):
             else:
                 total += c * n
             mats = R.esc(", ".join(f"{q:g} {x}" for _, x, q in r["reagents"])) + "".join(f"<br>{R.esc(t)}" for t in nts)
-            cells = [f'<td class="r">{lo}-{hi}</td>', f'<td{" class=r" if mirror else ""}><b>{R.esc(nm)}</b><div class="mut">{mats}</div></td>',
+            cells = [f'<td class="r">{lo}-{hi}</td>', f'<td class="rcp{" r" if mirror else ""}"><b>{R.esc(nm)}</b><div class="mut">{mats}</div></td>',
                      f'<td class="r">x{n}</td>', f'<td class="r">{sm(c * n) if c is not None else "-"}</td>']
             rows.append("<tr>" + "".join(cells[::-1] if mirror else cells) + "</tr>")
         badge = f'<span class="badge kitp">{sm(total)}</span>'
@@ -1670,7 +1670,7 @@ def build():
                 ' &middot; campfire drops</span></div>'
                 '<div class="mut cgn">Left: 1-150 &middot; right: 150-300 (needs Expert from 125 at a trainer and Artisan from 200; '
                 'First Aid 225 from a book, 300 from a quest). Forever reworked some recipes - check recipe colors at your trainer.</div>'
-                '<style>.kitpair{display:flex;align-items:stretch;margin-top:14px}.kitpair>div{flex:1;min-width:0}'
+                '<style>.kitpair table.lv{width:100%}section.card .kitpair .g.lv td.rcp{white-space:normal;overflow-wrap:break-word;width:100%}section.card .kitpair .g.lv td:not(.rcp),section.card .kitpair .g.lv th{width:1%}.kitpair{display:flex;align-items:stretch;margin-top:14px}.kitpair>div{flex:1;min-width:0}'
                 '.kl{padding-right:12px}.kr{padding-left:12px;border-left:2px solid #2a3038;text-align:right}'
                 '.kitlbl{font-size:11px;font-weight:700;letter-spacing:.06em;color:#39c5cf}'
                 '.mir .badge.kitp{margin-left:0;margin-right:6px}.mir .sh{justify-content:flex-end}.mir .sh h2{text-align:right}'
