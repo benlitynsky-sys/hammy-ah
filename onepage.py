@@ -355,6 +355,23 @@ def tc(m, iid):
     return '<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>'
 
 
+def mover_badge(m, iid):
+    """Blue M: a 'mover' - on average more sell per day than get posted per day (7-day averages)."""
+    if not hasattr(m, "_mover"):
+        m._mover = {}
+    if iid not in m._mover:
+        s, p = sold_day(m, iid), listed_day(m, iid)
+        m._mover[iid] = bool(s and p is not None and s > p)
+    return (' <span class="badge mv" title="Mover: more sell per day than get posted per day (7-day avg)">M</span>'
+            if m._mover[iid] else '')
+
+
+def add_movers(m, html):
+    """Put the blue M after every item name that qualifies."""
+    return re.sub(r'(<td class="nm[^"]*" data-iid="(\d+)">)([^<]*)',
+                  lambda x: x.group(1) + x.group(3) + ('' if 'badge mv' in x.group(0) else mover_badge(m, int(x.group(2)))), html)
+
+
 def lc(m, iid):
     v = listed_day(m, iid)
     return '<td class="r mut">-</td>' if v is None else f'<td class="r">{v:,.0f}</td>'
@@ -1470,7 +1487,7 @@ table.g{width:100%;border-collapse:collapse}
 .g .first{border-left:1px solid var(--rule)}
 .g .ar{font-size:.8em;margin-left:1px}
 .badge{border-radius:3px;padding:0 3px;font-weight:700;white-space:nowrap}
-.badge.cert{background:#1f6feb;color:#fff}.badge.pot{background:#0d2d5e;color:#79c0ff;box-shadow:inset 0 0 0 1px #388bfd}.badge.buy{background:#238636;color:#fff}.badge.sell{background:#da3633;color:#fff}.badge.mup{background:#db6d28;color:#fff}.badge.mdn{background:#d29922;color:#1b1300}.badge.tgt{background:#2ea043;color:#fff}.legend{margin:0 0 8px;padding:5px 8px;border:1px solid #2a3038;border-radius:6px;line-height:1.9}.badge.wait{background:#1f6feb;color:#fff}.row-wait td{background:#0f1d33}.badge.dip{background:#3a3220;color:#e3b341}.badge.nope{background:#2a3038;color:#9aa3ad}.badge.manip{background:#8957e5;color:#fff}.badge.kitp{display:inline-block;background:#238636;color:#fff;border-radius:4px;padding:1px 9px;margin-left:6px;font-size:.9em;vertical-align:1px;box-shadow:inset 0 0 0 1px #2ea043}.sub{font-size:1em;margin:8px 0 3px;color:var(--ink)}.badge.watch{background:#3d2a5c;color:#d2b8ff}
+.badge.mv{background:#2f81f7;color:#fff;padding:0 4px}.badge.cert{background:#1f6feb;color:#fff}.badge.pot{background:#0d2d5e;color:#79c0ff;box-shadow:inset 0 0 0 1px #388bfd}.badge.buy{background:#238636;color:#fff}.badge.sell{background:#da3633;color:#fff}.badge.mup{background:#db6d28;color:#fff}.badge.mdn{background:#d29922;color:#1b1300}.badge.tgt{background:#2ea043;color:#fff}.legend{margin:0 0 8px;padding:5px 8px;border:1px solid #2a3038;border-radius:6px;line-height:1.9}.badge.wait{background:#1f6feb;color:#fff}.row-wait td{background:#0f1d33}.badge.dip{background:#3a3220;color:#e3b341}.badge.nope{background:#2a3038;color:#9aa3ad}.badge.manip{background:#8957e5;color:#fff}.badge.kitp{display:inline-block;background:#238636;color:#fff;border-radius:4px;padding:1px 9px;margin-left:6px;font-size:.9em;vertical-align:1px;box-shadow:inset 0 0 0 1px #2ea043}.sub{font-size:1em;margin:8px 0 3px;color:var(--ink)}.badge.watch{background:#3d2a5c;color:#d2b8ff}
 .row-cert td{background:#0f1d33}.row-pot td{background:#2a2410}
 .g th.dh{text-align:center;border-left:1px solid var(--rule);border-bottom:none;color:var(--ink);text-transform:none;letter-spacing:0}
 .g .in{padding-left:9px;color:var(--ink2)}
@@ -1581,7 +1598,8 @@ LEGEND = ('<div class="legend"><b>Badges</b> (price now vs its weekly usual): '
           '<span class="badge sell">Sell</span> 20%+ over &middot; no badge = near usual<br>'
           '<span class="badge manip">Manipulated</span> bought out then relisted higher with more stock (a price rising while stock stays low is demand, not this) - '
           'sell into it, don&rsquo;t buy (or a crash &amp; scoop: a fake price crash to buy up undercut stock - don&rsquo;t post into a sudden crash) &middot; '
-          '<span class="badge cert">Certified flip</span> up &amp; down 3+ times this week</div>')
+          '<span class="badge cert">Certified flip</span> up &amp; down 3+ times this week &middot; '
+          '<span class="badge mv">M</span> mover: more sell per day than get posted per day (7-day avg)</div>')
 
 
 def header(title, last, extra):
@@ -1655,6 +1673,7 @@ def build():
     body = re.sub(r'(<td class="nm[^"]*" data-iid="(\d+)">.*?)(</td>)',   # "Manipulated" badge on bought-out items
                   lambda x: x.group(1) + (' <span class="badge manip">Manipulated</span>' if 'badge manip' not in x.group(1) and manip_flag(m, int(x.group(2))) == "Manipulated" else '')
                   + price_badge(m, int(x.group(2))) + x.group(3), body)   # price badges on every item in every section
+    body = add_movers(m, body)
     body = re.sub(r'<div class="fn">(?:(?!</?div).)*</div>', '', body, flags=re.S)   # no explanation notes under sections
     body = re.sub(r'<td class="(nm[^"]*)"([^>]*>(?:(?!</td>).)*?class="badge )',   # name cells with a badge may wrap so the badge isn't cut off
                   r'<td class="\1 hb"\2', body)
@@ -1677,7 +1696,7 @@ def build():
                 '@media(max-width:760px){.kitpair{flex-direction:column}.kl{padding-right:0}.kr{padding-left:0;border-left:0;'
                 'border-top:2px solid #2a3038;margin-top:10px;padding-top:6px}}</style>' + pairs
                 + sec_campfire(m).replace('<span class="no">6</span>', '') + '</section>')
-        interactive.make(m, title, body + kits + dsl_section(m) + sec_utility(m) + sec_plays(m), market[:-4] + " Interactive.html")
+        interactive.make(m, title, body + add_movers(m, kits + dsl_section(m) + sec_utility(m) + sec_plays(m)), market[:-4] + " Interactive.html")
         try:   # raid-prep pick for the Discord post
             pk = stock_pick(m)
             json.dump({k: v for k, v in pk.items() if k != "score"} if pk else {}, open(os.path.join(os.path.dirname(market), "pick.json"), "w"))
