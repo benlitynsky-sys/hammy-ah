@@ -68,10 +68,10 @@ document.addEventListener('click',e=>{if(pinned&&!pop.contains(e.target)&&!e.tar
 // each section becomes a beveled picture tile; tap it to open that section's tables
 const ART={'AH Deviation Watchlist':['🔄','#2f81f7','#0b2a5e'],'AH Most Active':['📈','#2ea043','#0b3318'],
   'AH Manipulation':['🕵️','#a371f7','#2a1556'],'Cooldowns':['⏳','#e3b341','#4a3205'],
-  'Raid consumables':['🐉','#f85149','#4a0d0c'],'Cooking':['🍖','#f0883e','#4a2208'],'Top crafts':['⚒️','#8b949e','#1c2128'],'1-150, 150-300 Profession Kits':['🧰','#39c5cf','#0b3a3e'],"Likely all you’ll use this for":['🔍','#58a6ff','#102a4c'],'New in Forever':['🧨','#d2a8ff','#3a1d5c'],'Durotar Supply and Logistics':['📦','#e3b341','#4a3205'],"Hammy's Plays":['🎯','#3fb950','#0d3a1a']};
+  'Raid consumables':['🐉','#f85149','#4a0d0c'],'Cooking':['🍖','#f0883e','#4a2208'],'Top crafts':['⚒️','#8b949e','#1c2128'],'1-150, 150-300 Profession Kits':['🧰','#39c5cf','#0b3a3e'],"Likely all you’ll use this for":['🔍','#58a6ff','#102a4c'],'New in Forever':['🧨','#d2a8ff','#3a1d5c'],'New Forever Crafts':['⚗️','#56d4dd','#0b3a3e'],'Durotar Supply and Logistics':['📦','#e3b341','#4a3205'],"Hammy's Plays":['🎯','#3fb950','#0d3a1a']};
 // button order (search stays first)
 const ORDER=['AH Most Active','AH Deviation Watchlist','AH Manipulation','Raid consumables','Durotar Supply and Logistics','Top crafts','Cooldowns','1-150, 150-300 Profession Kits','Cooking',
-  'New in Forever',"Hammy's Plays"];
+  'New in Forever',"Hammy's Plays",'New Forever Crafts'];
 (()=>{const secs=[...document.querySelectorAll('.wrap > section')], nm=s=>((s.querySelector(':scope > .sh h2')||{}).textContent||'').trim();
   let at=secs.find(s=>nm(s).startsWith('Likely all')); if(!at)return;
   ORDER.forEach(n=>{const s=secs.find(x=>nm(x)===n); if(s){at.after(s); at=s}})})();
