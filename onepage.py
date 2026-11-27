@@ -1088,14 +1088,9 @@ def sec_utility(m):
         items = json.load(open(os.path.join(HERE, "utility_items.json"), encoding="utf-8"))
     except (OSError, ValueError):
         return ""
-    rows = ""
-    for g in UTIL_GROUPS:
-        lst = [x for x in items if x["group"] == g]
-        if not lst:
-            continue
-        rows += f'<tr class="grp"><td colspan="5"><b>{R.esc(g)}</b> <span class="mut">{len(lst)}</span></td></tr>'
-        for x in lst:
-            iid = x["id"]
+    def price_cells(x):
+        iid = x["id"]
+        if True:
             now, qty = m.ah(iid)
             gear = not now
             if gear:
@@ -1111,14 +1106,36 @@ def sec_utility(m):
                 price = f'<td class="r mut">not listed <span title="last seen">({ago(hist[-1][0], m.last)})</span></td><td class="r">0</td>'
             else:
                 price = '<td class="r mut">not seen yet</td><td class="r">0</td>'
-            rows += (f'<tr><td class="nm" data-iid="{iid}">{R.esc(x["name"])}</td>{price}'
-                     f'<td class="r">{sm(usual) if usual and not x["bop"] else "-"}</td>'
-                     f'<td class="mats" style="white-space:normal;min-width:260px">{R.esc(x["what"])}</td></tr>')
+            return price + f'<td class="r">{sm(usual) if usual and not x["bop"] else "-"}</td>'
+
+    def row(x, extra=""):
+        return (f'<tr><td class="nm" data-iid="{x["id"]}">{R.esc(x["name"])}</td>{price_cells(x)}{extra}'
+                f'<td class="mats" style="white-space:normal;min-width:260px">{R.esc(x["what"])}</td></tr>')
+    rows = ""
+    for g in UTIL_GROUPS:
+        lst = [x for x in items if x["group"] == g]
+        if lst:
+            rows += f'<tr class="grp"><td colspan="5"><b>{R.esc(g)}</b> <span class="mut">{len(lst)}</span></td></tr>' + "".join(row(x) for x in lst)
+    prow = ""
+    try:   # every new-in-Forever craft with a Use or special passive effect, by profession - no other filters
+        prof = json.load(open(os.path.join(HERE, "forever_prof_items.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        prof = []
+    for pn in sorted({x["prof"] for x in prof}):
+        lst = [x for x in prof if x["prof"] == pn]
+        prow += f'<tr class="grp"><td colspan="6"><b>{R.esc(pn)}</b> <span class="mut">{len(lst)}</span></td></tr>' + "".join(
+            row(x, f'<td class="r">{R.esc(x["use_req"]) if x["use_req"] else "-"}</td>') for x in lst)
     return ('<section><div class="sh"><h2>New in Forever</h2><span class="tag">added in Forever, not in classic - anyone can get them, no profession needed</span></div>'
             '<div class="mut cgn">Hand-picked items added in WoW Forever (not in classic) that anyone can get - no crafting or '
             'profession skill - with cool Use abilities or passive effects. Ability text is from Blizzard&rsquo;s Forever item data.</div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
-            f'<th class="r">Usual (7d)</th><th>What it does</th></tr></thead><tbody>{rows}</tbody></table></section>')
+            f'<th class="r">Usual (7d)</th><th>What it does</th></tr></thead><tbody>{rows}</tbody></table>'
+            + (f'<h3 class="cg" style="margin-top:18px;text-align:center">New profession items</h3>'
+               '<div class="mut cgn">Every craft added in Forever that has a Use ability or a special passive effect, by the '
+               'profession that makes it - including ones that need a profession to use or bind on pickup.</div>'
+               '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
+               f'<th class="r">Usual (7d)</th><th class="r">Needs to use</th><th>What it does</th></tr></thead><tbody>{prow}</tbody></table>'
+               if prow else '') + '</section>')
 
 
 def sec_crafts(m, shown=()):
