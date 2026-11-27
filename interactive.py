@@ -321,14 +321,20 @@ def recipe_info(m):
         if oid and oid not in out:
             out[oid] = dict(w=w, n=R.esc(r["name"]), prof=r["prof"], sk=r.get("skill"),
                             src=R.esc(KIND.get(r["kind"], "") + r["where"]), ah=ah(int(rid)), bop=False)
+    try:
+        import wowhead_src
+        wh = wowhead_src.load()
+    except Exception:
+        wh = {}
     for rid, r in ld("forever_recipes.json").items():
         w, nm = split(r["name"])
         oid = r.get("out") or m.name_id.get(nm.lower())
         if not oid or oid in out:
             continue
         v = dslv.get(nm.lower())
+        whs = wh.get(int(rid))
         src = (f"Durotar Supply and Logistics camp (The Barrens, outside the Crossroads west gate): {v['standing']}, "
-               f"{v['favor']} Merchant&rsquo;s Favor") if v else "New in Forever - source not documented yet"
+               f"{v['favor']} Merchant&rsquo;s Favor") if v else (R.esc(whs[1]) if whs else "New in Forever - source not documented yet")
         out[oid] = dict(w=w, n=R.esc(r["name"]), prof=r["prof"], sk=r.get("skill"), src=src, ah=ah(int(rid)), bop=bool(r.get("bop")))
     for oid, rs in m.by_out.items():   # any other craft taught by a recipe item we know by name
         if oid in out:
