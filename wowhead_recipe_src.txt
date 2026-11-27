@@ -1,0 +1,211 @@
+# Wowhead WoW Forever (forever db, Nov 27 2026) - main source per recipe item, from its recipe list pages.
+# id or lo-hi | kind (drop/vendor/quest) | name @ zone id ; ...   (zone ids = Blizzard AreaTable; see ZONES in build)
+215149,215153,215155,215156,215163,215368,215383,215384,215429,215431,215432,215433|vendor|Ziri "The Wrench" Littlesprocket@721
+221336|vendor|Maximillian "The Greaser"@400
+229008,229009|vendor|Lokhtos Darkbargainer@1584
+236754|quest|Running Firewater@
+249475|drop|Dark Strand Cultist@
+249486,249489|quest|Mysterious Mysticism@405
+249487|drop|Boulderfist Magus@45
+249488|drop|Mage Hunter@405
+249511|drop|Firemane Scout@15
+249512|drop|Dustbelcher Ogre Mage@
+249513|drop|Hatecrest Sorceress@357
+249514|drop|Deadwood Gardener@361
+249515|drop|Muculent Ooze@490
+249516|drop|Spitelash Myrmidon@16
+249519|drop|Mor Grayhoof@1583
+249520|drop|Pyroguard Emberseer@1583
+249521|drop|Mother Smolderweb@1583
+249522|drop|Flamekin Torcher@46
+249523|drop|Spectral Tutor@2057
+249524|drop|Thuzadin Acolyte@2017
+249879|drop|Frostmane Seer@1
+249880|drop|Windshear Geomancer@406
+249881|drop|Torn Fin Oracle@267
+249882|drop|Woodpaw Mystic@357
+249883|drop|Marsh Oracle@8
+249884|drop|Deadwind Ogre Mage@41
+250173|vendor|Qia@618
+250175|drop|Monstrous Plaguebat@139
+250176|drop|Child of Tortolla@616
+250177|drop|Ghostfang Alpha@616
+250178|drop|Rabid Shardtooth@618
+250179|quest|@616
+250180|drop|Frostsaber Pride Watcher@618
+250181|drop|Venomhide Ravasaur@490
+250182|drop|Ashenvale Bear@331
+250183|drop|@16667
+250184|drop|Bloodfen Lashtail@15
+250185|drop|Young Stranglethorn Raptor@33;quest Changing Tastes@
+250186|drop|Lost One Cook@8
+250188|drop|Dire Condor@44
+250189|drop|Spitelash Enchantress@16
+250363|drop|Nether Sorceress@405
+250368|drop|Xavian Hellcaller@331
+250370|drop|Kolkar Centaur@405
+250382|drop|Bloodfury Harpy@406
+250385|drop|Shadethicket Oracle@331
+250389|drop|Galak Mauler@400
+250979,250985|quest|A New Need for Shadow Protection@405
+250980|drop|Spitelash Screamer@16
+250983|drop|Raging Rot Hide@130
+250986|drop|Northspring Roguefeather@357
+250992|drop|Vilebranch Witch Doctor@47
+250999|quest|@16
+251335|drop|Syndicate Watchman@267
+251336|drop|Skeletal Warrior@10
+251337|drop|Wrathtail Myrmidon@331
+251338|drop|Shadowhide Gnoll@44
+251339|drop|Grimtotem Bandit@400
+251385|drop|Screeching Roguefeather@400
+251386|drop|@45
+251387|drop|Slitherblade Naga@405
+251388|drop|Kurzen Jungle Fighter@33
+251389|drop|Dustbelcher Warrior@3
+251390,251458|quest|Big, No, MASSIVE Iron Axes@405
+251391|drop|Crushridge Ogre@36
+251393|drop|Daggerspine Sorceress@45
+251394|drop|Stonevault Shaman@3
+251395|drop|Naga Explorer@33
+251396|drop|Witherbark Sadist@47
+251397|drop|Southsea Pirate@440
+251438|drop|Highborne Lichling@16
+251439|drop|Dark Iron Lookout@51
+251440|drop|Deadwood Pathfinder@361
+251441|drop|Blood Elf Reclaimer@16
+251442|drop|Jadefire Betrayer@361
+251443|drop|Raging Owlbeast@618
+251444|drop|Plaguebat@139
+251445|drop|Scarlet Paladin@28
+251446|drop|@616
+251451|drop|Bloodaxe Veteran@1583
+251452|drop|Gordok Brute@2557
+251453|drop|Legashi Summoner@16554
+251454|drop|Gogger Rock Keeper@
+251455|drop|Dark Strand Enforcer@
+251456|drop|Bleakheart Hellcaller@331
+251457|drop|Saltstone Crystalhide@400
+251459|drop|Mirefin Coastrunner@15
+251460|quest|Step Two: More Rock@16591
+251461|drop|Stonevault Bonesnapper@3
+251462|drop|Woodpaw Mongrel@357
+251463|drop|Lost One Hunter@8
+251464|drop|Gordunni Brute@357
+251467|drop|Anvilrage Soldier@1584
+251468|quest|Back to the Grind@;vendor Pexmit@616
+251469,251470|vendor|Meilosh@361
+252761-252764,252826-252832|vendor|Granny Finespindle@1537
+252804|drop|Shadowhorn Stag@331
+252833|quest|Leather Technique@405
+252858|drop|Highborne Apparition@16
+252859|drop|Dark Iron Taskmaster@51
+252865|drop|Deadwood Shaman@361
+252866|drop|Deadwood Warrior@361
+252877,252933|quest|Leather for Inclement Weather@;vendor Pexmit@616
+252878|drop|Primal Ooze@490
+252879|drop|Entropic Beast@361
+252880|drop|Carrion Vulture@
+252881|drop|Scarlet Hunter@28
+252883|drop|Shadowsworn Thug@4;quest Leather Technique@
+252885|drop|Putrid Gargoyle@139
+252886|drop|Spitelash Battlemaster@16
+252887|drop|Flamekin Sprite@46
+252888|drop|Blackrock Soldier@46
+252889|drop|Sky Shadow@
+252890|drop|Winterfall Den Watcher@618
+252891|drop|Warpwood Treant@2557
+252892|drop|Gordok Ogre-Mage@357
+252893|drop|Blackmaw Druid@16554
+252894|drop|Eldreth Seether@2557
+252895|drop|Firebrand Invoker@1583
+252908|drop|Dunemaul Ogre@440
+252909|drop|Rage Scar Yeti@357
+252914|drop|Ravasaur@490
+252915|drop|Incendosaur@51
+252916|drop|Groddoc Thunderer@357
+252917|drop|Swamp Talker@8
+252926|drop|Jaedenar Adept@361
+252927|drop|Tar Creeper@490
+252928|drop|Shadowsworn Cultist@4
+252929|drop|@16
+252930|drop|Skeletal Sorcerer@28
+252931|drop|Shadowsworn Adept@4
+252932|drop|Spitelash Siren@16
+252934|drop|Unliving Mossflayer@139
+252935|drop|Plaguehound@139
+252936|drop|Deadwind Ogre Mage@41
+252937|drop|Crimson Battle Mage@2017
+252938|drop|@16667
+252939|drop|Blackhand Assassin@1583
+252940|drop|Spectral Researcher@2057
+253974,254682|quest|I Need a Tailor@405
+254000|drop|Gravelsnout Surveyor@400
+254014|drop|Witherbark Troll@45
+254016|drop|Slitherblade Sea Witch@405
+254018|drop|Bloodscalp Mystic@33
+254020|drop|Mirefin Murloc@15
+254022|drop|Saltscale Oracle@33
+254034|drop|Dustbelcher Mystic@3
+254074|drop|Haldarr Trickster@16
+254076|drop|Inferno Elemental@51
+254078|drop|Vilebranch Soothsayer@47
+254094|drop|Elder Rage Scar@357
+254120|drop|Skeletal Terror@28
+254122|drop|Suffering Highborne@618
+254124|quest|Threading a Solution@;vendor Pexmit@616
+254126|drop|Irontree Stomper@361
+254132|drop|Tortured Druid@1377
+254134,274415,274424|vendor|Dala Fairmaw@616
+254136|drop|Withered Protector@361
+254138|drop|Searing Ghoul@28
+254140|drop|Venom Belcher@2017
+254681|drop|Maraudine Stormer@405
+254684|drop|Firemane Flamecaller@15
+254685|drop|Glassweb Spider@51
+254686|drop|Hatecrest Serpent Guard@357
+255723|drop|Syndicate Mercenary@45
+255724|drop|Defias Enchanter@10
+255725|drop|Gordunni Shaman@357
+255726|drop|Shadowforge Tunneler@3
+255727|drop|Syndicate Sentry@36
+255728|drop|Lost One Muckdweller@8
+255729|quest|A Rest Without Pain@;vendor Pexmit@616
+255730|drop|Scarlet Trainee@796
+255731|quest|Transmuted Tincture@
+263511|quest|Restocking the Larders@
+263513|quest|Crab Season@
+264207|drop|Scarlet Scout@85
+264210|drop|Venture Co. Miner@33
+264212|drop|Boulderfist Shaman@45
+264213|drop|Shadowforge Geologist@1337
+264214|drop|Dark Iron Geologist@51
+264215|drop|Wastewander Thief@440
+264218|drop|Jade Ooze@47
+264219|drop|Dunemaul Brute@440
+264223|drop|Thaurissan Firewalker@46
+264224|drop|Firegut Ogre@46
+264225|drop|Deadwind Warlock@41
+264226|drop|Scourge Guard@139
+264227|drop|Abomination@139
+264228|drop|Jaedenar Legionnaire@361
+264229|drop|Spectral Tutor@2057
+264230|drop|Crimson Inquisitor@2017
+264231|drop|Blackmaw Headhunter@
+264233|quest|Itching for a Fixing@;vendor Pexmit@616
+269901,269903|quest|Gizmo for Warug@405
+273952-274019,276542-276545|vendor|Aisarra Nightmeadow@616
+274491|vendor|@405
+274972|quest|A Taste of the Sea@;vendor Fimbo Greasemitz@16591
+274977|quest|Paletusk Harvesting@16591
+275580-275585|vendor|Mishta@1377
+275586-275597|vendor|Aendel Windspear@1377
+275598-275603|vendor|Vargus@1377
+276928-276975|vendor|Vayn Moongaze@16593
+276976-276983|vendor|Sutara Plainstalker@215
+276984-276991|vendor|Archmage Alvareaux@16544
+277470|drop|Decrepit Harvester@85;quest Harvesting the Harvesters@
+277716|quest|Beasts of Thunder Ridge@
+284870|drop|Crushridge Warmonger@36
+284871|drop|@616
+286153|item|Recipe: Raw Plated Armorfish@41
