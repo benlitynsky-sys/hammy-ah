@@ -1131,7 +1131,7 @@ def sec_utility(m):
             '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
             f'<th class="r">Usual (7d)</th><th>What it does</th></tr></thead><tbody>{rows}</tbody></table>'
             + (f'<h3 class="cg" style="margin-top:18px;text-align:center">New profession items</h3>'
-               '<div class="mut cgn">Every craft added in Forever that has a Use ability or a special passive effect, by the '
+               '<div class="mut cgn">Crafts added in Forever for level 50+ (needs level 50+ or skill 250+) that have a Use ability or a special passive effect, by the '
                'profession that makes it - including ones that need a profession to use or bind on pickup.</div>'
                '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
                f'<th class="r">Usual (7d)</th><th class="r">Needs to use</th><th>What it does</th></tr></thead><tbody>{prow}</tbody></table>'
