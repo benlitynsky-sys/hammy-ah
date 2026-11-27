@@ -294,6 +294,13 @@
   "bop": false
  },
  {
+  "id": 8827,
+  "name": "Draught of Water Walking",
+  "group": "Getting around",
+  "what": "Use: Lets you walk on water for 30 min. (3 Sec Cooldown) (crafted - buy it on the AH; new Alchemy craft in Forever)",
+  "bop": false
+ },
+ {
   "id": 288900,
   "name": "Earthshaker",
   "group": "Weapons and gear with cool procs",
