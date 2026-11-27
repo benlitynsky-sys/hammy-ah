@@ -1111,11 +1111,16 @@ def sec_utility(m):
     def row(x, extra=""):
         return (f'<tr><td class="nm" data-iid="{x["id"]}">{R.esc(x["name"])}</td>{price_cells(x)}{extra}'
                 f'<td class="mats" style="white-space:normal;min-width:260px">{R.esc(x["what"])}</td></tr>')
-    rows = ""
+    crafted = lambda x: "(crafted" in x["what"]
+    made_by = lambda x: f'<td>{R.esc(", ".join(sorted({r["prof"] for r in m.by_out.get(x["id"], [])})) or "-")}</td>'
+    rows = crows = ""
     for g in UTIL_GROUPS:
-        lst = [x for x in items if x["group"] == g]
+        lst = [x for x in items if x["group"] == g and not crafted(x)]
         if lst:
             rows += f'<tr class="grp"><td colspan="5"><b>{R.esc(g)}</b> <span class="mut">{len(lst)}</span></td></tr>' + "".join(row(x) for x in lst)
+        lst = [dict(x, what=re.sub(r"\s*\(crafted[^)]*\)", "", x["what"])) for x in items if x["group"] == g and crafted(x)]
+        if lst:
+            crows += f'<tr class="grp"><td colspan="6"><b>{R.esc(g)}</b> <span class="mut">{len(lst)}</span></td></tr>' + "".join(row(x, made_by(x)) for x in lst)
     prow = ""
     try:   # every new-in-Forever craft with a Use or special passive effect, by profession - no other filters
         prof = json.load(open(os.path.join(HERE, "forever_prof_items.json"), encoding="utf-8"))
@@ -1129,7 +1134,12 @@ def sec_utility(m):
             '<div class="mut cgn">Hand-picked items added in WoW Forever (not in classic) that anyone can get - no crafting or '
             'profession skill - with cool Use abilities or passive effects. Ability text is from Blizzard&rsquo;s Forever item data.</div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
-            f'<th class="r">Usual (7d)</th><th>What it does</th></tr></thead><tbody>{rows}</tbody></table>'
+            f'<th class="r">Usual (7d)</th><th>What it does</th></tr></thead><tbody>{rows}</tbody></table></section>'
+            '<section><div class="sh"><h2>New Forever Crafts</h2><span class="tag">crafts and recipes added in Forever</span></div>'
+            + (f'<div class="mut cgn">Crafts added in Forever with cool Use abilities - anyone can use them, buy them on the AH.</div>'
+               '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
+               f'<th class="r">Usual (7d)</th><th>Made by</th><th>What it does</th></tr></thead><tbody>{crows}</tbody></table>'
+               if crows else '')
             + (f'<h3 class="cg" style="margin-top:18px;text-align:center">New profession items</h3>'
                '<div class="mut cgn">Crafts added in Forever for level 50+ (needs level 50+ or skill 250+) that have a Use ability or a special passive effect, by the '
                'profession that makes it - including ones that need a profession to use or bind on pickup.</div>'
