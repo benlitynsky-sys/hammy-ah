@@ -1061,7 +1061,7 @@ def dsl_section(m):
         return ""
 
 
-UTIL_GROUPS = ("PvP tricks", "Getting around", "Camp, leveling & handy tools", "Just for fun")
+UTIL_GROUPS = ["PvP and combat tricks", "Getting around", "Weapons and gear with cool procs", "Fun and toys"]
 
 
 def sec_utility(m):
@@ -1097,10 +1097,9 @@ def sec_utility(m):
             rows += (f'<tr><td class="nm" data-iid="{iid}">{R.esc(x["name"])}</td>{price}'
                      f'<td class="r">{sm(usual) if usual and not x["bop"] else "-"}</td>'
                      f'<td class="mats" style="white-space:normal;min-width:260px">{R.esc(x["what"])}</td></tr>')
-    return ('<section><div class="sh"><h2>Cool utility items</h2><span class="tag">gadgets, PvP tricks, travel and camp tools - '
-            'classic and new in Forever</span></div>'
-            '<div class="mut cgn">Hand-picked: items with fun or powerful Use effects, or high PvP value. Ability text is from '
-            'Blizzard&rsquo;s Forever item data. Tidal Charm and Orb of Deception are not in Forever&rsquo;s item list.</div>'
+    return ('<section><div class="sh"><h2>Cool utility items</h2><span class="tag">new in Forever only - no profession needed</span></div>'
+            '<div class="mut cgn">Hand-picked items added in WoW Forever (not in classic) that anyone can get - no crafting or '
+            'profession skill - with cool Use abilities or passive effects. Ability text is from Blizzard&rsquo;s Forever item data.</div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
             f'<th class="r">Usual (7d)</th><th>What it does</th></tr></thead><tbody>{rows}</tbody></table></section>')
 
