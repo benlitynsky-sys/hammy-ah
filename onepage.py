@@ -1097,7 +1097,7 @@ def sec_utility(m):
             rows += (f'<tr><td class="nm" data-iid="{iid}">{R.esc(x["name"])}</td>{price}'
                      f'<td class="r">{sm(usual) if usual and not x["bop"] else "-"}</td>'
                      f'<td class="mats" style="white-space:normal;min-width:260px">{R.esc(x["what"])}</td></tr>')
-    return ('<section><div class="sh"><h2>Cool utility items</h2><span class="tag">new in Forever only - no profession needed</span></div>'
+    return ('<section><div class="sh"><h2>New in Forever</h2><span class="tag">added in Forever, not in classic - anyone can get them, no profession needed</span></div>'
             '<div class="mut cgn">Hand-picked items added in WoW Forever (not in classic) that anyone can get - no crafting or '
             'profession skill - with cool Use abilities or passive effects. Ability text is from Blizzard&rsquo;s Forever item data.</div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
