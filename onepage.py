@@ -866,7 +866,17 @@ def sec_cook_guide(m):
     trainer teaches, or a vendor in a Horde city / starting zone sells, is left out."""
     src = list(csv.DictReader(open(os.path.join(HERE, "cooking_sources.csv"), encoding="utf-8"), delimiter="|"))
     groups = {k: [] for k in ("drop", "quest", "far", "favor", "alliance")}
+    try:   # Wowhead's Forever database beats the guides: the recipe item's real source (drop / vendor / quest)
+        import wowhead_src
+        wh = wowhead_src.load()
+        fr = json.load(open(os.path.join(HERE, "forever_recipes.json"), encoding="utf-8"))
+        wh_by_name = {r["name"][len("Recipe: "):].lower(): wh[int(rid)][1] for rid, r in fr.items()
+                      if r.get("prof") == "Cooking" and int(rid) in wh and r["name"].startswith("Recipe: ")}
+    except Exception:
+        wh_by_name = {}
     for x in src:
+        if x["recipe"].lower() in wh_by_name and "merchant's favor" not in x["learn"].lower():
+            x = dict(x, learn=wh_by_name[x["recipe"].lower()])
         kind = guide_kind(x["learn"])
         if not kind:
             continue
@@ -900,7 +910,7 @@ def sec_cook_guide(m):
             'Horde city vendor sells is left out. Cooking cap: Expert Cookbook at 125 from Wulan (Desolace); 225-300 from the quest '
             'Clamlette Surprise, Dirge Quikcleave in Gadgetzan (character level 35). Trainers out in the world: Mudduk '
             '(Stranglethorn), Duhng (Barrens), Ortak Lomgok (Mount Hyjal), Gorg (Riverglades). Profit each = farm your own meat/fish. '
-            'Sources: wow.gg and method.gg (Nov 2026).</div>'
+            'Sources: Wowhead&rsquo;s Forever database, wow.gg and method.gg (Nov 2026).</div>'
             '<table class="g"><thead><tr><th>Recipe</th><th class="r">Skill</th><th>Buff / use</th><th>Where to get it</th>'
             '<th class="r">Profit each</th><th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th></tr></thead><tbody>'
             + grp("Drops", groups["drop"])
@@ -1033,12 +1043,19 @@ def sec_recipe_guides(m):
         fr = json.load(open(os.path.join(HERE, "forever_recipes.json"), encoding="utf-8"))
     except (OSError, ValueError):
         fr = {}
+    try:   # where each Forever recipe comes from, per Wowhead's Forever database
+        import wowhead_src
+        wh = wowhead_src.load()
+    except Exception:
+        wh = {}
     seen = set()
     for rid, r in sorted(fr.items(), key=lambda x: int(x[0])):
         if r["prof"] in (None, "Cooking") or rid in src or (r["prof"], r["name"]) in seen:
             continue
         seen.add((r["prof"], r["name"]))
+        whs = wh.get(int(rid))
         by[r["prof"]]["forever"].append((int(rid), dict(r, where=(
+            (whs[1] + ("; binds on pickup" if r.get("bop") else "")) if whs else
             "binds on pickup - learn it yourself; source not documented yet" if r.get("bop")
             else "tradeable - check the AH; source not documented yet"))))
     out = ""
@@ -1065,7 +1082,7 @@ def sec_recipe_guides(m):
                '<div class="mut cgn">Drops, quests, vendors outside the Horde cities and starting zones, reputation and '
                'Alliance-only recipes. Anything a trainer teaches or a home vendor sells is left out. Recipe on AH = cheapest '
                'copy of the recipe itself listed right now. Source: CMaNGOS classic database + Questie NPC zones; '
-               'New in Forever = recipes added by Forever (Blizzard item data), listed even when none are on the AH.</div>') + out
+               'New in Forever = recipes added by Forever (Blizzard item data, sources from Wowhead&rsquo;s Forever database), listed even when none are on the AH.</div>') + out
     return out
 
 
