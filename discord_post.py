@@ -68,7 +68,7 @@ def summary(market_html):
               ":toolbox: 1-150, 150-300 Profession Kits",
               ":meat_on_bone: Cooking",
               ":firecracker: New in Forever",
-              ":alembic: New Forever Items and Recipes", ""]
+              ":alembic: How do I get it?", ""]
     where = " (runs in the cloud)" if os.environ.get("CLOUD") else ""
     lines.append(f"_updates every hour{where} - last edit {__import__('report').pacific(fmt='%a {h}:%M %p')}_")
     return "\n".join(lines)
