@@ -1161,7 +1161,7 @@ def sec_utility(m):
             'profession skill - with cool Use abilities or passive effects. Ability text is from Blizzard&rsquo;s Forever item data.</div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
             f'<th class="r">Usual (7d)</th><th>What it does</th></tr></thead><tbody>{rows}</tbody></table></section>'
-            '<section><div class="sh"><h2>New Forever Items and Recipes</h2><span class="tag">crafts, profession items and hard-to-get recipes</span></div>'
+            '<section><div class="sh"><h2>How do I get it?</h2><span class="tag">crafts, profession items and hard-to-get recipes</span></div>'
             + (f'<div class="mut cgn">Crafts added in Forever with cool Use abilities - anyone can use them, buy them on the AH.</div>'
                '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
                f'<th class="r">Usual (7d)</th><th>Made by</th><th>What it does</th></tr></thead><tbody>{crows}</tbody></table>'
