@@ -1152,7 +1152,7 @@ def sec_utility(m):
             'profession skill - with cool Use abilities or passive effects. Ability text is from Blizzard&rsquo;s Forever item data.</div>'
             '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
             f'<th class="r">Usual (7d)</th><th>What it does</th></tr></thead><tbody>{rows}</tbody></table></section>'
-            '<section><div class="sh"><h2>New Forever Crafts</h2><span class="tag">crafts and recipes added in Forever</span></div>'
+            '<section><div class="sh"><h2>New Forever Items and Recipes</h2><span class="tag">crafts, profession items and hard-to-get recipes</span></div>'
             + (f'<div class="mut cgn">Crafts added in Forever with cool Use abilities - anyone can use them, buy them on the AH.</div>'
                '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
                f'<th class="r">Usual (7d)</th><th>Made by</th><th>What it does</th></tr></thead><tbody>{crows}</tbody></table>'
@@ -1162,7 +1162,7 @@ def sec_utility(m):
                'profession that makes it - including ones that need a profession to use or bind on pickup.</div>'
                '<table class="g"><thead><tr><th>Item</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
                f'<th class="r">Usual (7d)</th><th class="r">Needs to use</th><th>What it does</th></tr></thead><tbody>{prow}</tbody></table>'
-               if prow else '') + '</section>')
+               if prow else '') + sec_recipe_guides(m) + '</section>')
 
 
 def sec_crafts(m, shown=()):
@@ -1227,7 +1227,7 @@ def sec_crafts(m, shown=()):
     out = out or '<div class="mut">nothing profitable right now</div>'
     return ('<section><div class="sh"><span class="no">7</span><h2>Top crafts</h2>'
             f'<span class="tag">top {TOP_CRAFTS} per profession by profit per craft, buying all mats - no cooldowns. Manipulated items stay in with their badge. Profit uses the highest price it actually sold for in its latest hour of sales (~ = no sale seen yet, cheapest listing used). Gear must be listed 3+ and steadily on the AH</span></div>'
-            + out + sec_recipe_guides(m) + '</section>')
+            + out + '</section>')
 
 
 WOOD_NOTE = {"Thick Logs": "cooking supply vendors (Xen'to Orgrimmar, Ronald Burch Undercity, Aza'bek Barrens) about 20g; vendor buys back at 5g",
