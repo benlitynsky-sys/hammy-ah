@@ -956,6 +956,9 @@ def sec_cooking(m):
 
 
 TOP_CRAFTS = 10   # per profession
+TOP_CRAFTS_MAX = 30   # 'Show top 30' button extends each list to this
+XR_JS = ("var o=this.dataset.o!=='1';this.parentNode.previousElementSibling.querySelectorAll('tr.xr')"
+         ".forEach(function(r){r.style.display=o?'':'none'});this.dataset.o=o?'1':'0';this.textContent=o?this.dataset.b:this.dataset.a")
 CRAFT_MIN_SOLD = 10   # output must sell 10+ a day so you can list it right after crafting
 GEAR_MIN_LISTED = 3   # crafted gear: 3+ on the AH right now
 GEAR_MAX_MARKUP = 6   # and priced at most 6x its mats - above that it is a lone silly ask, not a market
@@ -1222,8 +1225,14 @@ def sec_crafts(m, shown=()):
     out = ""
     for prof in sorted(byprof, key=lambda p: -byprof[p][0]["profit"]):   # profession with the best craft first
         top = byprof[prof][:TOP_CRAFTS]
+        more = byprof[prof][TOP_CRAFTS:TOP_CRAFTS_MAX]
         rows = "".join(craft_row(m, x) for x in top)
-        out += f'<h3 class="cg">{R.esc(prof)} <span class="mut cgn">top {len(top)} by profit per craft</span></h3>{head}<tbody>{rows}</tbody></table>'
+        rows += "".join(craft_row(m, x).replace("<tr>", '<tr class="xr" style="display:none">', 1) for x in more)
+        n1, n2 = len(top), len(top) + len(more)
+        btn = ('<div style="text-align:center;margin:6px 0 14px"><button type="button" style="cursor:pointer;padding:4px 14px;'
+               'border-radius:6px;border:1px solid #30363d;background:#161b22;color:#c9d1d9" '
+               f'data-a="Show top {n2}" data-b="Show top {n1} only" onclick="{XR_JS}">Show top {n2}</button></div>') if more else ''
+        out += f'<h3 class="cg">{R.esc(prof)} <span class="mut cgn">top {len(top)} by profit per craft</span></h3>{head}<tbody>{rows}</tbody></table>{btn}'
     out = out or '<div class="mut">nothing profitable right now</div>'
     return ('<section><div class="sh"><span class="no">7</span><h2>Top crafts</h2>'
             f'<span class="tag">top {TOP_CRAFTS} per profession by profit per craft, buying all mats - no cooldowns. Manipulated items stay in with their badge. Profit uses the highest price it actually sold for in its latest hour of sales (~ = no sale seen yet, cheapest listing used). Gear must be listed 3+ and steadily on the AH</span></div>'
