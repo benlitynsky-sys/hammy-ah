@@ -6,6 +6,7 @@ Sections: 1 Raid consumables + their materials (daily high/low, last 7 days)
           3 Profession cooldowns (outputs, inputs, daily high/low)
           4 Cheapest 1-150 route per profession
 Writes output/Hammys <Morning|Mid Day|Evening> Market Report.pdf (by the time it's built), auto-shrinking until it fits on one letter page."""
+import base64
 import csv
 import json
 import math
@@ -1394,6 +1395,21 @@ def kit_cost(m, r):
     return tot, notes
 
 
+PLAYS_MAPS = [("plays_azshara_water.webp", "Patch of Elemental Water pools in Azshara (Bay of Storms)")]   # shown at the bottom of Hammy's Plays
+
+
+def plays_maps():
+    out = ""
+    for fn, alt in PLAYS_MAPS:
+        try:
+            b = base64.b64encode(open(os.path.join(HERE, fn), "rb").read()).decode()
+        except OSError:
+            continue
+        out += (f'<div style="margin-top:18px;text-align:center"><img src="data:image/webp;base64,{b}" alt="{R.esc(alt)}" '
+                'style="max-width:100%;height:auto;border-radius:8px"></div>')
+    return out
+
+
 def sec_plays(m):
     """Hammy's Plays: what Hammy holds now (holdings.json) priced from the latest scan, then every logged buy and sell
     (trades.json), newest first."""
@@ -1454,7 +1470,7 @@ def sec_plays(m):
             + (f'<span>Realized profit</span><span class="badge kitp"'
                + ('' if total >= 0 else ' style="background:#da3633;box-shadow:inset 0 0 0 1px #f85149"')
                + f'>{"+" if total >= 0 else "-"}{sm(abs(total))}</span>'
-               if any(t["kind"] == "sell" for t in trades) else "") + '</h3>' + hist_t + '</section>')
+               if any(t["kind"] == "sell" for t in trades) else "") + '</h3>' + hist_t + plays_maps() + '</section>')
 
 
 def kit_blocks(m, path="leveling.csv", mirror=False, label=""):
