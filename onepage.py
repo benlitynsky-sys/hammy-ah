@@ -1019,9 +1019,8 @@ def craft_row(m, x):
         sold = f'<td class="r mut" title="no sale seen yet - using the cheapest listing">~{sm(x["price"])}</td>'
     vol = ('<td class="r mut" title="gear: Blizzard gives no sold count">gear</td>' + tc(m, x["oid"]) + vnc(x["oid"])) if x["gear"] else vc(m, x["oid"])
     sk = f'<td class="r">{x["skill"]}</td>' if x.get("skill") else '<td class="r mut">-</td>'
-    return (f'<tr><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{makes}</td>{sk}{sold}'
+    return (f'<tr><td class="r"><b class="up">{sm(x["profit"])}</b></td><td class="r">{sm(x["cost"])}</td><td class="nm" data-iid="{x["oid"]}">{R.esc(m.name(x["oid"]))}{makes}</td>{sk}{sold}'
             f'<td class="r">{sm(x["now"])}</td><td class="r">{x["qty"]}</td>{vol}'
-            f'<td class="r">{sm(x["cost"])}</td><td class="r"><b class="up">{sm(x["profit"])}</b></td>'
             f'<td class="mats">{R.esc(x["mats"])}</td></tr>')
 
 
@@ -1227,8 +1226,8 @@ def sec_crafts(m, shown=()):
         byprof[x["prof"]].append(x)
     for v in byprof.values():
         v.sort(key=lambda x: -x["profit"])
-    head = ('<table class="g"><thead><tr><th>Makes</th><th class="r" title="profession skill needed to learn the recipe">Skill needed</th><th class="r">Last sold (highest)</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
-            '<th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th><th class="r">Mats cost</th><th class="r">Profit per craft</th><th>Mats</th></tr></thead>')
+    head = ('<table class="g"><thead><tr><th class="r">Profit per craft</th><th class="r">Mats cost</th><th>Makes</th><th class="r" title="profession skill needed to learn the recipe">Skill needed</th><th class="r">Last sold (highest)</th><th class="r">Cheapest now</th><th class="r">Listed</th>'
+            '<th class="r">Sold/day (7d avg)</th><th class="r">Sold today</th><th class="r">Vendor</th><th>Mats</th></tr></thead>')
     out = ""
     for prof in sorted(byprof, key=lambda p: -byprof[p][0]["profit"]):   # profession with the best craft first
         top = byprof[prof][:TOP_CRAFTS]
