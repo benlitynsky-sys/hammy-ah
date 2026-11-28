@@ -434,6 +434,9 @@ def sec_movers(m):
             f'<tbody>{rows}</tbody></table></section>')
 
 
+RAID_MAT_MIN, RAID_MAT_MIN_FOOD = 4500, 1400   # copper each: raid materials list floor (45s; 14s for food mats)
+
+
 def sec_raid(m, cols, skip):
     cons, mats, unlisted, grp = [], defaultdict(set), [], {}
     for r in csv.DictReader(open(os.path.join(HERE, "raid_consumes.csv"), encoding="utf-8")):
@@ -469,6 +472,10 @@ def sec_raid(m, cols, skip):
     cons = sorted((i for _, i in cons), key=turnover, reverse=True)   # all of them - the full high-end raid list
     GROUPS = ["Flasks", "Elixirs", "Potions", "Food", "Weapon buffs", "Explosives", "Scrolls", "Other"]
     by_g = {g: [i for i in cons if grp.get(i) == g] for g in GROUPS}
+    # only materials worth showing: 45s+ each, or 14s+ each if it goes into raid food (directly or via a crafted part)
+    food = {i for i in cons if grp.get(i) == "Food"}
+    food_mat = lambda i: any(p in food or (p in mats and any(q in food for q in mats[p])) for p in mats[i])
+    mat_ids = [i for i in mat_ids if m.ah(i)[0] >= (RAID_MAT_MIN_FOOD if food_mat(i) else RAID_MAT_MIN)]
     mat_ids = sorted(mat_ids, key=turnover, reverse=True)
     last = cols[-1]
 
@@ -478,7 +485,7 @@ def sec_raid(m, cols, skip):
                           f'{hilo_cells(m, i, cols)}</tr>' for i in ids))
     days = (R.RAID_DAY - date.today()).days
     note = (f'<div class="fn">Every high-end raid consumable listed right now (flasks, elixirs, potions, food, oils, stones, explosives, scrolls) and every material that goes into them (and into their crafted parts; '
-            f'vendor-sold items left out), both ranked by units sold per day (7-day average). '
+            f'vendor-sold items left out; materials only if 45s+ each, or 14s+ for food materials), both ranked by units sold per day (7-day average). '
             f'No listings yet: {R.esc(", ".join(unlisted))}.</div>')
     return (f'<section><div class="sh"><span class="no">5</span><h2>Raid consumables</h2>'
             f'<span class="tag">{R.esc(R.RAIDS)} - Dec 9, {days} days</span></div>'
